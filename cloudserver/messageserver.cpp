@@ -509,7 +509,7 @@ MyServer::MyServer(ThreadList *list,Global_Parameters *parameters, QObject *PARE
 {
     qDebug()<<"make a server";
     time_save=new QTimer(this);
-    connect(time_save,SIGNAL(timeout()),this,SLOT(saveANO()));
+//    connect(time_save,SIGNAL(timeout()),this,SLOT(saveANO()));
 
 }
 

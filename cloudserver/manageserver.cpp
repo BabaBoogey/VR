@@ -47,14 +47,15 @@ void ManageServer::makeMessageServer(ManageSocket *socket,QString filename)
         if(!server->listen(QHostAddress::Any,messageport.toInt()))
         {
              qDebug()<<"MessageServer is not started.";
-             socket->write(QString("messageport:"+messageport+".\n").toUtf8());
-             Map_File_port[filename]=messageport;
+
         }else {
-                qDebug()<<"MessageServer is started.";
+            socket->write(QString("messageport:"+messageport+"\n").toUtf8());
+            Map_File_port[filename]=messageport;
+            qDebug()<<"MessageServer is started.";
         }
 
     }else {
-        socket->write(QString("messageport:"+Map_File_port[filename]+".\n").toUtf8());
+        socket->write(QString("messageport:"+Map_File_port[filename]+"\n").toUtf8());
     }
 
     //this->write(QString("messageport:"+messageport+".\n").toUtf8());
@@ -69,13 +70,13 @@ ManageSocket::ManageSocket(QObject *parent)
 
 void ManageSocket::onReadyRead()
 {
-    QRegExp LoginRex("(.*):login.");
-    QRegExp LogoutRex("(.*):logout.");
-    QRegExp ImportRex("(.*):import.");
-    QRegExp DownloadRex("(.*):download.");
-    QRegExp LoadRex("(.*):load.");
+    QRegExp LoginRex("(.*):login.\n");
+    QRegExp LogoutRex("(.*):logout.\n");
+    QRegExp ImportRex("(.*):import.\n");
+    QRegExp DownloadRex("(.*):download.\n");
+    QRegExp LoadRex("(.*):load.\n");
     QRegExp FileNameRex("(.*) choose:(.*)\n");
-    QRegExp LoadFileRex("(.*) load:(.*)");
+    QRegExp LoadFileRex("(.*) load:(.*)\n");
 
 
     if(this->canReadLine())
@@ -119,6 +120,7 @@ void ManageSocket::onReadyRead()
             this->write(("loadcurrentDir:"+currentDir()+"\n").toUtf8());
         }else if(FileNameRex.indexIn(manageMsg)!=-1)
         {
+            qDebug()<<"here 1";
             QString filename=FileNameRex.cap(2);
             qDebug()<<filename;//here
             QString fileport="9998";
@@ -133,8 +135,9 @@ void ManageSocket::onReadyRead()
 
         }else if(LoadFileRex.indexIn(manageMsg)!=-1)
         {
+            qDebug()<<"here 2";
             QString filename=LoadFileRex.cap(2);
-
+            qDebug()<<filename;
             emit makeMessageServer(this,filename);
 
             qDebug()<<"makeMessageServer";
