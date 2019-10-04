@@ -25,6 +25,7 @@ void FileServer::incomingConnection(int socketDesc)
 void FileServer::ondisconnect()
 {
     clientNum--;
+    qDebug()<<"one filesocket disconnected.";
     if(clientNum==0)
         this->deleteLater();
 }
@@ -64,6 +65,7 @@ void FileSocket::readFile()
             m_bytesreceived=0;
 //            emit received(QString("received "+filename+"\n"),this->peerAddress().toString());
             this->write(QString("received "+filename+"\n").toUtf8());
+            qDebug()<<QString("received "+filename+"\n");
         }
     }else {
             if(this->bytesAvailable()+m_bytesreceived>=totalsize)
