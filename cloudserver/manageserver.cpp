@@ -1,5 +1,6 @@
 #include "manageserver.h"
-//#include "messageserver.h"
+#include <QtGlobal>
+
  QMap <QString ,ManageSocket*> client_ManageMap;
  FileServer *fileserver=0;
 //extern QMap <QString ,QString> annotation_portMap;
@@ -28,38 +29,39 @@ void ManageServer::incomingConnection(int socketDesc)
 }
 void ManageServer::makeMessageServer(ManageSocket *socket,QString filename)
 {
-    if(!Map_File_port.contains(filename))
+    if(!Map_File_MessageServer.contains(filename))
     {
-        QString messageport="6786";//这个数究竟是多少还需要重写
+      label:  qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
+        QString messageport=QString::number(qrand()%2000+5000);
+
+        foreach(QString filename,Map_File_MessageServer.keys())
+        {
+            if(Map_File_MessageServer.value(filename)->serverPort()==messageport.toInt())
+                goto label;
+        }
 
         qDebug()<<messageport;
+        Global_Parameters *global_parameters=new Global_Parameters;
+        global_parameters->Creator.clear();
+        global_parameters->clients.clear();
+        global_parameters->clientNum=0;
+        global_parameters->clientsproperty.clear();
+        global_parameters->messagelist.clear();
 
+
+
+        MessageServer *messageserver=new MessageServer(filename, global_parameters);
+
+        if(!messageserver->listen(QHostAddress::Any,messageport.toInt()))
+        {
+            qDebug()<<filename<<" MessageServer is not started.";
+        }else {
+             socket->write(QString("messageport:"+messageport+".\n").toUtf8());
+             Map_File_MessageServer[filename]=messageserver;
+        }
+    }else {
+        QString messageport=QString::number(Map_File_MessageServer[filename]->serverPort());
         socket->write(QString("messageport:"+messageport+".\n").toUtf8());
-
-//        ThreadList threadlist;
-//        Global_Parameters global_parameters;
-//        global_parameters.clients.clear();
-//        global_parameters.clientNum=0;
-//        global_parameters.clientsproperty.clear();
-//        global_parameters.messagelist.clear();
-//        global_parameters.Creator.clear();
-//        global_parameters.wholeNT=readAPO_file()//读取ANOFile
-//        global_parameters.NeuronList.clear();
-//        global_parameters.sketchNum=0;
-//        MyServer *server=new MyServer(&threadlist,&global_parameters);
-
-//        if(!server->listen(QHostAddress::Any,messageport.toInt()))
-//        {
-//             qDebug()<<"MessageServer is not started.";
-
-//        }else {
-//            socket->write(QString("messageport:"+messageport+"\n").toUtf8());
-//            Map_File_port[filename]=messageport;
-//            qDebug()<<"MessageServer is started.";
-//        }
-
-//    }else {
-//        socket->write(QString("messageport:"+Map_File_port[filename]+"\n").toUtf8());
     }
 
 //    socket->write(QString("messageport:"+messageport+".\n").toUtf8());

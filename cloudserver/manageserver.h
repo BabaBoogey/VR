@@ -6,6 +6,7 @@
 #include <QFileInfoList>
 #include "fileserver.h"
 #include <QMap>
+#include "messageserverandmessagesocket.h"
 
 class ManageSocket:public QTcpSocket
 {
@@ -43,7 +44,7 @@ private:
 public slots:
     void makeMessageServer(ManageSocket*,QString);
 private:
-    QMap <QString ,QString > Map_File_port;
+    QMap <QString ,MessageServer* > Map_File_MessageServer;
 
 };
 
