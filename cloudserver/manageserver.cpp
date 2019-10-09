@@ -1,6 +1,6 @@
 #include "manageserver.h"
 #include <QtGlobal>
-#include "basic_surf_objs.h"
+//#include "basic_surf_objs.h"
 
  QMap <QString ,ManageSocket*> client_ManageMap;
  FileServer *fileserver=0;
@@ -57,6 +57,9 @@ void ManageServer::makeMessageServer(ManageSocket *socket,QString filename)
             global_parameters->wholeNT=readSWC_file("I://new/"+fileExp.cap(1)+".ano.eswc");
             global_parameters->wholePoint=readAPO_file("I://new/"+fileExp.cap(1)+".ano.apo");
 
+            QString tempname="temp";
+//            writeESWC_file("I://new/"+tempname+".ano.eswc",global_parameters->wholeNT);
+//            writeAPO_file("I://new/"+tempname+".ano.apo",global_parameters->wholePoint);
 
 
             MessageServer *messageserver=new MessageServer(filename, global_parameters);

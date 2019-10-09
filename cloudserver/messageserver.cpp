@@ -1,6 +1,8 @@
 #include "messageserver.h"
 #include <QDataStream>
 #include <QByteArray>
+#include <QtGlobal>
+#include "QTextStream"
 
 
 MessageServer::MessageServer(QString filename,Global_Parameters *parameters,QObject *parent)
@@ -10,7 +12,7 @@ MessageServer::MessageServer(QString filename,Global_Parameters *parameters,QObj
 
     timer= new QTimer(this);
     connect(timer,SIGNAL(timeout()),this,SLOT(autoSave()));
-    timer->start(300*1000);
+    timer->start(6*1000);
 }
 
 void MessageServer::incomingConnection(int socketDesc)
@@ -51,6 +53,38 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
     global_parameters->lock_clientNum.lockForWrite();
     if(--global_parameters->clientNum==0)
     {
+
+        QRegExp fileExp("(.*).ano");
+        if(fileExp.indexIn(filename)!=-1)
+        {
+            QDateTime time=QDateTime::currentDateTime();
+            QString strtime=time.toString("yyyy_MM_dd_hh_mm_ss");
+
+            QString tempname =fileExp.cap(1)+"_"+strtime;
+                qDebug()<<tempname<<"here 100";
+
+            QFile anofile("I://new/"+tempname+".ano");
+            QString str1="APOFILE="+tempname+".ano.apo";
+            QString str2="SWCFILE="+tempname+".ano.eswc";
+
+
+
+
+//            QByteArray block;
+//            QDataStream dts(&block,QIODevice::WriteOnly);
+//            dts.setVersion(QDataStream::Qt_4_7);
+
+//            dts<<str1<<"\n"<<str2;
+//            anofile.write(block);
+            anofile.close();
+//            global_parameters->lock_wholeNT.lockForWrite();
+//            writeESWC_file("I://new/"+tempname+".ano.eswc",global_parameters->wholeNT);
+//            global_parameters->lock_wholeNT.unlock();
+//            global_parameters->lock_wholePoint.lockForRead();
+//            writeAPO_file("I://new/"+tempname+".ano.apo",global_parameters->wholePoint);
+//            global_parameters->lock_wholePoint.unlock();
+        }
+
         global_parameters->lock_clientNum.unlock();
         this->deleteLater();
         return;
@@ -68,18 +102,35 @@ void MessageServer::autoSave()
     if(fileExp.indexIn(filename)!=-1)
     {
         QDateTime time=QDateTime::currentDateTime();
-        QString strtime=time.toString("yyyy_MM_dd hh:mm:ss");
+        QString strtime=time.toString("yyyy_MM_dd_hh_mm_ss");
 
         QString tempname =fileExp.cap(1)+"_"+strtime;
-            qDebug()<<strtime<<"111111";
-//        saveAnoFile(tempname+".ano",)
-//        global_parameters->lock_wholeNT.lockForWrite();
-//        writeESWC_file("I://new"+tempname+".ano.eswc",global_parameters->wholeNT);
-//        global_parameters->lock_wholeNT.unlock();
-//        global_parameters->lock_wholePoint.lockForRead();
-//        writeAPO_file("I://new"+tempname+".ano.apo",global_parameters->wholePoint);
-//        global_parameters->lock_wholePoint.unlock();
+        qDebug()<<tempname<<"here 100_1";
+
+        QFile anofile("I://new/"+tempname+".ano");
+        anofile.open(QIODevice::WriteOnly|QIODevice::Text);
+        QString str1="APOFILE="+tempname+".ano.apo";
+        QString str2="SWCFILE="+tempname+".ano.eswc";
+
+//        QByteArray block;
+//        QDataStream dts(&block,QIODevice::WriteOnly);
+//        dts.setVersion(QDataStream::Qt_4_7);
+//        dts<<str1<<"\n"<<str2;
+//        anofile.write(block);
+
+        QTextStream out(&anofile);
+        out<<str1<<endl<<str2;
+        anofile.close();
+        qDebug()<<"here 08";
+//            global_parameters->lock_wholeNT.lockForWrite();
+            writeESWC_file("I://new/"+tempname+".ano.eswc",global_parameters->wholeNT);
+            qDebug()<<"here 09";
+//            global_parameters->lock_wholeNT.unlock();
+//            global_parameters->lock_wholePoint.lockForRead();
+            writeAPO_file("I://new/"+tempname+".ano.apo",global_parameters->wholePoint);
+            qDebug()<<"here 10";
+//            global_parameters->lock_wholePoint.unlock();
     }
-    timer->start(300000/**1000*/);
+    timer->start(5*60*1000);
 }
 

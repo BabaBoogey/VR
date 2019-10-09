@@ -8,7 +8,7 @@
 #include <QMap>
 #include <QThread>
 #include <QReadWriteLock>
-#include "basic_surf_objs.h"
+//#include "basic_surf_objs.h"
 #include "messagesocket.h"
 
 

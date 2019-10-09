@@ -15,6 +15,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+        basic_c_fun/basic_surf_objs.cpp \
+        basic_c_fun/v3d_message.cpp \
         fileserver.cpp \
         main.cpp \
         manageserver.cpp \
@@ -27,8 +29,11 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    basic_c_fun/basic_surf_objs.h \
+    basic_c_fun/v3d_basicdatatype.h \
+    basic_c_fun/v3d_message.h \
     fileserver.h \
     manageserver.h \
     messageserver.h \
     messagesocket.h
-INCLUDEPATH+=./basic_c_fun
+#INCLUDEPATH+=./basic_c_fun
