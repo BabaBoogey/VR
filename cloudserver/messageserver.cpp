@@ -67,21 +67,15 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
             QString str1="APOFILE="+tempname+".ano.apo";
             QString str2="SWCFILE="+tempname+".ano.eswc";
 
-
-
-
-//            QByteArray block;
-//            QDataStream dts(&block,QIODevice::WriteOnly);
-//            dts.setVersion(QDataStream::Qt_4_7);
-
-//            dts<<str1<<"\n"<<str2;
-//            anofile.write(block);
+            QTextStream out(&anofile);
+            out<<str1<<endl<<str2;
             anofile.close();
+
 //            global_parameters->lock_wholeNT.lockForWrite();
-//            writeESWC_file("I://new/"+tempname+".ano.eswc",global_parameters->wholeNT);
+            writeESWC_file("I://new/"+tempname+".ano.eswc",global_parameters->wholeNT);
 //            global_parameters->lock_wholeNT.unlock();
 //            global_parameters->lock_wholePoint.lockForRead();
-//            writeAPO_file("I://new/"+tempname+".ano.apo",global_parameters->wholePoint);
+            writeAPO_file("I://new/"+tempname+".ano.apo",global_parameters->wholePoint);
 //            global_parameters->lock_wholePoint.unlock();
         }
 
@@ -112,24 +106,13 @@ void MessageServer::autoSave()
         QString str1="APOFILE="+tempname+".ano.apo";
         QString str2="SWCFILE="+tempname+".ano.eswc";
 
-//        QByteArray block;
-//        QDataStream dts(&block,QIODevice::WriteOnly);
-//        dts.setVersion(QDataStream::Qt_4_7);
-//        dts<<str1<<"\n"<<str2;
-//        anofile.write(block);
 
         QTextStream out(&anofile);
         out<<str1<<endl<<str2;
         anofile.close();
-        qDebug()<<"here 08";
-//            global_parameters->lock_wholeNT.lockForWrite();
-            writeESWC_file("I://new/"+tempname+".ano.eswc",global_parameters->wholeNT);
-            qDebug()<<"here 09";
-//            global_parameters->lock_wholeNT.unlock();
-//            global_parameters->lock_wholePoint.lockForRead();
-            writeAPO_file("I://new/"+tempname+".ano.apo",global_parameters->wholePoint);
-            qDebug()<<"here 10";
-//            global_parameters->lock_wholePoint.unlock();
+
+        writeESWC_file("I://new/"+tempname+".ano.eswc",global_parameters->wholeNT);
+        writeAPO_file("I://new/"+tempname+".ano.apo",global_parameters->wholePoint);
     }
     timer->start(5*60*1000);
 }
