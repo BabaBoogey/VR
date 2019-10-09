@@ -6,7 +6,7 @@
 #include <QFileInfoList>
 #include "fileserver.h"
 #include <QMap>
-#include "messageserverandmessagesocket.h"
+#include "messageserver.h"
 
 class ManageSocket:public QTcpSocket
 {
@@ -16,6 +16,7 @@ public:
 public slots:
     void onReadyRead();
     void filereceived();
+    void deleteclient();
 
 
 protected:

@@ -1,5 +1,6 @@
 #include "manageserver.h"
 #include <QtGlobal>
+#include "basic_surf_objs.h"
 
  QMap <QString ,ManageSocket*> client_ManageMap;
  FileServer *fileserver=0;
@@ -12,8 +13,6 @@ ManageServer::ManageServer(QObject *parent):QTcpServer (parent)
     }else{
         qDebug()<<"ManageServer is not started ,please try again.";
     }
-//    connect(fileserver,SIGNAL(filereceived(QString,QString)),
-//            this,SLOT(filereceived(QString,QString)));
 }
 
 void ManageServer::incomingConnection(int socketDesc)
@@ -25,49 +24,69 @@ void ManageServer::incomingConnection(int socketDesc)
     connect(managesocket,SIGNAL(readyRead()),managesocket,SLOT(onReadyRead()));
     connect(managesocket,SIGNAL(makeMessageServer(ManageSocket*,QString)),this,SLOT(makeMessageServer(ManageSocket*,QString)));
     connect(managesocket,SIGNAL(disconnected()),managesocket,SLOT(deleteLater()));
+    connect(managesocket,SIGNAL(disconnected()),managesocket,SLOT(deleteclient()));
 
 }
 void ManageServer::makeMessageServer(ManageSocket *socket,QString filename)
 {
-    if(!Map_File_MessageServer.contains(filename))
+    QRegExp fileExp("(.*).ano");
+    if(fileExp.indexIn(filename)!=-1)
     {
-      label:  qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
-        QString messageport=QString::number(qrand()%2000+5000);
-
-        foreach(QString filename,Map_File_MessageServer.keys())
+        if(!Map_File_MessageServer.contains(filename))
         {
-            if(Map_File_MessageServer.value(filename)->serverPort()==messageport.toInt())
-                goto label;
-        }
+          label:  qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
+            QString messageport=QString::number(qrand()%2000+5000);
 
-        qDebug()<<messageport;
-        Global_Parameters *global_parameters=new Global_Parameters;
-        global_parameters->Creator.clear();
-        global_parameters->clients.clear();
-        global_parameters->clientNum=0;
-        global_parameters->clientsproperty.clear();
-        global_parameters->messagelist.clear();
+            foreach(QString filename,Map_File_MessageServer.keys())
+            {
+                if(Map_File_MessageServer.value(filename)->serverPort()==messageport.toInt())
+                    goto label;
+            }
 
 
+            qDebug()<<messageport;
+            Global_Parameters *global_parameters=new Global_Parameters;
+            global_parameters->Creator.clear();
+            global_parameters->clients.clear();
+            global_parameters->clientNum=0;
+            global_parameters->clientsproperty.clear();
+            global_parameters->messagelist.clear();
 
-        MessageServer *messageserver=new MessageServer(filename, global_parameters);
+            global_parameters->sketchNum=0;
 
-        if(!messageserver->listen(QHostAddress::Any,messageport.toInt()))
-        {
-            qDebug()<<filename<<" MessageServer is not started.";
+            global_parameters->wholeNT=readSWC_file("I://new/"+fileExp.cap(1)+".ano.eswc");
+            global_parameters->wholePoint=readAPO_file("I://new/"+fileExp.cap(1)+".ano.apo");
+
+
+
+            MessageServer *messageserver=new MessageServer(filename, global_parameters);
+
+            if(!messageserver->listen(QHostAddress::Any,messageport.toInt()))
+            {
+                qDebug()<<filename<<" MessageServer is not started.";
+            }else {
+                 socket->write(QString("messageport:"+messageport+".\n").toUtf8());
+                 qDebug()<<"here 3";
+                 Map_File_MessageServer[filename]=messageserver;
+            }
         }else {
-             socket->write(QString("messageport:"+messageport+".\n").toUtf8());
-             Map_File_MessageServer[filename]=messageserver;
+            QString messageport=QString::number(Map_File_MessageServer[filename]->serverPort());
+            socket->write(QString("messageport:"+messageport+".\n").toUtf8());
         }
-    }else {
-        QString messageport=QString::number(Map_File_MessageServer[filename]->serverPort());
-        socket->write(QString("messageport:"+messageport+".\n").toUtf8());
     }
-
-//    socket->write(QString("messageport:"+messageport+".\n").toUtf8());
 }
 
 
+void ManageSocket::deleteclient()
+{
+    foreach(QString user,client_ManageMap.keys())
+    {
+        if(client_ManageMap.value(user)==this)
+        {
+            client_ManageMap.remove(user);break;
+        }
+    }
+}
 
 ManageSocket::ManageSocket(QObject *parent)
 {
@@ -83,8 +102,6 @@ void ManageSocket::onReadyRead()
     QRegExp LoadRex("(.*):load.\n");
     QRegExp FileNameRex("(.*) choose:(.*)\n");
     QRegExp LoadFileRex("(.*) load:(.*)\n");
-
-
     if(this->canReadLine())
     {
         QString manageMsg=QString::fromUtf8(this->readLine());
@@ -92,19 +109,19 @@ void ManageSocket::onReadyRead()
         if(LoginRex.indexIn(manageMsg)!=-1 )
         {
             name=LoginRex.cap(1);
-            qDebug()<<QString(name+":logged in."+"\n")+"+++++++++++";
+            qDebug()<<QString(name+":logged in.");
             client_ManageMap[name]=this;
             this->write(QString(name+":logged in."+"\n").toUtf8());
         }else if(LogoutRex.indexIn(manageMsg)!=-1)
         {
-            qDebug()<<QString(name+":logged out."+"\n")+"=============";
+            qDebug()<<QString(name+":logged out."+"\n");
             name=LogoutRex.cap(1);
-            client_ManageMap.remove(name);
+
             this->write(QString(name+":logged out."+"\n").toUtf8());
         }else if(ImportRex.indexIn(manageMsg)!=-1)
         {
             name=ImportRex.cap(1);
-            QString fileport="9998";//接收文件服务器的端口 （ receive fileserver's port=9998）
+            QString fileport="9998";// （ fileserver's port=9998）
             if(fileserver==0)
             {
                 qDebug()<<"22222";
@@ -112,7 +129,8 @@ void ManageSocket::onReadyRead()
                 if(fileserver->listen(QHostAddress::Any,fileport.toInt()))
                       qDebug()<<"fileserver made successfully"  ;
             }
-            this->write(QString(name+":import port :"+fileport+".\n").toUtf8());
+            this->write(QString(name+":import port :"+
+                 QString::number(fileserver->serverPort())+".\n").toUtf8());
         }else if(DownloadRex.indexIn(manageMsg)!=-1)
         {
             name=DownloadRex.cap(1);
@@ -131,6 +149,8 @@ void ManageSocket::onReadyRead()
             qDebug()<<filename;//here
             QString fileport="9998";
             filesocket=new QTcpSocket;
+            connect(filesocket,SIGNAL(disconnected()),
+                          filesocket,SLOT(deleterlater()));
 
             connect(filesocket,SIGNAL(readyRead()),this,SLOT(filereceived()));
             filesocket->connectToHost(this->peerAddress().toString(),fileport.toInt());
@@ -181,12 +201,13 @@ void ManageSocket::filereceived()
                 else if(apoRex.indexIn(receivedfilename)!=-1)
                 {
                     qDebug()<<"125";
-                    filesocket->deleteLater();
+                    filesocket->disconnectFromHost();
                 }
 
             }
         else {
             qDebug()<<"false";
+            filesocket->disconnectFromHost();
         }
     }
 }

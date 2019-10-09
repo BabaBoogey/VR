@@ -1,6 +1,4 @@
-#include "messageserverandmessagesocket.h"
-#include <QDataStream>
-#include <QByteArray>
+#include "messagesocket.h"
 MessageSocket::MessageSocket(int socketDesc,Global_Parameters *parameters,QObject *parent)
     :socketId(socketDesc),global_parameters(parameters),QTcpSocket (parent)
 {
@@ -11,82 +9,105 @@ MessageSocket::MessageSocket(int socketDesc,Global_Parameters *parameters,QObjec
 
 void MessageSocket::MessageSocketSlot_Read()
 {
-    QRegExp loginRex("^/login:(.*)$");
-    QRegExp messageRex("^/say:(.*)$");
-    QRegExp hmdposRex("^/hmdpos:(.*)$");
-    QRegExp deleteRex("^/del_curve:(.*)$");
-    QRegExp markerRex("^/marker:(.*)$");
-    QRegExp delmarkerRex("^/del_marker:(.*)$");
-    QRegExp dragnodeRex("^/drag_node:(.*)$");
-    QRegExp askmessageRex("^/ask:(.*)$");
-    QRegExp ResIndexRex("^/ResIndex:(.*)$");
 
-    QDataStream in(this);
-    in.setVersion(QDataStream::Qt_4_7);
+      qDebug()<<"in MessageSocketSlot_Read";
+//    QDataStream in(this);
+//    in.setVersion(QDataStream::Qt_4_7);
 
-    if (nextblocksize == 0) {
-        if (bytesAvailable() < sizeof(quint16))
-            return;
-        in >> nextblocksize;
-    }
+//    if (nextblocksize == 0) {
+//        if (bytesAvailable() < sizeof(quint16))
+//            return;
+//        in >> nextblocksize;
+//        qDebug()<<"nextblocksize:"<<nextblocksize;
+//    }
 
-    if (bytesAvailable() < nextblocksize)
-        return;
+//    if (bytesAvailable() < nextblocksize)
+//        return;
 
-    QString msg;
-    in>>msg;
-    nextblocksize=0;
+//    QString msg;
+//    in>>msg;
+//    nextblocksize=0;
+    while(this->canReadLine())
 
+    {
+        QString msg=QString::fromUtf8(this->readLine()).trimmed();
+        QRegExp loginRex("^/login: (.*)$");//
+    QRegExp askmessageRex("^/ask: (.*)$");//
+    QRegExp segmentRex("^/seg: (.*)$");
+    qDebug()<<msg;
     if(loginRex.indexIn(msg)!=-1)
     {
-        QString user=loginRex.cap(1);
-//            qDebug()<<"in login";
-        loginProcess(user);
-    }else if (messageRex.indexIn(msg)!=-1)
-    {
 
-        QString msg=messageRex.cap(1);
-        qDebug()<<"in message";
-        messageProcess(msg);
-    }else if(deleteRex.indexIn(msg)!=-1)
+        QString user=loginRex.cap(1);
+        qDebug()<<user;
+        loginProcess(user);
+    }else if(segmentRex.indexIn(msg)!=-1)
     {
-        QString delID = deleteRex.cap(1);
-//            qDebug()<<"in delete";
-        deleteProcess(delID);
-    }else if(markerRex.indexIn(msg)!=-1)
-    {
-        QString markermsg=markerRex.cap(1);
-//            qDebug()<<"in marker";
-        markerProcess(markermsg);
-    }else if(delmarkerRex.indexIn(msg)!=-1)
-    {
-        QString delmarkerpos=delmarkerRex.cap(1);
-//            qDebug()<<"in delmarker";
-        delmaekerProcess(delmarkerpos);
-    }else if(dragnodeRex.indexIn(msg)!=-1)
-    {
-        QString dragnodepos = dragnodeRex.cap(1);
-//            qDebug()<<"in dragnode";
-        dragnodeProcess(dragnodepos);
-    }else if(hmdposRex.indexIn(msg)!=-1)
-    {
-         QString hmd = hmdposRex.cap(1);
-//             qDebug()<<"in hmdpos";
-         hmdposProcess(hmd);
+        QString seg=segmentRex.cap(1);
+        messageProcess("seg-"+seg);
     }else if(askmessageRex.indexIn(msg)!=-1)
     {
-//            qDebug()<<"in askmessage";
         askmessageProcess();
-    }else if(ResIndexRex.indexIn(msg)!=-1)
-    {
-         QString msg = ResIndexRex.cap(1);
-//             qDebug()<<"in resindex";
-         resindexProcess(msg);
-    }else
-    {
-         qDebug() << "Bad message  ";
+    }
     }
 
+
+//    QRegExp messageRex("^/say: (.*)$");
+//    QRegExp hmdposRex("^/hmdpos:(.*)$");
+//    QRegExp deleteRex("^/del_curve:(.*)$");
+//    QRegExp markerRex("^/marker:(.*)$");
+//    QRegExp delmarkerRex("^/del_marker:(.*)$");
+//    QRegExp dragnodeRex("^/drag_node:(.*)$");
+
+//    QRegExp ResIndexRex("^/ResIndex:(.*)$");
+
+//    if(loginRex.indexIn(msg)!=-1)
+//    {
+//        QString user=loginRex.cap(2);
+//        loginProcess(user);
+//    }else if (messageRex.indexIn(msg)!=-1)
+//    {
+//        QString msg=messageRex.cap(1);
+//        qDebug()<<"in message";
+//        messageProcess(msg);
+//    }else if(deleteRex.indexIn(msg)!=-1)
+//    {
+//        QString delID = deleteRex.cap(1);
+
+//        deleteProcess(delID);
+//    }else if(markerRex.indexIn(msg)!=-1)
+//    {
+//        QString markermsg=markerRex.cap(1);
+
+//        markerProcess(markermsg);
+//    }else if(delmarkerRex.indexIn(msg)!=-1)
+//    {
+//        QString delmarkerpos=delmarkerRex.cap(1);
+
+//        delmaekerProcess(delmarkerpos);
+//    }else if(dragnodeRex.indexIn(msg)!=-1)
+//    {
+//        QString dragnodepos = dragnodeRex.cap(1);
+
+//        dragnodeProcess(dragnodepos);
+//    }else if(hmdposRex.indexIn(msg)!=-1)
+//    {
+//         QString hmd = hmdposRex.cap(1);
+
+//         hmdposProcess(hmd);
+//    }else if(askmessageRex.indexIn(msg)!=-1)
+//    {
+//        askmessageProcess();
+//    }else if(ResIndexRex.indexIn(msg)!=-1)
+//    {
+//         QString msg = ResIndexRex.cap(1);
+
+//         resindexProcess(msg);
+//    }else
+//    {
+//         qDebug() << "Bad message  ";
+//    }
+//    nextblocksize=0;
 
 }
 
@@ -252,15 +273,16 @@ void MessageSocket::resindexProcess(const QString &msg)
 
 void MessageSocket::SendToUser(const QString &msg)
 {
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_4_7);
+    qDebug()<<msg;
+//    QByteArray block;
+//    QDataStream out(&block, QIODevice::WriteOnly);
+//    out.setVersion(QDataStream::Qt_4_7);
 
-    out<<quint64(0)<<msg;
-    out.device()->seek(0);
-    out<<quint64(sizeof (block)-sizeof (quint64))<<msg;
+//    out<<quint64(0)<<msg;
+//    out.device()->seek(0);
+//    out<<quint64(sizeof (block)-sizeof (quint64))<<msg;
 
-    this->write(block);
+    this->write(QString(msg+"\n").toUtf8());
 }
 
 void MessageSocket::SendToAll(const QString &msg)
@@ -291,7 +313,7 @@ void MessageSocket::SendColortype()
             if(global_parameters->clientsproperty.at(i).name==username)
             {
                 QString msg=QString::number(global_parameters->clientsproperty.at(i).colortype, 10);
-                SendToAll(QString("/color:"+username+" "+msg+" "));break;
+                SendToAll(QString("/color:"+username+" "+msg));break;
             }
         }
         global_parameters->lock_clientsproperty.unlock();
@@ -417,64 +439,3 @@ void MessageSocket::MessageSocketSlotAnswerToMessageServer_sendtoall(const QStri
 {
     SendToUser(msg);
 }
-
-MessageServer::MessageServer(QString filename,Global_Parameters *parameters,QObject *parent)
-    :global_parameters(parameters),QTcpServer (parent),filename(filename)
-{
-    qDebug()<<"make a message server";
-    NeuronList.clear();
-    sketchNum=0;
-    timer= new QTimer(this);
-    connect(timer,SIGNAL(timeout),this,SLOT(timetoSave()));
-    timer->start(300*1000);
-}
-
-void MessageServer::incomingConnection(int socketDesc)
-{
-    MessageSocket *messagesocket=new MessageSocket(socketDesc,global_parameters);
-
-    QThread *thread=new QThread;
-
-    messagesocket->moveToThread(thread);
-
-    connect(thread,SIGNAL(started()),messagesocket,SLOT(MessageSocketSlot_start()));
-    connect(messagesocket,SIGNAL(MessageSocketSignalToMessageServer_disconnected()),
-            thread,SLOT(deleteLater()));
-    connect(messagesocket,SIGNAL(MessageSocketSignalToMessageServer_disconnected()),
-            messagesocket,SLOT(deleteLater()));
-    connect(messagesocket,SIGNAL(MessageSocketSignalToMessageServer_disconnected()),
-            this,SLOT(MessageServerSlotAnswerMessageSocket_disconnected()));
-    connect(messagesocket,SIGNAL(MessageSocketSignalToMessageServer_sendtoall(const QString &msg)),
-            this,SLOT(MessageServerSlotAnswerMessageSocket_sendtoall(const QString &msg)));
-    connect(this,SIGNAL(MessageServerSignal_sendtoall(const QString &msg)),
-            messagesocket,SLOT(MessageSocketSlotAnswerToMessageServer_sendtoall(const QString &msg)));
-
-    thread->start();
-
-}
-
-void MessageServer::MessageServerSlotAnswerMessageSocket_sendtoall(const QString &msg)
-{
-    emit MessageServerSignal_sendtoall(msg);
-
-}
-
-void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
-{
-    global_parameters->lock_clientNum.lockForWrite();
-    if(--global_parameters->clientNum==0)
-    {
-        global_parameters->lock_clientNum.unlock();
-        this->deleteLater();
-        return;
-    }
-    global_parameters->lock_clientNum.unlock();
-
-}
-
-void MessageServer::timetoSave()
-{
-
-    timer->start(300*1000);
-}
-

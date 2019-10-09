@@ -17,8 +17,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         fileserver.cpp \
         main.cpp \
-        manageserver.cpp\
-    messageserverandmessagesocket.cpp
+        manageserver.cpp \
+        messageserver.cpp \
+        messagesocket.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -28,5 +29,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     fileserver.h \
     manageserver.h \
-    messageserverandmessagesocket.h
+    messageserver.h \
+    messagesocket.h
 INCLUDEPATH+=./basic_c_fun

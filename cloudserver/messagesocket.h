@@ -1,5 +1,5 @@
-#ifndef MESSAGESERVER_H
-#define MESSAGESERVER_H
+#ifndef MESSAGESOCKET_H
+#define MESSAGESOCKET_H
 
 #include <QtNetwork>
 
@@ -38,6 +38,18 @@ struct Global_Parameters{
 
     QString Creator;
     QReadWriteLock lock_Creator;
+
+    NeuronTree wholeNT;
+    QReadWriteLock lock_wholeNT;
+
+    QList <CellAPO> wholePoint;
+    QReadWriteLock lock_wholePoint;
+
+    QList<NeuronTree> NeuronList;
+    QReadWriteLock lock_NeuronList;
+
+    int sketchNum;
+    QReadWriteLock lock_sketchNum;
 
 //    quint32 messageindex_filesaved;
 //    QReadWriteLock lock_messageindex_filesaved;
@@ -84,36 +96,4 @@ signals:
     void MessageSocketSignalToMessageServer_disconnected();//已使用
     void MessageSocketSignalToMessageServer_sendtoall(const QString &msg);//已使用
 };
-
-class MessageServer:public QTcpServer
-{
-    Q_OBJECT
-public:
-    explicit MessageServer(QString filename,Global_Parameters *parameters,QObject *parent=0);
-protected:
-
-private:
-    void incomingConnection(int socketDesc);
-
-    Global_Parameters *global_parameters;
-    QString filename;
-
-    QTimer *timer;
-    NeuronTree wholeNT;
-    QList<NeuronTree> NeuronList;
-    int sketchNum;
-
-public slots:
-    void MessageServerSlotAnswerMessageSocket_sendtoall(const QString &msg);
-    void MessageServerSlotAnswerMessageSocket_disconnected();
-    void timetoSave();
-signals:
-    void MessageServerSignal_sendtoall(const QString &msg);
-};
-
-
-
-
-
-
-#endif // MESSAGESERVER_H
+#endif // MESSAGESOCKET_H
