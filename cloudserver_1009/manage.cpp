@@ -111,9 +111,12 @@ void ManageSocket::readManage()
             qDebug()<<"in import";
             QString username=ImportRex.cap(1);
             QString port_receivefile="9998";
+            qDebug()<<"1";
             if(fileserver==0)
             {
+                qDebug()<<"2";
                 fileserver=new FileServer;
+                connect(fileserver,SIGNAL(fileserverdeleted()),this,SLOT(resetfileserver()));
                 // connect 注意哦要加的
                 if(!fileserver->listen(QHostAddress::Any,port_receivefile.toInt()))
                 {
@@ -121,7 +124,9 @@ void ManageSocket::readManage()
                     return;
                 }
             }
+            qDebug()<<"4";
             this->write(QString(QString::number(fileserver->serverPort())+":import port."+"\n").toUtf8());
+            qDebug()<<"5";
         }else if(DownRex.indexIn(manageMSG)!=-1)
         {
             QString username=DownRex.cap(1);
@@ -150,6 +155,12 @@ void ManageSocket::readManage()
     }
 }
 
+void ManageSocket::resetfileserver()
+{
+    if(fileserver!=0)
+        qDebug()<<"fileserver!=0,when deleteLater";
+    fileserver=0;
+}
 QString currentDir()
 {
     QDir rDir("./");

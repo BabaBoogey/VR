@@ -18,6 +18,7 @@ public:
     explicit ManageSocket(QObject *parent=0);
 public slots:
     void readManage();
+    void resetfileserver();
 //    void ondisconnect();
 
 protected:

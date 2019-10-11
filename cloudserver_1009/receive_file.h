@@ -12,6 +12,7 @@ private:
     void incomingConnection(int socketDesc);
 signals:
 //    void receivedfile(QString filename);
+    void fileserverdeleted();
 private:
     quint64 clientNum;
 };
