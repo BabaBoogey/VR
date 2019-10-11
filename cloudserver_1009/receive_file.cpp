@@ -7,18 +7,10 @@ FileServer::FileServer(QObject *parent):QTcpServer (parent)
 void FileServer::incomingConnection(int socketDesc)
 {
     FileSocket_receive *filesocket=new FileSocket_receive(socketDesc);
-    connect(filesocket,SIGNAL(receivefile(QString)),this,SIGNAL(receivedfile(QString)));
+//    connect(filesocket,SIGNAL(receivefile(QString)),this,SIGNAL(receivedfile(QString)));
     connect(filesocket,SIGNAL(disconnected()),this,SLOT(Socketdisconnect()));
-
-
     clientNum++;
-
-//    connect(filesocket,SIGNAL(disconnected()),thread,SLOT(deleteLater()));
-//    filesocket->moveToThread(thread);
-//    thread->start();
 }
-
-
 
 void FileServer::Socketdisconnect()
 {
@@ -35,8 +27,8 @@ FileSocket_receive::FileSocket_receive(int socketDesc,QObject *parent)
     totalsize=0;
     filenamesize=0;
     m_bytesreceived=0;
-    connect(this,SIGNAL(disconnected()),this,SLOT(deleteLater()));
     this->setSocketDescriptor(socketId);
+    connect(this,SIGNAL(disconnected()),this,SLOT(deleteLater()));
     connect(this,SIGNAL(readyRead()),this,SLOT(readFile()));
 }
 
@@ -74,9 +66,9 @@ void FileSocket_receive::readFile()
             m_bytesreceived=0;
             this->write(QString("received "+filename+"\n").toUtf8());
             qDebug()<<QString("received "+filename+"\n");
-            QRegExp apoRex("(.*).apo");
-            if(apoRex.indexIn(filename)!=-1)
-                emit receivefile(filename);
+//            QRegExp apoRex("(.*).apo");
+//            if(apoRex.indexIn(filename)!=-1)
+//                emit receivefile(filename);
         }
     }else {
             if(this->bytesAvailable()+m_bytesreceived>=totalsize)
@@ -100,9 +92,9 @@ void FileSocket_receive::readFile()
                 m_bytesreceived=0;
                 this->write(QString("received "+filename+"\n").toUtf8());
                 qDebug()<<QString("received "+filename+"\n");
-                QRegExp apoRex("(.*).apo");
-                if(apoRex.indexIn(filename)!=-1)
-                    emit receivefile(filename);
+//                QRegExp apoRex("(.*).apo");
+//                if(apoRex.indexIn(filename)!=-1)
+//                    emit receivefile(filename);
             }
         }
 }

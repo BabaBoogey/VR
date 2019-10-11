@@ -1,5 +1,6 @@
 #include "manage.h"
-
+#include <QtGlobal>
+#include "basic_c_fun/basic_surf_objs.h"
 FileServer *fileserver=0;
 ManageServer::ManageServer(QObject *parent)
     :QTcpServer (parent)
@@ -25,7 +26,53 @@ void ManageServer::incomingConnection(int socketDesc)
 
 void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_name)
 {
-    ;
+    //
+    QRegExp fileExp("(.*).ano");
+    if(fileExp.indexIn(anofile_name)!=-1)
+    {
+        if(!Map_File_MessageServer.contains(anofile_name))
+        {
+          label:  qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
+            QString messageport=QString::number(qrand()%2000+5000);
+
+            foreach(QString filename,Map_File_MessageServer.keys())
+            {
+                if(Map_File_MessageServer.value(filename)->serverPort()==messageport.toInt())
+                    goto label;
+            }
+
+
+            qDebug()<<messageport;
+            Global_Parameters *global_parameters=new Global_Parameters;
+
+            global_parameters->clients.clear();
+            global_parameters->clientNum=0;
+            global_parameters->clientsproperty.clear();
+            global_parameters->messagelist.clear();
+            global_parameters->Creator.clear();
+            global_parameters->wholeNT=readSWC_file("./clouddata/"+fileExp.cap(1)+".ano.eswc");
+            global_parameters->wholePoint=readAPO_file("./clouddata/"+fileExp.cap(1)+".ano.apo");
+
+            qDebug()<<"haunglei ";
+//            global_parameters->NeuronList.clear();
+//            global_parameters->sketchNum=0;
+            global_parameters->filename=anofile_name;
+            global_parameters->timer= new QTimer;
+
+            MessageServer *messageserver=new MessageServer(anofile_name, global_parameters);
+            if(!messageserver->listen(QHostAddress::Any,messageport.toInt()))
+            {
+                qDebug()<<anofile_name<<" MessageServer is not started.";
+            }else {
+                 managesocket->write(QString(messageport+":messageport"+".\n").toUtf8());
+                 qDebug()<<"here 3";
+                 Map_File_MessageServer[anofile_name]=messageserver;
+            }
+        }else {
+            QString messageport=QString::number(Map_File_MessageServer[anofile_name]->serverPort());
+            managesocket->write(QString(messageport+":messageport"+".\n").toUtf8());
+        }
+    }
 }
 
 ManageSocket::ManageSocket(QObject *parent)
@@ -42,7 +89,8 @@ void ManageSocket::readManage()
     QRegExp ImportRex("(.*):import.\n");
     QRegExp DownRex("(.*):down.\n");
     QRegExp LoadRex("(.*):load.\n");
-    QRegExp FileRex("(.*):choose.\n");
+    QRegExp FileDownRex("(.*):choose1.\n");
+    QRegExp FileLoadRex("(.*):choose2.\n");
 
 
 
@@ -60,6 +108,7 @@ void ManageSocket::readManage()
             this->write(QString(username+":log out success."+"\n").toUtf8());
         }else if(ImportRex.indexIn(manageMSG)!=-1)
         {
+            qDebug()<<"in import";
             QString username=ImportRex.cap(1);
             QString port_receivefile="9998";
             if(fileserver==0)
@@ -76,18 +125,26 @@ void ManageSocket::readManage()
         }else if(DownRex.indexIn(manageMSG)!=-1)
         {
             QString username=DownRex.cap(1);
-            this->write(QString(currentDir()+":currentDir."+"\n").toUtf8());
+            this->write(QString(currentDir()+":currentDir_down."+"\n").toUtf8());
         }else if(LoadRex.indexIn(manageMSG)!=-1)
         {
             QString username=LoadRex.cap(1);
-//            this->write(QString(currentDir()+":currentDir."+"\n").toUtf8());
-        }else if(FileRex.indexIn(manageMSG)!=-1)
+            qDebug()<<QString(currentDir()+":currentDir_load."+"\n");
+            this->write(QString(currentDir()+":currentDir_load."+"\n").toUtf8());
+
+        }else if(FileDownRex.indexIn(manageMSG)!=-1)
         {
-            QString filename=FileRex.cap(1);
+            QString filename=FileDownRex.cap(1);
             QString anopath="./clouddata/"+filename;
-            qDebug()<<"3";
             FileSocket_send *filesocket=new FileSocket_send(this->peerAddress().toString(),"9998",anopath);
 
+        }else if(FileLoadRex.indexIn(manageMSG)!=-1)
+        {
+            QString filename=FileLoadRex.cap(1);
+            emit makeMessageServer(this,filename);
+            qDebug()<<"load";
+            QString anopath="./clouddata/"+filename;
+            FileSocket_send *filesocket=new FileSocket_send(this->peerAddress().toString(),"9998",anopath);
         }
 
     }
@@ -95,12 +152,14 @@ void ManageSocket::readManage()
 
 QString currentDir()
 {
-    QDir rootDir("./");
-    if(!rootDir.cd("clouddata"))
+    QDir rDir("./");
+    if(!rDir.cd("clouddata"))
     {
-        rootDir.mkdir("clouddata");
-        rootDir.cd("clouddata");
+        rDir.mkdir("clouddata");
+        rDir.cd("clouddata");
     }
+
+    QDir rootDir("./clouddata");
     QFileInfoList list=rootDir.entryInfoList();
 
     QStringList TEMPLIST;

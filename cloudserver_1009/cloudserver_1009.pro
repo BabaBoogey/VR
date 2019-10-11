@@ -1,4 +1,4 @@
-QT -= gui
+QT += gui
 QT += network
 
 CONFIG += c++11 console
@@ -16,8 +16,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+        basic_c_fun/basic_surf_objs.cpp \
+        basic_c_fun/v3d_message.cpp \
         main.cpp \
         manage.cpp \
+        messageserver.cpp \
+        messagesocket.cpp \
         receive_file.cpp \
         send_file.cpp
 
@@ -27,6 +31,10 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    basic_c_fun/basic_surf_objs.h \
+    basic_c_fun/v3d_message.h \
     manage.h \
+    messageserver.h \
+    messagesocket.h \
     receive_file.h \
     send_file.h

@@ -7,7 +7,7 @@
 #include <QMap>
 #include "receive_file.h"
 #include "send_file.h"
-
+#include "messageserver.h"
 QString currentDir();
 class FileServer;
 
@@ -40,6 +40,7 @@ private:
 public slots:
     void makeMessageServer(ManageSocket *managesocket,QString anofile_name);
 private:
+    QMap <QString ,MessageServer* > Map_File_MessageServer;
 public:
 
 };

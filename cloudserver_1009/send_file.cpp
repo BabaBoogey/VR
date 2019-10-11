@@ -4,6 +4,7 @@ FileSocket_send::FileSocket_send(QString ip,QString port,QString anofile_path,QO
     :QTcpSocket (parent)
 {
     connect(this,SIGNAL(readyRead()),this,SLOT(readMSG()));
+    connect(this,SIGNAL(disconnected()),this,SLOT(deleteLater()));
     this->connectToHost(ip,port.toInt());
     QRegExp pathRex("(.*).ano");
     if(pathRex.indexIn(anofile_path)!=-1)
@@ -56,7 +57,8 @@ void FileSocket_send::readMSG()
             sendFile(anopath+".ano.apo",anoname+".ano.apo");
         }else if(apoRex.indexIn(MSG)!=-1)
         {
-            qDebug()<<"file download success.";
+            qDebug()<<"filesocket disconnect";
+            this->disconnectFromHost();
         }
     }
 }
