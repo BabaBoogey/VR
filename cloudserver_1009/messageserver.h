@@ -29,7 +29,12 @@ private:
 public slots:
     void MessageServerSlotAnswerMessageSocket_sendtoall(const QString &msg);
     void MessageServerSlotAnswerMessageSocket_disconnected();
-//    void autoSave();
+
+    void MessageServerSlotAnswerMessageSocket_addseg(QString);
+    void MessageServerSlotAnswerMessageSocket_delseg(QString);
+    void MessageServerSlotAnswerMessageSocket_addmarker(QString);
+    void MessageServerSlotAnswerMessageSocket_delmarker(QString);
+    void autoSave();
 signals:
     void MessageServerSignal_sendtoall(const QString &msg);
 };

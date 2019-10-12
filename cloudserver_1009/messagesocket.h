@@ -76,14 +76,18 @@ protected:
     void updateUserMessage(QString username);//已定义 + 已使用
 
     void loginProcess(const QString &name);
-    void messageProcess(const QString &msg);
-    void deleteProcess(const QString &delID);
-    void markerProcess(const QString &markermsg);
-    void delmaekerProcess(const QString &delmarkerpos);
-    void dragnodeProcess(const QString &dragnodepos);
     void hmdposProcess(const QString &hmd);
     void askmessageProcess();
     void resindexProcess(const QString &msg);
+
+    void segProcess(const QString &msg);
+    void deleteProcess(const QString &delID);
+    void markerProcess(const QString &markermsg);
+    void delmaekerProcess(const QString &delmarkerpos);
+
+
+
+//    void dragnodeProcess(const QString &dragnodepos);
 private:
     Global_Parameters *global_parameters;
     int socketId;
@@ -98,5 +102,9 @@ public slots:
 signals:
     void MessageSocketSignalToMessageServer_disconnected();//已使用
     void MessageSocketSignalToMessageServer_sendtoall(const QString &msg);//已使用
+    void signal_addseg(QString);
+    void signal_delseg(QString);
+    void signal_addmarker(QString);
+    void signal_delmarker(QString);
 };
 #endif // MESSAGESOCKET_H

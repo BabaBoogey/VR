@@ -15,89 +15,52 @@ void MessageSocket::MessageSocketSlot_Read()
 
     {
         QString msg=QString::fromUtf8(this->readLine()).trimmed();
-        QRegExp loginRex("^/login: (.*)$");//
-        QRegExp askmessageRex("^/ask: (.*)$");//
-        QRegExp segmentRex("^/seg: (.*)$");
+
+        QRegExp loginRex("^/login:(.*)$");
+        QRegExp askmessageRex("^/ask:(.*)$");
         QRegExp hmdposRex("^/hmdpos:(.*)$");
+        QRegExp ResIndexRex("^/ResIndex:(.*)$");
+
+        QRegExp segmentRex("^/seg:(.*)$");
         QRegExp deleteRex("^/del_curve:(.*)$");
         QRegExp markerRex("^/marker:(.*)$");
         QRegExp delmarkerRex("^/del_marker:(.*)$");
-        QRegExp dragnodeRex("^/drag_node:(.*)$");
+
         qDebug()<<msg;
         if(loginRex.indexIn(msg)!=-1)
         {
-
             QString user=loginRex.cap(1);
             qDebug()<<user;
             loginProcess(user);
-        }else if(segmentRex.indexIn(msg)!=-1)
-        {
-            QString seg=segmentRex.cap(1);
-            messageProcess("seg-"+seg);
         }else if(askmessageRex.indexIn(msg)!=-1)
         {
             askmessageProcess();
+        }else if(hmdposRex.indexIn(msg)!=-1)
+        {
+            QString hmd=hmdposRex.cap(1);
+            hmdposProcess(hmd);
+        }else if(ResIndexRex.indexIn(msg)!=-1)
+        {
+            QString ResMsg=ResIndexRex.cap(1);
+            resindexProcess(ResMsg);
+        }else if(segmentRex.indexIn(msg)!=-1)
+        {
+            QString seg=segmentRex.cap(1);
+            segProcess(seg);
+        }else if(deleteRex.indexIn(msg)!=-1)
+        {
+            QString delcurvepos=deleteRex.cap(1);
+            deleteProcess(delcurveppos);
+        }else if(markerRex.indexIn(msg)!=-1)
+        {
+            QString markerpos=markerRex.cap(1);
+            markerProcess(markerpos);
+        }else if(delmarkerRex.indexIn(msg)!=-1)
+        {
+            QString delmarkerpos=delmarkerRex.cap(1);
+            delmaekerProcess(delmarkerpos);
         }
     }
-
-
-//    QRegExp messageRex("^/say: (.*)$");
-//    QRegExp hmdposRex("^/hmdpos:(.*)$");
-//    QRegExp deleteRex("^/del_curve:(.*)$");
-//    QRegExp markerRex("^/marker:(.*)$");
-//    QRegExp delmarkerRex("^/del_marker:(.*)$");
-//    QRegExp dragnodeRex("^/drag_node:(.*)$");
-
-//    QRegExp ResIndexRex("^/ResIndex:(.*)$");
-
-//    if(loginRex.indexIn(msg)!=-1)
-//    {
-//        QString user=loginRex.cap(2);
-//        loginProcess(user);
-//    }else if (messageRex.indexIn(msg)!=-1)
-//    {
-//        QString msg=messageRex.cap(1);
-//        qDebug()<<"in message";
-//        messageProcess(msg);
-//    }else if(deleteRex.indexIn(msg)!=-1)
-//    {
-//        QString delID = deleteRex.cap(1);
-
-//        deleteProcess(delID);
-//    }else if(markerRex.indexIn(msg)!=-1)
-//    {
-//        QString markermsg=markerRex.cap(1);
-
-//        markerProcess(markermsg);
-//    }else if(delmarkerRex.indexIn(msg)!=-1)
-//    {
-//        QString delmarkerpos=delmarkerRex.cap(1);
-
-//        delmaekerProcess(delmarkerpos);
-//    }else if(dragnodeRex.indexIn(msg)!=-1)
-//    {
-//        QString dragnodepos = dragnodeRex.cap(1);
-
-//        dragnodeProcess(dragnodepos);
-//    }else if(hmdposRex.indexIn(msg)!=-1)
-//    {
-//         QString hmd = hmdposRex.cap(1);
-
-//         hmdposProcess(hmd);
-//    }else if(askmessageRex.indexIn(msg)!=-1)
-//    {
-//        askmessageProcess();
-//    }else if(ResIndexRex.indexIn(msg)!=-1)
-//    {
-//         QString msg = ResIndexRex.cap(1);
-
-//         resindexProcess(msg);
-//    }else
-//    {
-//         qDebug() << "Bad message  ";
-//    }
-//    nextblocksize=0;
-
 }
 
 void MessageSocket::loginProcess(const QString &name)
@@ -154,69 +117,12 @@ void MessageSocket::loginProcess(const QString &name)
     SendCreaorMsg();
 }
 
-void MessageSocket::messageProcess(const QString &msg)
+void MessageSocket::askmessageProcess()
 {
     global_parameters->lock_clients.lockForRead();
     QString user=global_parameters->clients.value(this);
     global_parameters->lock_clients.unlock();
-
-    global_parameters->lock_messagelist.lockForWrite();
-    global_parameters->messagelist.push_back(QString(user + ":" + msg));
-    global_parameters->lock_messagelist.unlock();
-
-    //修改NeuronTreeList 参数QString(user + ":" + msg)
-}
-
-void MessageSocket::deleteProcess(const QString &delID)
-{
-    global_parameters->lock_clients.lockForRead();
-    QString user=global_parameters->clients.value(this);
-    global_parameters->lock_clients.unlock();
-
-    global_parameters->lock_messagelist.lockForWrite();
-    global_parameters->messagelist.push_back(QString("/del_curve:" +user+" "+delID ));
-    global_parameters->lock_messagelist.unlock();
-
-    //修改NeuronTreeList 参数QString("/del_curve:" +user+" "+delID )
-}
-
-void MessageSocket::markerProcess(const QString &markermsg)
-{
-    global_parameters->lock_clients.lockForRead();
-    QString user=global_parameters->clients.value(this);
-    global_parameters->lock_clients.unlock();
-
-    global_parameters->lock_messagelist.lockForWrite();
-    global_parameters->messagelist.push_back(QString("/marker:" +user+" "+markermsg));
-    global_parameters->lock_messagelist.unlock();
-
-    //加Marker ,QString("/marker:" +user+" "+markermsg)
-}
-
-void MessageSocket::delmaekerProcess(const QString &delmarkerpos)
-{
-    global_parameters->lock_clients.lockForRead();
-    QString user=global_parameters->clients.value(this);
-    global_parameters->lock_clients.unlock();
-
-    global_parameters->lock_messagelist.lockForWrite();
-    global_parameters->messagelist.push_back(QString("/del_marker:" +user+" "+delmarkerpos ));
-    global_parameters->lock_messagelist.unlock();
-
-    //减marker ，QString("/del_marker:" +user+" "+delmarkerpos )
-}
-
-void MessageSocket::dragnodeProcess(const QString &dragnodepos)
-{
-    global_parameters->lock_clients.lockForRead();
-    QString user=global_parameters->clients.value(this);
-    global_parameters->lock_clients.unlock();
-
-    global_parameters->lock_messagelist.lockForWrite();
-    global_parameters->messagelist.push_back(QString("/drag_node:" +user+" "+dragnodepos));
-    global_parameters->lock_messagelist.unlock();
-
-    //移动MARKER ,QString("/drag_node:" +user+" "+dragnodepos)
+    updateUserMessage(user);
 }
 
 void MessageSocket::hmdposProcess(const QString &hmd)
@@ -226,14 +132,6 @@ void MessageSocket::hmdposProcess(const QString &hmd)
     global_parameters->lock_clients.unlock();
 
     SendToAll(QString("/hmdpos:" +user+" "+hmd ));
-}
-
-void MessageSocket::askmessageProcess()
-{
-    global_parameters->lock_clients.lockForRead();
-    QString user=global_parameters->clients.value(this);
-    global_parameters->lock_clients.unlock();
-    updateUserMessage(user);
 }
 
 void MessageSocket::resindexProcess(const QString &msg)
@@ -260,6 +158,75 @@ void MessageSocket::resindexProcess(const QString &msg)
     global_parameters->lock_clientsproperty.unlock();
 }
 
+
+void MessageSocket::segProcess(const QString &msg)
+{
+    global_parameters->lock_clients.lockForRead();
+    QString user=global_parameters->clients.value(this);
+    global_parameters->lock_clients.unlock();
+
+    global_parameters->lock_messagelist.lockForWrite();
+    global_parameters->messagelist.push_back(QString("/seg:"+user + " " + msg));
+    emit signal_addseg(QString("/seg:"+user + " " + msg));
+    global_parameters->lock_messagelist.unlock();
+
+    //修改NeuronTreeList 参数QString(user + ":" + msg)
+}
+
+void MessageSocket::deleteProcess(const QString &delsegpos)
+{
+    global_parameters->lock_clients.lockForRead();
+    QString user=global_parameters->clients.value(this);
+    global_parameters->lock_clients.unlock();
+
+    global_parameters->lock_messagelist.lockForWrite();
+    global_parameters->messagelist.push_back(QString("/del_curve:" +user+" "+delsegpos ));
+    emit signal_delseg(QString("/del_curve:" +user+" "+delsegpos ));
+    global_parameters->lock_messagelist.unlock();
+
+    //修改NeuronTreeList 参数QString("/del_curve:" +user+" "+delID )
+}
+
+void MessageSocket::markerProcess(const QString &markermsg)
+{
+    global_parameters->lock_clients.lockForRead();
+    QString user=global_parameters->clients.value(this);
+    global_parameters->lock_clients.unlock();
+
+    global_parameters->lock_messagelist.lockForWrite();
+    global_parameters->messagelist.push_back(QString("/marker:" +user+" "+markermsg));
+    emit signal_addmarker(QString("/marker:" +user+" "+markermsg));
+    global_parameters->lock_messagelist.unlock();
+
+    //加Marker ,QString("/marker:" +user+" "+markermsg)
+}
+
+void MessageSocket::delmaekerProcess(const QString &delmarkerpos)
+{
+    global_parameters->lock_clients.lockForRead();
+    QString user=global_parameters->clients.value(this);
+    global_parameters->lock_clients.unlock();
+
+    global_parameters->lock_messagelist.lockForWrite();
+    global_parameters->messagelist.push_back(QString("/del_marker:" +user+" "+delmarkerpos ));
+    emit signal_delmarker(QString("/del_marker:" +user+" "+delmarkerpos ));
+    global_parameters->lock_messagelist.unlock();
+
+    //减marker ，QString("/del_marker:" +user+" "+delmarkerpos )
+}
+
+//void MessageSocket::dragnodeProcess(const QString &dragnodepos)
+//{
+//    global_parameters->lock_clients.lockForRead();
+//    QString user=global_parameters->clients.value(this);
+//    global_parameters->lock_clients.unlock();
+
+//    global_parameters->lock_messagelist.lockForWrite();
+//    global_parameters->messagelist.push_back(QString("/drag_node:" +user+" "+dragnodepos));
+//    global_parameters->lock_messagelist.unlock();
+
+//    //移动MARKER ,QString("/drag_node:" +user+" "+dragnodepos)
+//}
 void MessageSocket::SendToUser(const QString &msg)
 {
     qDebug()<<msg;
