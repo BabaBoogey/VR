@@ -50,7 +50,7 @@ void MessageSocket::MessageSocketSlot_Read()
         }else if(deleteRex.indexIn(msg)!=-1)
         {
             QString delcurvepos=deleteRex.cap(1);
-            deleteProcess(delcurveppos);
+            deleteProcess(delcurvepos);
         }else if(markerRex.indexIn(msg)!=-1)
         {
             QString markerpos=markerRex.cap(1);
@@ -245,7 +245,7 @@ void MessageSocket::SendToAll(const QString &msg)
 {
     emit MessageSocketSignalToMessageServer_sendtoall(msg);
 }
-
+A
 void MessageSocket::SendUserList()
 {
     global_parameters->lock_clients.lockForRead();

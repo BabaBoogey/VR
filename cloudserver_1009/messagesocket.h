@@ -81,12 +81,9 @@ protected:
     void resindexProcess(const QString &msg);
 
     void segProcess(const QString &msg);
-    void deleteProcess(const QString &delID);
+    void deleteProcess(const QString &delsegpos);
     void markerProcess(const QString &markermsg);
     void delmaekerProcess(const QString &delmarkerpos);
-
-
-
 //    void dragnodeProcess(const QString &dragnodepos);
 private:
     Global_Parameters *global_parameters;

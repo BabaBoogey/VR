@@ -143,6 +143,8 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
     }
     global_parameters->lock_clientsproperty.unlock();
 
+
+
 }
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
