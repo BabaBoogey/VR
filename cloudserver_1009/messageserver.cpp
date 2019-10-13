@@ -116,6 +116,52 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
     }
     global_parameters->lock_clientsproperty.unlock();
 
+    QStringList qsl=QString(seg).trimmed().split(" ",QString::SkipEmptyParts);
+    int str_size = qsl.size()-(qsl.size()%7);
+
+    NeuronSWC S_temp;
+    for(int i=0;i<str_size;i++)
+    {
+        qsl[i].truncate(99);
+        //qDebug()<<qsl[i];
+        int iy = i%7;
+        if (iy==0)
+        {
+            S_temp.n = qsl[i].toInt();
+        }
+        else if (iy==1)
+        {
+            S_temp.type = colortype;
+        }
+        else if (iy==2)
+        {
+            S_temp.x = qsl[i].toFloat();
+
+        }
+        else if (iy==3)
+        {
+            S_temp.y = qsl[i].toFloat();
+
+        }
+        else if (iy==4)
+        {
+            S_temp.z = qsl[i].toFloat();
+
+        }
+        else if (iy==5)
+        {
+            S_temp.r = qsl[i].toFloat();
+
+        }
+        else if (iy==6)
+        {
+            S_temp.pn = qsl[i].toInt();
+
+            global_parameters->wholeNT.listNeuron.append(S_temp);
+            global_parameters->wholeNT.hashNeuron.insert(S_temp.n, global_parameters->wholeNT.listNeuron.size()-1);
+        }
+    }
+    global_parameters->messageUsedIndex++;
 }
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
@@ -170,6 +216,20 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
         }
     }
     global_parameters->lock_clientsproperty.unlock();
+
+    QStringList markerMSGs=markerpos.trimmed().split(" ");
+    if(markerMSGs.size()<4) return;
+    QString user = markerMSGs.at(0);
+    float mx = markerMSGs.at(1).toFloat();
+    float my = markerMSGs.at(2).toFloat();
+    float mz = markerMSGs.at(3).toFloat();
+    int resx = markerMSGs.at(4).toFloat();
+    int resy = markerMSGs.at(5).toFloat();
+    int resz = markerMSGs.at(6).toFloat();
+
+
+
+
 }
 void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG)
 {

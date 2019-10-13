@@ -54,8 +54,8 @@ struct Global_Parameters{
     QString filename;
     QTimer *timer;
 
-    quint32 messageindex_filesaved;
-    QReadWriteLock lock_messageindex_filesaved;
+    quint32 messageUsedIndex;
+    QReadWriteLock lock_messageusedindex;
 
 };
 
