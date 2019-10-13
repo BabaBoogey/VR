@@ -104,6 +104,8 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
         seg=Reg.cap(2);
     }
 
+
+
     global_parameters->lock_clientsproperty.lockForRead();
     int colortype=21;
     for(int i=0;i<global_parameters->clientsproperty.size();i++)

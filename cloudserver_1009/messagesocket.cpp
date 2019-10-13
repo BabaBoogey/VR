@@ -245,7 +245,7 @@ void MessageSocket::SendToAll(const QString &msg)
 {
     emit MessageSocketSignalToMessageServer_sendtoall(msg);
 }
-A
+
 void MessageSocket::SendUserList()
 {
     global_parameters->lock_clients.lockForRead();
