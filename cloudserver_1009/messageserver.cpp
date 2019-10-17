@@ -84,6 +84,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
         }
 
         global_parameters->lock_clientNum.unlock();
+        emit MessageServerDeleted(filename);
         this->deleteLater();
         return;
     }

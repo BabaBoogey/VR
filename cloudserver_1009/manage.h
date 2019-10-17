@@ -40,6 +40,7 @@ private:
     void incomingConnection(int socketDesc);
 public slots:
     void makeMessageServer(ManageSocket *managesocket,QString anofile_name);
+    void messageserver_ondeltete(QString);
 private:
     QMap <QString ,MessageServer* > Map_File_MessageServer;
 public:

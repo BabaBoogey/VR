@@ -37,6 +37,7 @@ public slots:
     void autoSave();
 signals:
     void MessageServerSignal_sendtoall(const QString &msg);
+    void MessageServerDeleted(QString);
 };
 
 
