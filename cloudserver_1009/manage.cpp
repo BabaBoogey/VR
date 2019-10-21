@@ -17,7 +17,7 @@ void ManageServer::incomingConnection(int socketDesc)
 {
     ManageSocket *managesocket=new ManageSocket;
     managesocket->setSocketDescriptor(socketDesc);
-
+    qDebug()<<managesocket->peerAddress().toString()<<" connected ----";
     connect(managesocket,SIGNAL(makeMessageServer(ManageSocket *,QString)),
             this,SLOT(makeMessageServer(ManageSocket *,QString)));
 
@@ -93,7 +93,15 @@ ManageSocket::ManageSocket(QObject *parent)
     :QTcpSocket (parent)
 {
     connect(this,SIGNAL(readyRead()),this,SLOT(readManage()));
-    connect(this,SIGNAL(disconnected()),this,SLOT(deleteLater()));
+//    connect(this,SIGNAL(disconnected()),this,SLOT(deleteLater()));
+    connect(this,SIGNAL(disconnected()),this,SLOT(ondisconnect()));
+}
+
+void ManageSocket::ondisconnect()
+{
+
+    qDebug()<<this->peerAddress().toString()<<"disconnected";
+    this->deleteLater();
 }
 
 void ManageSocket::readManage()
@@ -122,25 +130,22 @@ void ManageSocket::readManage()
             this->write(QString(username+":log out success."+"\n").toUtf8());
         }else if(ImportRex.indexIn(manageMSG)!=-1)
         {
-//            qDebug()<<"in import";
+
             QString username=ImportRex.cap(1);
             QString port_receivefile="9998";
-//            qDebug()<<"1";
+
             if(fileserver==0)
             {
-//                qDebug()<<"2";
+
                 fileserver=new FileServer;
                 connect(fileserver,SIGNAL(fileserverdeleted()),this,SLOT(resetfileserver()));
-                // connect 注意哦要加的
                 if(!fileserver->listen(QHostAddress::Any,port_receivefile.toInt()))
                 {
                     qDebug()<<"error:cannot start fileserver.";
                     return;
                 }
             }
-            qDebug()<<"4";
             this->write(QString(QString::number(fileserver->serverPort())+":import port."+"\n").toUtf8());
-            qDebug()<<"5";
         }else if(DownRex.indexIn(manageMSG)!=-1)
         {
             QString username=DownRex.cap(1);

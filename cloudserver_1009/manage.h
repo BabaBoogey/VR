@@ -19,7 +19,7 @@ public:
 public slots:
     void readManage();
     void resetfileserver();
-//    void ondisconnect();
+    void ondisconnect();
 
 protected:
 signals:

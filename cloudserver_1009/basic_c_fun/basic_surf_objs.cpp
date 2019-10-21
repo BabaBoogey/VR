@@ -39,7 +39,7 @@ Peng, H, Ruan, Z., Atasoy, D., and Sternson, S. (2010) “Automatic reconstructi
 #include "v3d_message.h"
 
 #include <QString>
-#include <QFile>
+
 QList <CellAPO> readAPO_file(const QString& filename)
 {
     QList <CellAPO> mylist;
@@ -47,6 +47,9 @@ QList <CellAPO> readAPO_file(const QString& filename)
 	QFile qf(filename);
 	if (! qf.open(QIODevice::ReadOnly | QIODevice::Text))
 	{
+#ifndef DISABLE_V3D_MSG
+		v3d_msg(QString("open file [%1] failed!").arg(filename));
+#endif
 		return mylist;
 	}
 
