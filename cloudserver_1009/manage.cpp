@@ -27,7 +27,7 @@ void ManageServer::incomingConnection(int socketDesc)
 void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_name)
 {
     //
-    qDebug()<<"in make message server";
+//    qDebug()<<"in make message server";
     QRegExp fileExp("(.*).ano");
     if(fileExp.indexIn(anofile_name)!=-1)
     {
@@ -43,7 +43,7 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
             }
 
 
-            qDebug()<<messageport<<"_____here make messageport__________";
+//            qDebug()<<messageport<<"_____here make messageport__________";
             Global_Parameters *global_parameters=new Global_Parameters;
 
             global_parameters->clients.clear();
@@ -54,7 +54,7 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
             global_parameters->wholeNT=readSWC_file("./clouddata/"+fileExp.cap(1)+".ano.eswc");
             global_parameters->wholePoint=readAPO_file("./clouddata/"+fileExp.cap(1)+".ano.apo");
 
-            qDebug()<<"haunglei ----------------------------";
+//            qDebug()<<"haunglei ----------------------------";
             global_parameters->NeuronList.clear();
             /*-----------------问李琦------------------------*/
             global_parameters->sketchNum=global_parameters->wholeNT.listNeuron.size();//需要修改
@@ -63,15 +63,15 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
             global_parameters->timer= new QTimer;
             global_parameters->messageUsedIndex=0;
 
-            qDebug()<<"inital success.-----------------------";
+//            qDebug()<<"inital success.-----------------------";
             MessageServer *messageserver=new MessageServer(anofile_name, global_parameters);
             if(!messageserver->listen(QHostAddress::Any,messageport.toInt()))
             {
-                qDebug()<<anofile_name<<" MessageServer is not started.";
+//                qDebug()<<anofile_name<<" MessageServer is not started.";
 
             }else {
                  managesocket->write(QString(messageport+":messageport"+".\n").toUtf8());
-                 qDebug()<<"here 3";
+//                 qDebug()<<"here 3";
                  Map_File_MessageServer[anofile_name]=messageserver;
                  connect(messageserver,SIGNAL(MessageServerDeleted(QString)),
                         this,SLOT(messageserver_ondeltete(QString)) );
@@ -122,13 +122,13 @@ void ManageSocket::readManage()
             this->write(QString(username+":log out success."+"\n").toUtf8());
         }else if(ImportRex.indexIn(manageMSG)!=-1)
         {
-            qDebug()<<"in import";
+//            qDebug()<<"in import";
             QString username=ImportRex.cap(1);
             QString port_receivefile="9998";
-            qDebug()<<"1";
+//            qDebug()<<"1";
             if(fileserver==0)
             {
-                qDebug()<<"2";
+//                qDebug()<<"2";
                 fileserver=new FileServer;
                 connect(fileserver,SIGNAL(fileserverdeleted()),this,SLOT(resetfileserver()));
                 // connect 注意哦要加的
@@ -160,10 +160,10 @@ void ManageSocket::readManage()
         }else if(FileLoadRex.indexIn(manageMSG)!=-1)
         {
             QString filename=FileLoadRex.cap(1);
-            qDebug()<<"emit makeMessageServer(this,filename);";
+//            qDebug()<<"emit makeMessageServer(this,filename);";
             emit makeMessageServer(this,filename);
 
-            qDebug()<<"load";
+//            qDebug()<<"load";
             QString anopath="./clouddata/"+filename;
             FileSocket_send *filesocket=new FileSocket_send(this->peerAddress().toString(),"9998",anopath);
         }

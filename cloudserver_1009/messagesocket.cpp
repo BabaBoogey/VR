@@ -9,7 +9,7 @@ MessageSocket::MessageSocket(int socketDesc,Global_Parameters *parameters,QObjec
 void MessageSocket::MessageSocketSlot_Read()
 {
 
-      qDebug()<<"in MessageSocketSlot_Read";
+//      qDebug()<<"in MessageSocketSlot_Read";
 
     while(this->canReadLine())
 
@@ -26,7 +26,7 @@ void MessageSocket::MessageSocketSlot_Read()
         QRegExp markerRex("^/marker:(.*)$");
         QRegExp delmarkerRex("^/del_marker:(.*)$");
 
-        qDebug()<<msg;
+
         if(loginRex.indexIn(msg)!=-1)
         {
             QString user=loginRex.cap(1);
@@ -45,6 +45,7 @@ void MessageSocket::MessageSocketSlot_Read()
             resindexProcess(ResMsg);
         }else if(segmentRex.indexIn(msg)!=-1)
         {
+             qDebug()<<msg;
             QString seg=segmentRex.cap(1);
             segProcess(seg);
         }else if(deleteRex.indexIn(msg)!=-1)
@@ -147,10 +148,10 @@ void MessageSocket::resindexProcess(const QString &msg)
         {
             if(global_parameters->clientsproperty.at(i).Creator)
             {
-                qDebug()<<"msg"<<msg;
-                qDebug()<<"msg.toInt()"<<msg.toInt();
+//                qDebug()<<"msg"<<msg;
+//                qDebug()<<"msg.toInt()"<<msg.toInt();
                 global_parameters->clientsproperty.at(i).Creator_res = msg.toInt();
-                qDebug()<<"update creator_res = "<<global_parameters->clientsproperty.at(i).Creator_res;
+//                qDebug()<<"update creator_res = "<<global_parameters->clientsproperty.at(i).Creator_res;
             }
         }
     }
@@ -161,6 +162,7 @@ void MessageSocket::resindexProcess(const QString &msg)
 
 void MessageSocket::segProcess(const QString &msg)
 {
+    qDebug()<<"msg :"<<msg;
     global_parameters->lock_clients.lockForRead();
     QString user=global_parameters->clients.value(this);
     global_parameters->lock_clients.unlock();
@@ -229,7 +231,7 @@ void MessageSocket::delmaekerProcess(const QString &delmarkerpos)
 //}
 void MessageSocket::SendToUser(const QString &msg)
 {
-    qDebug()<<msg;
+//    qDebug()<<msg;
 //    QByteArray block;
 //    QDataStream out(&block, QIODevice::WriteOnly);
 //    out.setVersion(QDataStream::Qt_4_7);
@@ -306,7 +308,7 @@ void MessageSocket::SendCreaorMsg()
 void MessageSocket::updateUserMessage(QString username)
 {
     int i=getUser(username);
-
+    qDebug()<<" when update ,i ="<<i<<"+++";
     if(i==-1) return ;
     global_parameters->lock_clientsproperty.lockForRead();
     int messageindex=global_parameters->clientsproperty.at(i).messageindex;
@@ -319,6 +321,7 @@ void MessageSocket::updateUserMessage(QString username)
         if(global_parameters->clientsproperty.at(i).online)
         {
             SendToUser(global_parameters->messagelist.at(messageindex));
+            qDebug()<<"update:"<<global_parameters->messagelist.at(messageindex);
             global_parameters->clientsproperty[i].messageindex++;
         }
         global_parameters->lock_clientsproperty.unlock();
