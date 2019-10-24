@@ -17,6 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         basic_c_fun/basic_surf_objs.cpp \
+        basic_c_fun/neuron_format_converter.cpp \
         basic_c_fun/v3d_message.cpp \
         main.cpp \
         manage.cpp \
@@ -32,6 +33,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     basic_c_fun/basic_surf_objs.h \
+    basic_c_fun/neuron_format_converter.h \
     basic_c_fun/v3d_message.h \
     manage.h \
     messageserver.h \

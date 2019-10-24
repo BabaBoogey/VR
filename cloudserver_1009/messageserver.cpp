@@ -99,13 +99,13 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
     QRegExp Reg("/seg:(.*) (.*)");
     QString seg;
     QString username;
+
     if(Reg.indexIn(MSG)!=-1)
     {
         username=Reg.cap(1);
+        qDebug()<< username;
         seg=Reg.cap(2);
     }
-
-
 
     global_parameters->lock_clientsproperty.lockForRead();
     int colortype=21;
@@ -114,6 +114,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
         if(global_parameters->clientsproperty.at(i).name==username)
         {
             colortype=global_parameters->clientsproperty.at(i).colortype;
+            qDebug()<<username<<":"<<colortype;
             break;
         }
     }
@@ -159,7 +160,8 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
         else if (iy==6)
         {
             S_temp.pn = qsl[i].toInt();
-
+//            XYZ tempxyz = ConvertGlobaltoLocalCoords(S_temp.x,S_temp.y,S_temp.z);//
+            //全局坐标转换？？？？
             global_parameters->wholeNT.listNeuron.append(S_temp);
             global_parameters->wholeNT.hashNeuron.insert(S_temp.n, global_parameters->wholeNT.listNeuron.size()-1);
         }
@@ -187,6 +189,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
         if(global_parameters->clientsproperty.at(i).name==username)
         {
             colortype=global_parameters->clientsproperty.at(i).colortype;
+            qDebug()<<username<<":"<<colortype;
             break;
         }
     }
@@ -215,6 +218,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
         if(global_parameters->clientsproperty.at(i).name==username)
         {
             colortype=global_parameters->clientsproperty.at(i).colortype;
+            qDebug()<<username<<":"<<colortype;
             break;
         }
     }
@@ -247,17 +251,28 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG)
         delmarkerpos=Reg.cap(2);
     }
 
-    global_parameters->lock_clientsproperty.lockForRead();
-    int colortype=21;
-    for(int i=0;i<global_parameters->clientsproperty.size();i++)
+//    global_parameters->lock_clientsproperty.lockForRead();
+//    int colortype=21;
+//    for(int i=0;i<global_parameters->clientsproperty.size();i++)
+//    {
+//        if(global_parameters->clientsproperty.at(i).name==username)
+//        {
+//            colortype=global_parameters->clientsproperty.at(i).colortype;
+//            break;
+//        }
+//    }
+//    global_parameters->lock_clientsproperty.unlock();
+    QStringList delmarkerPOS = delmarkerpos.trimmed().split(" ");
+    if(delmarkerPOS.size()<4)
     {
-        if(global_parameters->clientsproperty.at(i).name==username)
-        {
-            colortype=global_parameters->clientsproperty.at(i).colortype;
-            break;
-        }
+            qDebug()<<"size < 4";
+            return;
     }
-    global_parameters->lock_clientsproperty.unlock();
+    QString user = delmarkerPOS.at(0);
+    float mx = delmarkerPOS.at(1).toFloat();
+    float my = delmarkerPOS.at(2).toFloat();
+    float mz = delmarkerPOS.at(3).toFloat();
+
 }
 
 
