@@ -3,12 +3,29 @@
 #include <QByteArray>
 #include <QtGlobal>
 #include "QTextStream"
+#include "basic_c_fun/v_neuronswc.h"
 
+const double dist_thres=0.05;
 
 MessageServer::MessageServer(QString filename,Global_Parameters *parameters,QObject *parent)
-    :global_parameters(parameters),QTcpServer (parent),filename(filename)
+    :global_parameters(parameters),QTcpServer (parent),filename(filename),sketchNum(0)
 {
     qDebug()<<"make a message server";
+
+    V_NeuronSWC_list testVNL= NeuronTree__2__V_NeuronSWC_list(global_parameters->wholeNT);
+    for(int i=0;i<testVNL.seg.size();i++)
+    {
+        NeuronTree SS;
+        V_NeuronSWC seg_temp =  testVNL.seg.at(i);
+        seg_temp.reverse();
+        SS = V_NeuronSWC__2__NeuronTree(seg_temp);
+        SS.name = "loaded_" + QString("%1").arg(i);
+        if (SS.listNeuron.size()>0)
+            sketchedNTList.push_back(SS);
+    }
+    sketchNum=sketchedNTList.size();
+    m_globalScale=10000;//need modified
+
 //    connect(global_parameters->timer,SIGNAL(timeout()),this,SLOT(autoSave()));
     global_parameters->timer->start(6*1000);
 }
@@ -61,6 +78,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
         QRegExp fileExp("(.*)_stamp_(.*).ano");
         if(fileExp.indexIn(filename)!=-1)
         {
+            qDebug()<<"in disconnected.++++";
             QDateTime time=QDateTime::currentDateTime();
             QString strtime=time.toString("yyyy_MM_dd_hh_mm_ss");
 
@@ -68,12 +86,26 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
                 qDebug()<<tempname<<"here 100";
 
             QFile anofile("./clouddata/"+tempname+".ano");
+            anofile.open(QIODevice::WriteOnly);
             QString str1="APOFILE="+tempname+".ano.apo";
             QString str2="SWCFILE="+tempname+".ano.eswc";
 
             QTextStream out(&anofile);
             out<<str1<<endl<<str2;
             anofile.close();
+//            global_parameters->wholeNT=V_NeuronSWC_list__2__NeuronTree(sketchedNTList);
+
+            {
+                V_NeuronSWC_list tosave;
+                tosave.clear();
+                for(int i=0;i<sketchedNTList.size();i++)
+                {
+                    NeuronTree ss=sketchedNTList.at(i);
+                    V_NeuronSWC ss_temp=NeuronTree__2__V_NeuronSWC_list(ss).seg.at(0);
+                    tosave.seg.push_back(ss_temp);
+                }
+                global_parameters->wholeNT=V_NeuronSWC_list__2__NeuronTree(tosave);
+            }
 
             global_parameters->lock_wholeNT.lockForWrite();
             writeESWC_file("./clouddata/"+tempname+".ano.eswc",global_parameters->wholeNT);
@@ -85,7 +117,9 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
 
         global_parameters->lock_clientNum.unlock();
         emit MessageServerDeleted(filename);
+        delete global_parameters;
         this->deleteLater();
+        qDebug()<<"save successfully";
         return;
     }
     global_parameters->lock_clientNum.unlock();
@@ -124,6 +158,10 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
     int str_size = qsl.size()-(qsl.size()%7);
 
     NeuronSWC S_temp;
+    NeuronTree newTempNT;
+    newTempNT.listNeuron.clear();
+    newTempNT.hashNeuron.clear();
+    newTempNT.name  = "sketch_"+ QString("%1").arg(sketchNum++);
     for(int i=0;i<str_size;i++)
     {
         qsl[i].truncate(99);
@@ -162,10 +200,13 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
             S_temp.pn = qsl[i].toInt();
 //            XYZ tempxyz = ConvertGlobaltoLocalCoords(S_temp.x,S_temp.y,S_temp.z);//
             //全局坐标转换？？？？
-            global_parameters->wholeNT.listNeuron.append(S_temp);
-            global_parameters->wholeNT.hashNeuron.insert(S_temp.n, global_parameters->wholeNT.listNeuron.size()-1);
+            newTempNT.listNeuron.append(S_temp);
+            newTempNT.hashNeuron.insert(S_temp.n,newTempNT.listNeuron.size()-1);
+   //         global_parameters->wholeNT.listNeuron.append(S_temp);
+      //      global_parameters->wholeNT.hashNeuron.insert(S_temp.n, global_parameters->wholeNT.listNeuron.size()-1);
         }
     }
+    sketchedNTList.push_back(newTempNT);
     global_parameters->messageUsedIndex++;
 }
 
@@ -195,6 +236,60 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
     }
     global_parameters->lock_clientsproperty.unlock();
 
+    QStringList delMSGs = delseg.split(" ");
+    if(delMSGs.size()<2)
+    {
+            qDebug()<<"size < 2";
+            return;
+    }
+    QString user = delMSGs.at(0);//why have username;
+    float dx = delMSGs.at(1).toFloat();
+    float dy = delMSGs.at(2).toFloat();
+    float dz = delMSGs.at(3).toFloat();//global or local?? ->ask liqi
+    float resx = delMSGs.at(4).toFloat();
+    float resy = delMSGs.at(5).toFloat();
+    float resz = delMSGs.at(6).toFloat();
+
+    QString delID="";
+
+    /*find nearest segment*/
+    if(sketchedNTList.size()>=1)
+    {
+        for(int i=0;i<sketchedNTList.size();i++)
+        {
+            NeuronTree nt=sketchedNTList.at(i);
+            for(int j=0;j<nt.listNeuron.size();j++)
+            {
+                NeuronSWC ss0;
+                ss0=nt.listNeuron.at(j);
+                float dist;
+                dist=sqrt((dx-ss0.x)*(dx-ss0.x)+(dy-ss0.y)*(dy-ss0.y)
+                          +(dz-ss0.z)*(dz-ss0.z));
+
+                if(dist<dist_thres/m_globalScale)
+                {
+                    delID=nt.name;
+                    goto L;
+                }
+            }
+        }
+    }
+
+    L:  if(delID=="")
+        {
+            qDebug()<<"cannot find segID";
+            return;
+        }
+    for(int i=0;i<sketchedNTList.size();i++)
+    {
+        QString NTname="";
+        NTname = sketchedNTList.at(i).name;
+        if(delID==NTname)
+        {
+            sketchedNTList.removeAt(i);
+            qDebug()<<"delete segment success";
+        }
+    }
 
 
 }
@@ -234,8 +329,25 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
     int resy = markerMSGs.at(5).toFloat();
     int resz = markerMSGs.at(6).toFloat();
 
+//  for(int i=0;i<global_parameters->wholePoint.size();i++)
+//  {
 
+//  }
 
+    //不判断附近的点，直接add
+    CellAPO marker0;
+    marker0.x=mx;marker0.y=my;marker0.z=mz;
+
+    marker0.color.r=255;
+    marker0.color.g=0;
+    marker0.color.b=0;
+    marker0.n=global_parameters->wholePoint.size();//need do something
+
+    marker0.volsize=314.159;
+    marker0.orderinfo="";
+    marker0.name="";
+    marker0.comment="";
+    global_parameters->wholePoint.push_back(marker0);
 
 }
 void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG)
@@ -273,6 +385,18 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG)
     float my = delmarkerPOS.at(2).toFloat();
     float mz = delmarkerPOS.at(3).toFloat();
 
+    for(int i=0;i<global_parameters->wholePoint.size();i++)
+    {
+        CellAPO marker0=global_parameters->wholePoint.at(i);
+        double dist=sqrt((mx-marker0.x)*(mx-marker0.x)+
+                         (my-marker0.y)*(my-marker0.y)+(mz-marker0.z)*(mz-marker0.z));
+        if(dist<dist_thres/m_globalScale)
+        {
+            global_parameters->wholePoint.removeAt(i);
+            break;
+        }
+    }
+
 }
 
 
@@ -301,12 +425,24 @@ void MessageServer::autoSave()
         out<<str1<<endl<<str2;
         anofile.close();
 
-        global_parameters->lock_wholeNT.lockForWrite();
+        {
+            V_NeuronSWC_list tosave;
+            tosave.clear();
+            for(int i=0;i<sketchedNTList.size();i++)
+            {
+                NeuronTree ss=sketchedNTList.at(i);
+                V_NeuronSWC ss_temp=NeuronTree__2__V_NeuronSWC_list(ss).seg.at(0);
+                tosave.seg.push_back(ss_temp);
+            }
+            global_parameters->wholeNT=V_NeuronSWC_list__2__NeuronTree(tosave);
+        }
+
+//        global_parameters->lock_wholeNT.lockForWrite();
         writeESWC_file("./autosave/"+tempname+".ano.eswc",global_parameters->wholeNT);
-        global_parameters->lock_wholeNT.unlock();
-        global_parameters->lock_wholePoint.lockForRead();
+//        global_parameters->lock_wholeNT.unlock();
+//        global_parameters->lock_wholePoint.lockForRead();
         writeAPO_file("./autosave/"+tempname+".ano.apo",global_parameters->wholePoint);
-        global_parameters->lock_wholePoint.unlock();
+//        global_parameters->lock_wholePoint.unlock();
     }
     global_parameters->timer->start(5*60*1000);
 }

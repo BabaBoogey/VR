@@ -55,9 +55,9 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
             global_parameters->wholePoint=readAPO_file("./clouddata/"+fileExp.cap(1)+".ano.apo");
 
 //            qDebug()<<"haunglei ----------------------------";
-            global_parameters->NeuronList.clear();
+//            global_parameters->NeuronList.clear();
             /*-----------------问李琦------------------------*/
-            global_parameters->sketchNum=global_parameters->wholeNT.listNeuron.size();//需要修改
+//            global_parameters->sketchNum=global_parameters->wholeNT.listNeuron.size();//需要修改
             /*-----------------问李琦------------------------*/
             global_parameters->filename=anofile_name;
             global_parameters->timer= new QTimer;
@@ -86,6 +86,7 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
 void ManageServer::messageserver_ondeltete(QString filename)
 {
     qDebug()<<"Map_File_MessageServer.remove(filename);";
+
     Map_File_MessageServer.remove(filename);
 }
 

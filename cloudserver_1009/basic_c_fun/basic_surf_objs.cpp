@@ -149,6 +149,7 @@ bool writeAPO_file(const QString& filename, const QList <CellAPO> & listCell)
 //		fprintf(fp, "%ld, %s, %s,%s, %ld,%ld,%ld, %5.3f,%5.3f,%5.3f,%5.3f,%5.3f,,,,%d,%d,%d\n",  
         fprintf(fp, "%ld, %s, %s,%s, %5.3f,%5.3f,%5.3f, %5.3f,%5.3f,%5.3f,%5.3f,%5.3f,,,,%d,%d,%d\n", //change from V3DLONG type to float, 20121212, by PHC
 				p_pt->n, //i+1,
+
 				qPrintable(p_pt->orderinfo),
 				qPrintable(p_pt->name),
 				qPrintable(p_pt->comment),

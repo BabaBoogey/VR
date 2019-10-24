@@ -45,11 +45,11 @@ struct Global_Parameters{
     QList <CellAPO> wholePoint;
     QReadWriteLock lock_wholePoint;
 
-    QList<NeuronTree> NeuronList;
-    QReadWriteLock lock_NeuronList;
+//    QList<NeuronTree> NeuronList;
+//    QReadWriteLock lock_NeuronList;
 
-    int sketchNum;
-    QReadWriteLock lock_sketchNum;
+//    int sketchNum;
+//    QReadWriteLock lock_sketchNum;
 
     QString filename;
     QTimer *timer;

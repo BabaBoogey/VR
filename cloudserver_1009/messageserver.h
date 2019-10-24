@@ -11,6 +11,7 @@
 //#include "basic_surf_objs.h"
 #include "messagesocket.h"
 //#include "basic_c_fun/neuron_format_converter.h"
+#include "neuron_editing/neuron_format_converter.h"
 class MessageServer:public QTcpServer
 {
     Q_OBJECT
@@ -23,6 +24,10 @@ private:
 
     Global_Parameters *global_parameters;
     QString filename;
+
+    QList<NeuronTree> sketchedNTList;
+    int sketchNum;
+    float m_globalScale;
 
 
 
@@ -38,6 +43,7 @@ public slots:
 signals:
     void MessageServerSignal_sendtoall(const QString &msg);
     void MessageServerDeleted(QString);
+
 };
 
 
