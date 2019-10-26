@@ -130,7 +130,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
 {
     qDebug()<<"MessageServerSlotAnswerMessageSocket_addseg";
     /*MSG=QString("/seg:"+user + " " + msg)*/
-    QRegExp Reg("/seg:(.*) (.*)");
+    QRegExp Reg("/seg:(.*)_(.*)");
     QString seg;
     QString username;
 
@@ -214,7 +214,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
 {
     qDebug()<<"MessageServerSlotAnswerMessageSocket_delseg";
     /*MSG=QString("/del_curve:"+user + " " + msg)*/
-    QRegExp Reg("/del_curve:(.*) (.*)");
+    QRegExp Reg("/del_curve:(.*)_(.*)");
     QString delseg;
     QString username;
     if(Reg.indexIn(MSG)!=-1)
@@ -298,7 +298,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
 {
     qDebug()<<"MessageServerSlotAnswerMessageSocket_addmarker";
     /*MSG=QString("/marker:" +user+" "+markermsg)*/
-    QRegExp Reg("/marker:(.*) (.*)");
+    QRegExp Reg("/marker:(.*)_(.*)");
     QString markerpos;
     QString username;
     if(Reg.indexIn(MSG)!=-1)
@@ -307,6 +307,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
         markerpos=Reg.cap(2);
     }
     global_parameters->lock_clientsproperty.lockForRead();
+    qDebug()<<"+++++++++++_____________________+++++++++++";
     int colortype=21;
     for(int i=0;i<global_parameters->clientsproperty.size();i++)
     {
@@ -341,7 +342,9 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
     marker0.color.r=255;
     marker0.color.g=0;
     marker0.color.b=0;
-    marker0.n=global_parameters->wholePoint.size();//need do something
+    qDebug()<<"________+++++++____________";
+    qDebug()<<global_parameters->wholePoint.size();
+    marker0.n=global_parameters->wholePoint[global_parameters->wholePoint.size()-1].n+1;//need do something
 
     marker0.volsize=314.159;
     marker0.orderinfo="";

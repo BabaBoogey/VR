@@ -169,7 +169,7 @@ void MessageSocket::segProcess(const QString &msg)
 
     global_parameters->lock_messagelist.lockForWrite();
     global_parameters->messagelist.push_back(QString("/seg:"+user + " " + msg));
-    emit signal_addseg(QString("/seg:"+user + " " + msg));
+    emit signal_addseg(QString("/seg:"+user + "_" + msg));
     global_parameters->lock_messagelist.unlock();
 
     //修改NeuronTreeList 参数QString(user + ":" + msg)
@@ -183,7 +183,7 @@ void MessageSocket::deleteProcess(const QString &delsegpos)
 
     global_parameters->lock_messagelist.lockForWrite();
     global_parameters->messagelist.push_back(QString("/del_curve:" +user+" "+delsegpos ));
-    emit signal_delseg(QString("/del_curve:" +user+" "+delsegpos ));
+    emit signal_delseg(QString("/del_curve:" +user+"_"+delsegpos ));
     global_parameters->lock_messagelist.unlock();
 
     //修改NeuronTreeList 参数QString("/del_curve:" +user+" "+delID )
@@ -197,7 +197,7 @@ void MessageSocket::markerProcess(const QString &markermsg)
 
     global_parameters->lock_messagelist.lockForWrite();
     global_parameters->messagelist.push_back(QString("/marker:" +user+" "+markermsg));
-    emit signal_addmarker(QString("/marker:" +user+" "+markermsg));
+    emit signal_addmarker(QString("/marker:" +user+"_"+markermsg));
     global_parameters->lock_messagelist.unlock();
 
     //加Marker ,QString("/marker:" +user+" "+markermsg)
@@ -210,7 +210,7 @@ void MessageSocket::delmaekerProcess(const QString &delmarkerpos)
     global_parameters->lock_clients.unlock();
 
     global_parameters->lock_messagelist.lockForWrite();
-    global_parameters->messagelist.push_back(QString("/del_marker:" +user+" "+delmarkerpos ));
+    global_parameters->messagelist.push_back(QString("/del_marker:" +user+"_"+delmarkerpos ));
     emit signal_delmarker(QString("/del_marker:" +user+" "+delmarkerpos ));
     global_parameters->lock_messagelist.unlock();
 
@@ -308,7 +308,7 @@ void MessageSocket::SendCreaorMsg()
 void MessageSocket::updateUserMessage(QString username)
 {
     int i=getUser(username);
-    qDebug()<<" when update ,i ="<<i<<"+++";
+//    qDebug()<<" when update ,i ="<<i<<"+++";
     if(i==-1) return ;
     global_parameters->lock_clientsproperty.lockForRead();
     int messageindex=global_parameters->clientsproperty.at(i).messageindex;
@@ -326,7 +326,7 @@ void MessageSocket::updateUserMessage(QString username)
         }
         global_parameters->lock_clientsproperty.unlock();
     }else {
-        qDebug()<<"user is outline can't update messagelist";
+//        qDebug()<<"user is outline can't update messagelist";
     }
     global_parameters->lock_messagelist.unlock();
 }
