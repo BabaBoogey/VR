@@ -322,13 +322,15 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
 
     QStringList markerMSGs=markerpos.trimmed().split(" ");
     if(markerMSGs.size()<4) return;
-    QString user = markerMSGs.at(0);
-    float mx = markerMSGs.at(1).toFloat();
-    float my = markerMSGs.at(2).toFloat();
-    float mz = markerMSGs.at(3).toFloat();
-    int resx = markerMSGs.at(4).toFloat();
-    int resy = markerMSGs.at(5).toFloat();
-    int resz = markerMSGs.at(6).toFloat();
+    qDebug()<<"markerMSGS.SIZE:"<<markerMSGs.size();
+    qDebug()<<markerMSGs;
+//    QString user = markerMSGs.at(0);
+    float mx = markerMSGs.at(0).toFloat();
+    float my = markerMSGs.at(1).toFloat();
+    float mz = markerMSGs.at(2).toFloat();
+    int resx = markerMSGs.at(3).toFloat();
+    int resy = markerMSGs.at(4).toFloat();
+    int resz = markerMSGs.at(5).toFloat();
 
 //  for(int i=0;i<global_parameters->wholePoint.size();i++)
 //  {
@@ -383,10 +385,10 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG)
             qDebug()<<"size < 4";
             return;
     }
-    QString user = delmarkerPOS.at(0);
-    float mx = delmarkerPOS.at(1).toFloat();
-    float my = delmarkerPOS.at(2).toFloat();
-    float mz = delmarkerPOS.at(3).toFloat();
+//    QString user = delmarkerPOS.at(0);
+    float mx = delmarkerPOS.at(0).toFloat();
+    float my = delmarkerPOS.at(1).toFloat();
+    float mz = delmarkerPOS.at(2).toFloat();
 
     for(int i=0;i<global_parameters->wholePoint.size();i++)
     {
