@@ -62,6 +62,7 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
             global_parameters->filename=anofile_name;
             global_parameters->timer= new QTimer;
             global_parameters->messageUsedIndex=0;
+            global_parameters->global_scale=0;
 
 //            qDebug()<<"inital success.-----------------------";
             MessageServer *messageserver=new MessageServer(anofile_name, global_parameters);

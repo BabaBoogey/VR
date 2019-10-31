@@ -27,7 +27,7 @@ private:
 
     QList<NeuronTree> sketchedNTList;
     int sketchNum;
-    float m_globalScale;
+//    float m_globalScale;
 
 
 

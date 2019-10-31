@@ -25,6 +25,7 @@ void MessageSocket::MessageSocketSlot_Read()
         QRegExp deleteRex("^/del_curve:(.*)$");
         QRegExp markerRex("^/marker:(.*)$");
         QRegExp delmarkerRex("^/del_marker:(.*)$");
+        QRegExp scaleRex("^/scale:(.*)");
 
 
         if(loginRex.indexIn(msg)!=-1)
@@ -60,6 +61,12 @@ void MessageSocket::MessageSocketSlot_Read()
         {
             QString delmarkerpos=delmarkerRex.cap(1);
             delmaekerProcess(delmarkerpos);
+        }else if(scaleRex.indexIn(msg)!=-1)
+        {
+            if(global_parameters->global_scale!=0)
+            {
+                global_parameters->global_scale=scaleRex.cap(1).toFloat();
+            }
         }
     }
 }
@@ -162,14 +169,14 @@ void MessageSocket::resindexProcess(const QString &msg)
 
 void MessageSocket::segProcess(const QString &msg)
 {
-    qDebug()<<"msg :"<<msg;
+    qDebug()<<"\n\n\nmsg :++++++++\n"<<msg<<"\n+++++++++++++++++++++++++++++++++++++++++++++++++";
     global_parameters->lock_clients.lockForRead();
     QString user=global_parameters->clients.value(this);
     global_parameters->lock_clients.unlock();
 
     global_parameters->lock_messagelist.lockForWrite();
-    global_parameters->messagelist.push_back(QString("/seg:"+user + " " + msg));
-    emit signal_addseg(QString("/seg:"+user + "_" + msg));
+    global_parameters->messagelist.push_back(QString("/seg:"+user + "__" + msg));
+    emit signal_addseg(QString("/seg:"+user + "__" + msg));
     global_parameters->lock_messagelist.unlock();
 
     //修改NeuronTreeList 参数QString(user + ":" + msg)
@@ -182,8 +189,8 @@ void MessageSocket::deleteProcess(const QString &delsegpos)
     global_parameters->lock_clients.unlock();
 
     global_parameters->lock_messagelist.lockForWrite();
-    global_parameters->messagelist.push_back(QString("/del_curve:" +user+" "+delsegpos ));
-    emit signal_delseg(QString("/del_curve:" +user+"_"+delsegpos ));
+    global_parameters->messagelist.push_back(QString("/del_curve:" +user+"__"+delsegpos ));
+    emit signal_delseg(QString("/del_curve:" +user+"__"+delsegpos ));
     global_parameters->lock_messagelist.unlock();
 
     //修改NeuronTreeList 参数QString("/del_curve:" +user+" "+delID )
@@ -196,8 +203,8 @@ void MessageSocket::markerProcess(const QString &markermsg)
     global_parameters->lock_clients.unlock();
 
     global_parameters->lock_messagelist.lockForWrite();
-    global_parameters->messagelist.push_back(QString("/marker:" +user+" "+markermsg));
-    emit signal_addmarker(QString("/marker:" +user+"_"+markermsg));
+    global_parameters->messagelist.push_back(QString("/marker:" +user+"__"+markermsg));
+    emit signal_addmarker(QString("/marker:" +user+"__"+markermsg));
     global_parameters->lock_messagelist.unlock();
 
     //加Marker ,QString("/marker:" +user+" "+markermsg)
@@ -210,8 +217,8 @@ void MessageSocket::delmaekerProcess(const QString &delmarkerpos)
     global_parameters->lock_clients.unlock();
 
     global_parameters->lock_messagelist.lockForWrite();
-    global_parameters->messagelist.push_back(QString("/del_marker:" +user+"_"+delmarkerpos ));
-    emit signal_delmarker(QString("/del_marker:" +user+" "+delmarkerpos ));
+    global_parameters->messagelist.push_back(QString("/del_marker:" +user+"__"+delmarkerpos ));
+    emit signal_delmarker(QString("/del_marker:" +user+"__"+delmarkerpos ));
     global_parameters->lock_messagelist.unlock();
 
     //减marker ，QString("/del_marker:" +user+" "+delmarkerpos )

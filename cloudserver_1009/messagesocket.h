@@ -57,6 +57,8 @@ struct Global_Parameters{
     quint32 messageUsedIndex;
     QReadWriteLock lock_messageusedindex;
 
+    float global_scale;
+
 };
 
 class MessageSocket:public QTcpSocket
