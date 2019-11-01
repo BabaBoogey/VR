@@ -162,7 +162,8 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
     newTempNT.listNeuron.clear();
     newTempNT.hashNeuron.clear();
     newTempNT.name  = "sketch_"+ QString("%1").arg(sketchNum++);
-    for(int i=0;i<qsl.size();i++)
+    qDebug()<<qsl[0];
+    for(int i=1;i<qsl.size();i++)
     {
         qDebug()<<qsl[i]<<endl;
         NeuronSWC S_temp;
@@ -170,13 +171,19 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
 
         if(temp.size()==11)
         {
-            S_temp.n=temp[0].toLongLong();
+//            S_temp.n=temp[0].toLongLong();
+            S_temp.n=i;
             S_temp.type=colortype;
             S_temp.x=temp[2].toFloat();
             S_temp.y=temp[3].toFloat();
             S_temp.z=temp[4].toFloat();
             S_temp.r=temp[5].toFloat();
-            S_temp.pn=temp[6].toLongLong();
+
+//            S_temp.pn=temp[6].toLongLong();
+            if(i==1)
+                S_temp.pn=-1;
+            else
+                S_temp.pn=i-1;
 
             S_temp.level=temp[7].toFloat();
             S_temp.creatmode=temp[8].toFloat();

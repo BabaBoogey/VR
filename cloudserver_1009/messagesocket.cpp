@@ -63,9 +63,11 @@ void MessageSocket::MessageSocketSlot_Read()
             delmaekerProcess(delmarkerpos);
         }else if(scaleRex.indexIn(msg)!=-1)
         {
+            float scale=scaleRex.cap(1).toFloat();
+            qDebug()<<scale;
             if(global_parameters->global_scale!=0)
             {
-                global_parameters->global_scale=scaleRex.cap(1).toFloat();
+                global_parameters->global_scale=scale;
             }
         }
     }

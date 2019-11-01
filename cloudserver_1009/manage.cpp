@@ -166,7 +166,9 @@ void ManageSocket::readManage()
 
         }else if(FileLoadRex.indexIn(manageMSG)!=-1)
         {
+
             QString filename=FileLoadRex.cap(1);
+            qDebug()<<"load :"<<filename;
 //            qDebug()<<"emit makeMessageServer(this,filename);";
             emit makeMessageServer(this,filename);
 
