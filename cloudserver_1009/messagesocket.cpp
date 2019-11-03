@@ -30,7 +30,7 @@ void MessageSocket::MessageSocketSlot_Read()
 
         if(loginRex.indexIn(msg)!=-1)
         {
-            QString user=loginRex.cap(1);
+            QString user=loginRex.cap(1).trimmed();
             qDebug()<<user;
             loginProcess(user);
         }else if(askmessageRex.indexIn(msg)!=-1)
@@ -38,28 +38,28 @@ void MessageSocket::MessageSocketSlot_Read()
             askmessageProcess();
         }else if(hmdposRex.indexIn(msg)!=-1)
         {
-            QString hmd=hmdposRex.cap(1);
+            QString hmd=hmdposRex.cap(1).trimmed();
             hmdposProcess(hmd);
         }else if(ResIndexRex.indexIn(msg)!=-1)
         {
-            QString ResMsg=ResIndexRex.cap(1);
+            QString ResMsg=ResIndexRex.cap(1).trimmed();
             resindexProcess(ResMsg);
         }else if(segmentRex.indexIn(msg)!=-1)
         {
-             qDebug()<<msg;
-            QString seg=segmentRex.cap(1);
+//             qDebug()<<msg;
+            QString seg=segmentRex.cap(1).trimmed();
             segProcess(seg);
         }else if(deleteRex.indexIn(msg)!=-1)
         {
-            QString delcurvepos=deleteRex.cap(1);
+            QString delcurvepos=deleteRex.cap(1).trimmed();
             deleteProcess(delcurvepos);
         }else if(markerRex.indexIn(msg)!=-1)
         {
-            QString markerpos=markerRex.cap(1);
+            QString markerpos=markerRex.cap(1).trimmed();
             markerProcess(markerpos);
         }else if(delmarkerRex.indexIn(msg)!=-1)
         {
-            QString delmarkerpos=delmarkerRex.cap(1);
+            QString delmarkerpos=delmarkerRex.cap(1).trimmed();
             delmaekerProcess(delmarkerpos);
         }else if(scaleRex.indexIn(msg)!=-1)
         {
@@ -171,7 +171,7 @@ void MessageSocket::resindexProcess(const QString &msg)
 
 void MessageSocket::segProcess(const QString &msg)
 {
-    qDebug()<<"\n\n\nmsg :++++++++\n"<<msg<<"\n+++++++++++++++++++++++++++++++++++++++++++++++++";
+    qDebug()<<"\n\n\nmsg123:++++++++\n"<<msg<<"\n+++++++++++++++++++++++++++++++++++++++++++++++++";
     global_parameters->lock_clients.lockForRead();
     QString user=global_parameters->clients.value(this);
     global_parameters->lock_clients.unlock();

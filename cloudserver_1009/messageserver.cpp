@@ -139,7 +139,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
     {
         username=Reg.cap(1);
         qDebug()<< username;
-        seg=Reg.cap(2);
+        seg=Reg.cap(2).trimmed();
     }
 
     qDebug()<<"MessageServerSlotAnswerMessageSocket_addseg:================\n"<<seg<<"\n===============================";
