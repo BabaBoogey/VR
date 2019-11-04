@@ -168,7 +168,7 @@ void MessageSocket::resindexProcess(const QString &msg)
     global_parameters->lock_clientsproperty.unlock();
 }
 
-
+//add seg
 void MessageSocket::segProcess(const QString &msg)
 {
     qDebug()<<"\n\n\nmsg123:++++++++\n"<<msg<<"\n+++++++++++++++++++++++++++++++++++++++++++++++++";
@@ -184,6 +184,7 @@ void MessageSocket::segProcess(const QString &msg)
     //修改NeuronTreeList 参数QString(user + ":" + msg)
 }
 
+//delete seg
 void MessageSocket::deleteProcess(const QString &delsegpos)
 {
     global_parameters->lock_clients.lockForRead();
@@ -198,6 +199,7 @@ void MessageSocket::deleteProcess(const QString &delsegpos)
     //修改NeuronTreeList 参数QString("/del_curve:" +user+" "+delID )
 }
 
+//add marker
 void MessageSocket::markerProcess(const QString &markermsg)
 {
     global_parameters->lock_clients.lockForRead();
@@ -212,6 +214,7 @@ void MessageSocket::markerProcess(const QString &markermsg)
     //加Marker ,QString("/marker:" +user+" "+markermsg)
 }
 
+//delete marker
 void MessageSocket::delmaekerProcess(const QString &delmarkerpos)
 {
     global_parameters->lock_clients.lockForRead();
@@ -329,8 +332,12 @@ void MessageSocket::updateUserMessage(QString username)
         global_parameters->lock_clientsproperty.lockForWrite();
         if(global_parameters->clientsproperty.at(i).online)
         {
+            qDebug()<<"+++++++++++++++++++++++++++++++++++++";
+            qDebug()<<"messindex"<<":"<<messageindex;
             SendToUser(global_parameters->messagelist.at(messageindex));
+            qDebug()<<"+++++++++++ASdasdasdasdas";
             qDebug()<<"update:"<<global_parameters->messagelist.at(messageindex);
+            qDebug()<<"dckjschkjaskjdh0";
             global_parameters->clientsproperty[i].messageindex++;
         }
         global_parameters->lock_clientsproperty.unlock();
@@ -426,8 +433,10 @@ void MessageSocket::MessageSocketSlot_start()
 
 void MessageSocket::MessageSocketSlot_disconnect()
 {
+
     global_parameters->lock_clients.lockForWrite();
     QString username=global_parameters->clients.value(this);
+    qDebug()<<username<<"IS DISCONNECTED";
     global_parameters->clients.remove(this);
 
     global_parameters->lock_clientsproperty.lockForWrite();

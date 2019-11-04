@@ -71,6 +71,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_sendtoall(const QString
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
 {
+    qDebug()<<"socket disconnected ,userNUM--";
     global_parameters->lock_clientNum.lockForWrite();
     if(--global_parameters->clientNum==0)
     {
@@ -169,7 +170,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
         NeuronSWC S_temp;
         QStringList temp=qsl[i].trimmed().split(" ");
 
-        if(temp.size()==11)
+        if(temp.size()==11)//use message head to judge
         {
 //            S_temp.n=temp[0].toLongLong();
             S_temp.n=i;
