@@ -323,7 +323,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
     global_parameters->lock_clientsproperty.unlock();
 
     QStringList markerMSGs=markerpos.trimmed().split(" ");
-    if(markerMSGs.size()<4) return;
+    if(markerMSGs.size()<3) return;
     qDebug()<<"markerMSGS.SIZE:"<<markerMSGs.size();
     qDebug()<<markerMSGs;
 //    QString user = markerMSGs.at(0);

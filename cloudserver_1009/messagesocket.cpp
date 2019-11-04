@@ -31,7 +31,7 @@ void MessageSocket::MessageSocketSlot_Read()
         if(loginRex.indexIn(msg)!=-1)
         {
             QString user=loginRex.cap(1).trimmed();
-            qDebug()<<user;
+            qDebug()<<"loginRex:"<<user;
             loginProcess(user);
         }else if(askmessageRex.indexIn(msg)!=-1)
         {
