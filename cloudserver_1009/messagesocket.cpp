@@ -4,13 +4,14 @@ MessageSocket::MessageSocket(int socketDesc,Global_Parameters *parameters,QObjec
 {
     qDebug()<<"make a messagesocket, and don't set it's socketId ";
     nextblocksize=0;
+    qDebug()<<" global_parameters->lock_messagelist:"<<global_parameters->messagelist.size();
 
 }
 
 void MessageSocket::MessageSocketSlot_Read()
 {
 
-      qDebug()<<"in MessageSocketSlot_Read:\n";
+//      qDebug()<<"in MessageSocketSlot_Read:\n";
 
 
 //        QString msg=QString::fromUtf8(this->readLine()).trimmed();
@@ -39,7 +40,7 @@ void MessageSocket::MessageSocketSlot_Read()
                     in>>nextblocksize;
                 }else
                 {
-                    qDebug()<<"bytes <quint16";
+//                    qDebug()<<"bytes <quint16";
                     return;
                 }
             }
@@ -49,12 +50,12 @@ void MessageSocket::MessageSocketSlot_Read()
                 in >>msg;
             }else
             {
-                qDebug()<<"bytes <nextblocksize:"<<nextblocksize;
+//                qDebug()<<"bytes <nextblocksize:"<<nextblocksize;
                 return ;
             }
 
             msg=msg.trimmed();
-            qDebug()<<msg;
+//            qDebug()<<msg;
 
 
             if(loginRex.indexIn(msg)!=-1)
@@ -365,6 +366,8 @@ void MessageSocket::updateUserMessage(QString username)
     if(i==-1) return ;
     global_parameters->lock_clientsproperty.lockForRead();
     int messageindex=global_parameters->clientsproperty.at(i).messageindex;
+//    qDebug()<<"messageindex:"<<messageindex<<"+=================++++++";
+//    qDebug()<<" global_parameters->lock_messagelist.size:"<<
     global_parameters->lock_clientsproperty.unlock();
 
     global_parameters->lock_messagelist.lockForRead();
