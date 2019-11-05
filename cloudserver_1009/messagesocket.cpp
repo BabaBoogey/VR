@@ -3,19 +3,19 @@ MessageSocket::MessageSocket(int socketDesc,Global_Parameters *parameters,QObjec
     :socketId(socketDesc),global_parameters(parameters),QTcpSocket (parent)
 {
     qDebug()<<"make a messagesocket, and don't set it's socketId ";
+    nextblocksize=0;
 
 }
 
 void MessageSocket::MessageSocketSlot_Read()
 {
 
-//      qDebug()<<"in MessageSocketSlot_Read";
+      qDebug()<<"in MessageSocketSlot_Read:\n";
 
-    while(this->canReadLine())
 
-    {
-        QString msg=QString::fromUtf8(this->readLine()).trimmed();
-
+//        QString msg=QString::fromUtf8(this->readLine()).trimmed();
+        QString msg;
+        msg.clear();
         QRegExp loginRex("^/login:(.*)$");
         QRegExp askmessageRex("^/ask:(.*)$");
         QRegExp hmdposRex("^/hmdpos:(.*)$");
@@ -27,50 +27,81 @@ void MessageSocket::MessageSocketSlot_Read()
         QRegExp delmarkerRex("^/del_marker:(.*)$");
         QRegExp scaleRex("^/scale:(.*)");
 
+        QDataStream in(this);
+        in.setVersion(QDataStream::Qt_4_7);
 
-        if(loginRex.indexIn(msg)!=-1)
+        while(1)
         {
-            QString user=loginRex.cap(1).trimmed();
-            qDebug()<<"loginRex:"<<user;
-            loginProcess(user);
-        }else if(askmessageRex.indexIn(msg)!=-1)
-        {
-            askmessageProcess();
-        }else if(hmdposRex.indexIn(msg)!=-1)
-        {
-            QString hmd=hmdposRex.cap(1).trimmed();
-            hmdposProcess(hmd);
-        }else if(ResIndexRex.indexIn(msg)!=-1)
-        {
-            QString ResMsg=ResIndexRex.cap(1).trimmed();
-            resindexProcess(ResMsg);
-        }else if(segmentRex.indexIn(msg)!=-1)
-        {
-//             qDebug()<<msg;
-            QString seg=segmentRex.cap(1).trimmed();
-            segProcess(seg);
-        }else if(deleteRex.indexIn(msg)!=-1)
-        {
-            QString delcurvepos=deleteRex.cap(1).trimmed();
-            deleteProcess(delcurvepos);
-        }else if(markerRex.indexIn(msg)!=-1)
-        {
-            QString markerpos=markerRex.cap(1).trimmed();
-            markerProcess(markerpos);
-        }else if(delmarkerRex.indexIn(msg)!=-1)
-        {
-            QString delmarkerpos=delmarkerRex.cap(1).trimmed();
-            delmaekerProcess(delmarkerpos);
-        }else if(scaleRex.indexIn(msg)!=-1)
-        {
-            float scale=scaleRex.cap(1).toFloat();
-            qDebug()<<scale;
-            if(global_parameters->global_scale!=0)
+            if(nextblocksize==0)
             {
-                global_parameters->global_scale=scale;
+                if(this->bytesAvailable()>=sizeof (quint16))
+                {
+                    in>>nextblocksize;
+                }else
+                {
+                    qDebug()<<"bytes <quint16";
+                    return;
+                }
             }
+
+            if(this->bytesAvailable()>=nextblocksize)
+            {
+                in >>msg;
+            }else
+            {
+                qDebug()<<"bytes <nextblocksize:"<<nextblocksize;
+                return ;
+            }
+
+            msg=msg.trimmed();
+            qDebug()<<msg;
+
+
+            if(loginRex.indexIn(msg)!=-1)
+            {
+                QString user=loginRex.cap(1).trimmed();
+                qDebug()<<"loginRex:"<<user;
+                loginProcess(user);
+            }else if(askmessageRex.indexIn(msg)!=-1)
+            {
+                askmessageProcess();
+            }else if(hmdposRex.indexIn(msg)!=-1)
+            {
+                QString hmd=hmdposRex.cap(1).trimmed();
+                hmdposProcess(hmd);
+            }else if(ResIndexRex.indexIn(msg)!=-1)
+            {
+                QString ResMsg=ResIndexRex.cap(1).trimmed();
+                resindexProcess(ResMsg);
+            }else if(segmentRex.indexIn(msg)!=-1)
+            {
+                //             qDebug()<<msg;
+                qDebug()<<"it's a aegment\n";
+                QString seg=segmentRex.cap(1).trimmed();
+                segProcess(seg);
+            }else if(deleteRex.indexIn(msg)!=-1)
+            {
+                QString delcurvepos=deleteRex.cap(1).trimmed();
+                deleteProcess(delcurvepos);
+            }else if(markerRex.indexIn(msg)!=-1)
+            {
+                QString markerpos=markerRex.cap(1).trimmed();
+                markerProcess(markerpos);
+            }else if(delmarkerRex.indexIn(msg)!=-1)
+            {
+                QString delmarkerpos=delmarkerRex.cap(1).trimmed();
+                delmaekerProcess(delmarkerpos);
+            }else if(scaleRex.indexIn(msg)!=-1)
+            {
+                float scale=scaleRex.cap(1).toFloat();
+                qDebug()<<scale;
+                if(global_parameters->global_scale!=0)
+                {
+                    global_parameters->global_scale=scale;
+                }
+            }
+            nextblocksize=0;
         }
-    }
 }
 
 void MessageSocket::loginProcess(const QString &name)
@@ -171,7 +202,7 @@ void MessageSocket::resindexProcess(const QString &msg)
 //add seg
 void MessageSocket::segProcess(const QString &msg)
 {
-    qDebug()<<"\n\n\nmsg123:++++++++\n"<<msg<<"\n+++++++++++++++++++++++++++++++++++++++++++++++++";
+//    qDebug()<<"\n\n\nmsg123:++++++++\n"<<msg<<"\n+++++++++++++++++++++++++++++++++++++++++++++++++";
     global_parameters->lock_clients.lockForRead();
     QString user=global_parameters->clients.value(this);
     global_parameters->lock_clients.unlock();
@@ -248,11 +279,22 @@ void MessageSocket::SendToUser(const QString &msg)
 //    QDataStream out(&block, QIODevice::WriteOnly);
 //    out.setVersion(QDataStream::Qt_4_7);
 
-//    out<<quint64(0)<<msg;
+//    out<<quint16(0)<<msg;
 //    out.device()->seek(0);
-//    out<<quint64(sizeof (block)-sizeof (quint64))<<msg;
+//    out<<quint16( block.size()-sizeof (quint16))<<msg;
+//    this->write(block);
+//    qDebug()<<"sendto "<<this->peerAddress().toString()<<msg;
 
-    this->write(QString(msg+"\n").toUtf8());
+    QByteArray block;
+    QDataStream dts(&block,QIODevice::WriteOnly);
+    dts.setVersion(QDataStream::Qt_4_7);
+
+    dts<<quint16(0)<<msg;
+    dts.device()->seek(0);
+    dts<<quint16(block.size()-sizeof (quint16));
+    this->write(block);
+    this->flush();
+    qDebug()<<"send to:"<<this->peerAddress().toString()<<":"<<msg;
 }
 
 void MessageSocket::SendToAll(const QString &msg)
@@ -320,7 +362,6 @@ void MessageSocket::SendCreaorMsg()
 void MessageSocket::updateUserMessage(QString username)
 {
     int i=getUser(username);
-//    qDebug()<<" when update ,i ="<<i<<"+++";
     if(i==-1) return ;
     global_parameters->lock_clientsproperty.lockForRead();
     int messageindex=global_parameters->clientsproperty.at(i).messageindex;
@@ -333,16 +374,12 @@ void MessageSocket::updateUserMessage(QString username)
         if(global_parameters->clientsproperty.at(i).online)
         {
             qDebug()<<"+++++++++++++++++++++++++++++++++++++";
-            qDebug()<<"messindex"<<":"<<messageindex;
+            qDebug()<< global_parameters->clientsproperty.at(i).name<<" messindex"<<":"<<messageindex;
             SendToUser(global_parameters->messagelist.at(messageindex));
-            qDebug()<<"+++++++++++ASdasdasdasdas";
-            qDebug()<<"update:"<<global_parameters->messagelist.at(messageindex);
-            qDebug()<<"dckjschkjaskjdh0";
             global_parameters->clientsproperty[i].messageindex++;
+
         }
         global_parameters->lock_clientsproperty.unlock();
-    }else {
-//        qDebug()<<"user is outline can't update messagelist";
     }
     global_parameters->lock_messagelist.unlock();
 }
@@ -384,51 +421,6 @@ void MessageSocket::MessageSocketSlot_start()
     connect(this,SIGNAL(readyRead()),this,SLOT(MessageSocketSlot_Read()));
     connect(this,SIGNAL(disconnected()),this,SLOT(MessageSocketSlot_disconnect()));
     qDebug()<<this->peerAddress().toString()<<" ThreadId:"<<QThread::currentThreadId();
-
-//    QRegExp tmp("(.*).ano");
-//    if(tmp.indexIn(global_parameters->filename)!=-1)
-//   {
-//        QFile *f=new QFile("I://new/"+tmp.cap(1)+".ano");
-//        f->open(QIODevice::ReadOnly);
-//        QStringList tmplist;
-
-//        while(f->canReadLine())
-//        {
-//            QString tmpstr=f->readLine();
-//            tmplist.push_back(tmpstr);
-//        }
-//        f->close();
-//        delete  f;
-//        SendToUser("anofile:"+tmplist.join(";"));
-//        tmplist.clear();
-
-//        f=new QFile("I://new/"+tmp.cap(1)+".ano.eswc");
-//        f->open(QIODevice::ReadOnly);
-
-//        while(f->canReadLine())
-//        {
-//            QString tmpstr=f->readLine();
-//            tmplist.push_back(tmpstr);
-//        }
-//        f->close();
-//        delete  f;
-//        SendToUser("eswcfile:"+tmplist.join(";"));
-//        tmplist.clear();
-
-//        f=new QFile("I://new/"+tmp.cap(1)+".ano.apo");
-//        f->open(QIODevice::ReadOnly);
-
-//        while(f->canReadLine())
-//        {
-//            QString tmpstr=f->readLine();
-//            tmplist.push_back(tmpstr);
-//        }
-//        f->close();
-//        delete  f;
-//        SendToUser("apofile:"+tmplist.join(";"));
-//        tmplist.clear();
-
-//    }
 }
 
 void MessageSocket::MessageSocketSlot_disconnect()
@@ -451,8 +443,6 @@ void MessageSocket::MessageSocketSlot_disconnect()
 
     SendToAll(QString("/system:"+username+" left."));
     SendUserList();
-
-
     emit MessageSocketSignalToMessageServer_disconnected();
 }
 

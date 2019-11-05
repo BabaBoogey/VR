@@ -90,7 +90,7 @@ protected:
 private:
     Global_Parameters *global_parameters;
     int socketId;
-//    int nextblocksize;
+    quint16 nextblocksize;
 
 
 public slots:
