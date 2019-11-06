@@ -4,14 +4,16 @@ MessageSocket::MessageSocket(int socketDesc,Global_Parameters *parameters,QObjec
 {
     qDebug()<<"make a messagesocket, and don't set it's socketId ";
     nextblocksize=0;
+    global_parameters->clientsproperty.clear();
     qDebug()<<" global_parameters->lock_messagelist:"<<global_parameters->messagelist.size();
+    global_parameters->clients.clear();
 
 }
 
 void MessageSocket::MessageSocketSlot_Read()
 {
 
-//      qDebug()<<"in MessageSocketSlot_Read:\n";
+      qDebug()<<"in MessageSocketSlot_Read:\n";
 
 
 //        QString msg=QString::fromUtf8(this->readLine()).trimmed();
@@ -50,14 +52,10 @@ void MessageSocket::MessageSocketSlot_Read()
                 in >>msg;
             }else
             {
-//                qDebug()<<"bytes <nextblocksize:"<<nextblocksize;
                 return ;
             }
 
             msg=msg.trimmed();
-//            qDebug()<<msg;
-
-
             if(loginRex.indexIn(msg)!=-1)
             {
                 QString user=loginRex.cap(1).trimmed();
@@ -76,20 +74,23 @@ void MessageSocket::MessageSocketSlot_Read()
                 resindexProcess(ResMsg);
             }else if(segmentRex.indexIn(msg)!=-1)
             {
-                //             qDebug()<<msg;
-                qDebug()<<"it's a aegment\n";
+                             qDebug()<<msg;
+
                 QString seg=segmentRex.cap(1).trimmed();
                 segProcess(seg);
             }else if(deleteRex.indexIn(msg)!=-1)
             {
+                qDebug()<<msg;
                 QString delcurvepos=deleteRex.cap(1).trimmed();
                 deleteProcess(delcurvepos);
             }else if(markerRex.indexIn(msg)!=-1)
             {
+                qDebug()<<msg;
                 QString markerpos=markerRex.cap(1).trimmed();
                 markerProcess(markerpos);
             }else if(delmarkerRex.indexIn(msg)!=-1)
             {
+                qDebug()<<msg;
                 QString delmarkerpos=delmarkerRex.cap(1).trimmed();
                 delmaekerProcess(delmarkerpos);
             }else if(scaleRex.indexIn(msg)!=-1)

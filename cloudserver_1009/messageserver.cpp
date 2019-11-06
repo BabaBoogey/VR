@@ -128,7 +128,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
 {
-    qDebug()<<"MessageServerSlotAnswerMessageSocket_addseg";
+    qDebug()<<"MessageServerSlotAnswerMessageSocket_addseg\n"<<MSG;
     /*MSG=QString("/seg:"+user + " " + msg)*/
     QRegExp Reg("/seg:(.*)__(.*)");
     QString seg;
@@ -214,7 +214,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
 {
-    qDebug()<<"MessageServerSlotAnswerMessageSocket_delseg";
+    qDebug()<<"MessageServerSlotAnswerMessageSocket_delseg\n"<<MSG;
     /*MSG=QString("/del_curve:"+user + "__" + msg)*/
     QRegExp Reg("/del_curve:(.*)__(.*)"); //msg=node 1_node 2_....
     QString delseg;
@@ -328,7 +328,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
 {
-    qDebug()<<"MessageServerSlotAnswerMessageSocket_addmarker";
+    qDebug()<<"MessageServerSlotAnswerMessageSocket_addmarker\n"<<MSG;
     /*MSG=QString("/marker:" +user+" "+markermsg)*/
     QRegExp Reg("/marker:(.*)__(.*)");
     QString markerpos;
@@ -390,7 +390,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
 }
 void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG)
 {
-    qDebug()<<"MessageServerSlotAnswerMessageSocket_delmarker";
+    qDebug()<<"MessageServerSlotAnswerMessageSocket_delmarker\n"<<MSG;
     /*MSG=QString("/del_marker:" +user+" "+delmarkerpos )*/
     QRegExp Reg("/del_marker:(.*)__(.*)");
     QString delmarkerpos;
@@ -413,7 +413,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG)
 //    }
 //    global_parameters->lock_clientsproperty.unlock();
     QStringList delmarkerPOS = delmarkerpos.trimmed().split(" ");
-    if(delmarkerPOS.size()<4)
+    if(delmarkerPOS.size()<3)
     {
             qDebug()<<"size < 4";
             return;
@@ -428,7 +428,8 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG)
         CellAPO marker0=global_parameters->wholePoint.at(i);
         double dist=sqrt((mx-marker0.x)*(mx-marker0.x)+
                          (my-marker0.y)*(my-marker0.y)+(mz-marker0.z)*(mz-marker0.z));
-        if(global_parameters->global_scale&& dist<dist_thres/global_parameters->global_scale)
+//        if(global_parameters->global_scale&& dist<dist_thres/global_parameters->global_scale)
+        if(dist<8.0)
         {
             global_parameters->wholePoint.removeAt(i);
             break;
