@@ -50,6 +50,7 @@ void MessageSocket::MessageSocketSlot_Read()
             if(this->bytesAvailable()>=nextblocksize)
             {
                 in >>msg;
+                nextblocksize=0;
             }else
             {
                 return ;
@@ -102,7 +103,7 @@ void MessageSocket::MessageSocketSlot_Read()
                     global_parameters->global_scale=scale;
                 }
             }
-            nextblocksize=0;
+
         }
 }
 
