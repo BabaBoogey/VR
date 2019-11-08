@@ -4,16 +4,16 @@ MessageSocket::MessageSocket(int socketDesc,Global_Parameters *parameters,QObjec
 {
     qDebug()<<"make a messagesocket, and don't set it's socketId ";
     nextblocksize=0;
-    global_parameters->clientsproperty.clear();
+//    global_parameters->clientsproperty.clear();
     qDebug()<<" global_parameters->lock_messagelist:"<<global_parameters->messagelist.size();
-    global_parameters->clients.clear();
+//    global_parameters->clients.clear();
 
 }
 
 void MessageSocket::MessageSocketSlot_Read()
 {
 
-      qDebug()<<"in MessageSocketSlot_Read:\n";
+     // qDebug()<<"in MessageSocketSlot_Read:"<<peerAddress().toString();
 
 
 //        QString msg=QString::fromUtf8(this->readLine()).trimmed();
@@ -153,6 +153,11 @@ void MessageSocket::loginProcess(const QString &name)
         global_parameters->lock_Creator.unlock();
     }
     global_parameters->lock_clientsproperty.unlock();
+
+    global_parameters->lock_clients.lockForWrite();
+    foreach(QString usernae,global_parameters->clients.values())
+        qDebug()<<usernae<<"++++++++++____+++++";
+    global_parameters->lock_clients.unlock();
 
     SendToAll(QString("/system:" + name + " joined."));
     SendUserList();
@@ -364,7 +369,11 @@ void MessageSocket::SendCreaorMsg()
 void MessageSocket::updateUserMessage(QString username)
 {
     int i=getUser(username);
-    if(i==-1) return ;
+    if(i==-1)
+    {
+        qDebug()<<"username " <<username<<" cannot find";
+        return ;
+    }
     global_parameters->lock_clientsproperty.lockForRead();
     int messageindex=global_parameters->clientsproperty.at(i).messageindex;
 //    qDebug()<<"messageindex:"<<messageindex<<"+=================++++++";

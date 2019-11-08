@@ -78,12 +78,12 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
         QRegExp fileExp("(.*)_stamp_(.*).ano");
         if(fileExp.indexIn(filename)!=-1)
         {
-            qDebug()<<"in disconnected.++++";
+            //qDebug()<<"in disconnected.++++";
             QDateTime time=QDateTime::currentDateTime();
             QString strtime=time.toString("yyyy_MM_dd_hh_mm_ss");
 
             QString tempname =fileExp.cap(1)+"_stamp_"+strtime;
-                qDebug()<<tempname<<"here 100";
+                //qDebug()<<tempname<<"here 100";
 
             QFile anofile("./clouddata/"+tempname+".ano");
             anofile.open(QIODevice::WriteOnly);
@@ -161,10 +161,10 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
     newTempNT.listNeuron.clear();
     newTempNT.hashNeuron.clear();
     newTempNT.name  = "sketch_"+ QString("%1").arg(sketchNum++);
-    qDebug()<<qsl[0];
+    //qDebug()<<qsl[0];
     for(int i=1;i<qsl.size();i++)
     {
-        qDebug()<<qsl[i]<<endl;
+       // qDebug()<<qsl[i]<<endl;
         NeuronSWC S_temp;
         QStringList temp=qsl[i].trimmed().split(" ");
 
@@ -225,23 +225,11 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
         delseg=Reg.cap(2).trimmed();
     }
 
-//    global_parameters->lock_clientsproperty.lockForRead();
-//    int colortype=21;
-//    for(int i=0;i<global_parameters->clientsproperty.size();i++)
-//    {
-//        if(global_parameters->clientsproperty.at(i).name==username)
-//        {
-//            colortype=global_parameters->clientsproperty.at(i).colortype;
-//            qDebug()<<username<<":"<<colortype;
-//            break;
-//        }
-//    }
-//    global_parameters->lock_clientsproperty.unlock();
 
-    QStringList delNameList;
     QStringList delMSGs = delseg.split("_",QString::SkipEmptyParts);
 
     if(delMSGs.size()<1) return;
+
     for(int i=0;i<delMSGs.size();i++)
     {
         QString tempNode=delMSGs.at(i);
@@ -256,13 +244,15 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
         {
             NeuronTree NT=sketchedNTList.at(i);
             NeuronSWC ss=NT.listNeuron.at(NT.listNeuron.size()-2);
-            if(ss.x==x&&ss.y==y&&ss.z==z)
+            NeuronSWC ss0=NT.listNeuron.at(1);
+
+            if(sqrt(pow(ss.x-x,2)+pow(ss.y-y,2)+pow(ss.z-z,2))<=2.0||sqrt(pow(ss0.x-x,2)+pow(ss0.y-y,2)+pow(ss0.z-z,2))<=2.0)
             {
-//                delNameList.append(NT.name);break;
                 sketchedNTList.removeAt(i);break;
             }
         }
     }
+    qDebug()<<"MessageServerSlotAnswerMessageSocket_delseg end=============";
 
 //    for(int)
 //    if(delMSGs.size()<2)
@@ -356,19 +346,9 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
     if(markerMSGs.size()<3) return;
     qDebug()<<"markerMSGS.SIZE:"<<markerMSGs.size();
     qDebug()<<markerMSGs;
-//    QString user = markerMSGs.at(0);
     float mx = markerMSGs.at(0).toFloat();
     float my = markerMSGs.at(1).toFloat();
     float mz = markerMSGs.at(2).toFloat();
-//    int resx = markerMSGs.at(3).toFloat();
-//    int resy = markerMSGs.at(4).toFloat();
-//    int resz = markerMSGs.at(5).toFloat();
-
-//  for(int i=0;i<global_parameters->wholePoint.size();i++)
-//  {
-
-//  }
-
     //不判断附近的点，直接add
     CellAPO marker0;
     marker0.x=mx;marker0.y=my;marker0.z=mz;
@@ -385,6 +365,19 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
     marker0.orderinfo="";
     marker0.name="";
     marker0.comment="";
+
+    for(int i=0;global_parameters->wholePoint.size();i++)
+    {
+        float dist = /*glm::*/sqrt((global_parameters->wholePoint.at(i).x-marker0.x)*(global_parameters->wholePoint.at(i).x-marker0.x)+
+                               (global_parameters->wholePoint.at(i).y-marker0.y)*(global_parameters->wholePoint.at(i).y-marker0.y)+
+                               (global_parameters->wholePoint.at(i).z-marker0.z)*(global_parameters->wholePoint.at(i).z-marker0.z));
+        if(dist<8.0)
+        {
+            global_parameters->wholePoint.removeAt(i);
+            return;
+        }
+    }
+
     global_parameters->wholePoint.push_back(marker0);
 
 }
