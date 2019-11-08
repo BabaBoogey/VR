@@ -78,7 +78,6 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
     global_parameters->lock_clientNum.lockForWrite();
     if(--global_parameters->clientNum==0)
     {
-        global_parameters->lock_clientNum.unlock();
         QRegExp fileExp("(.*)_stamp_(.*).ano");
         if(fileExp.indexIn(filename)!=-1)
         {
@@ -110,12 +109,12 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
                 global_parameters->wholeNT=V_NeuronSWC_list__2__NeuronTree(tosave);
             }
 
-            global_parameters->lock_wholeNT.lockForWrite();
+//            global_parameters->lock_wholeNT.lockForWrite();
             writeESWC_file("./clouddata/"+tempname+".ano.eswc",global_parameters->wholeNT);
-            global_parameters->lock_wholeNT.unlock();
-            global_parameters->lock_wholePoint.lockForRead();
+//            global_parameters->lock_wholeNT.unlock();
+//            global_parameters->lock_wholePoint.lockForRead();
             writeAPO_file("./clouddata/"+tempname+".ano.apo",global_parameters->wholePoint);
-            global_parameters->lock_wholePoint.unlock();
+//            global_parameters->lock_wholePoint.unlock();
         }
 
         global_parameters->lock_clientNum.unlock();

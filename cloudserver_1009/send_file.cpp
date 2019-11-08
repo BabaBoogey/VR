@@ -39,7 +39,7 @@ void FileSocket_send::sendFile(QString filepath, QString filename)
     dts<<data;
 
     this->write(block);
-    qDebug()<<filepath;
+    qDebug()<<"===="<<filepath;
 }
 
 void FileSocket_send::readMSG()
