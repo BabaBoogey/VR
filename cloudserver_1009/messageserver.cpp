@@ -33,6 +33,10 @@ void MessageServer::incomingConnection(int socketDesc)
 {
     qDebug()<<"a new connection";
     MessageSocket *messagesocket=new MessageSocket(socketDesc,global_parameters);
+//    global_parameters->lock_clients.lockForWrite();
+//    qDebug()<<"incomming "<<messagesocket;
+//    global_parameters->clients.insert(messagesocket->peerAddress().toString(),"");
+//    global_parameters->lock_clients.unlock();
 
     QThread *thread=new QThread;
 
@@ -122,8 +126,10 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
         return;
     }
     else
+    {
         global_parameters->lock_clientNum.unlock();
-
+        qDebug()<<"server is on";
+    }
 }
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
@@ -366,7 +372,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
     marker0.name="";
     marker0.comment="";
 
-    for(int i=0;global_parameters->wholePoint.size();i++)
+    for(int i=0;i<global_parameters->wholePoint.size();i++)
     {
         float dist = /*glm::*/sqrt((global_parameters->wholePoint.at(i).x-marker0.x)*(global_parameters->wholePoint.at(i).x-marker0.x)+
                                (global_parameters->wholePoint.at(i).y-marker0.y)*(global_parameters->wholePoint.at(i).y-marker0.y)+
@@ -379,6 +385,8 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
     }
 
     global_parameters->wholePoint.push_back(marker0);
+
+    qDebug()<<"MessageServerSlotAnswerMessageSocket_addmarker end;";
 
 }
 void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG)

@@ -47,7 +47,7 @@ void MessageSocket::MessageSocketSlot_Read()
                 }
             }
 
-            if(this->bytesAvailable()>=nextblocksize)
+            if(nextblocksize>0&&this->bytesAvailable()>=nextblocksize)
             {
                 in >>msg;
                 nextblocksize=0;
