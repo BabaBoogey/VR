@@ -41,14 +41,14 @@ void MessageServer::incomingConnection(int socketDesc)
     QThread *thread=new QThread;
 
     messagesocket->moveToThread(thread);
-
+    connect(messagesocket,SIGNAL(MessageSocketSignalToMessageServer_disconnected()),
+            this,SLOT(MessageServerSlotAnswerMessageSocket_disconnected()));
     connect(thread,SIGNAL(started()),messagesocket,SLOT(MessageSocketSlot_start()));
     connect(messagesocket,SIGNAL(MessageSocketSignalToMessageServer_disconnected()),
             messagesocket,SLOT(deleteLater()));
     connect(messagesocket,SIGNAL(MessageSocketSignalToMessageServer_disconnected()),
             thread,SLOT(deleteLater()));
-    connect(messagesocket,SIGNAL(MessageSocketSignalToMessageServer_disconnected()),
-            this,SLOT(MessageServerSlotAnswerMessageSocket_disconnected()));
+
     connect(messagesocket,
             SIGNAL(MessageSocketSignalToMessageServer_sendtoall(const QString &)),
             this,SLOT(MessageServerSlotAnswerMessageSocket_sendtoall(const QString &)));
@@ -181,7 +181,10 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
             S_temp.x=temp[2].toFloat();
             S_temp.y=temp[3].toFloat();
             S_temp.z=temp[4].toFloat();
-            S_temp.r=temp[5].toFloat();
+
+//            S_temp.r=temp[5].toFloat();
+            //r=1  TF,r=2 TV
+            S_temp.r=1;
 
 //            S_temp.pn=temp[6].toLongLong();
             if(i==1)
@@ -201,7 +204,9 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
             S_temp.x=temp[2].toFloat();
             S_temp.y=temp[3].toFloat();
             S_temp.z=temp[4].toFloat();
-            S_temp.r=temp[5].toFloat();
+//            S_temp.r=temp[5].toFloat();
+            //r=1  TF,r=1TV
+            S_temp.r=2;
             S_temp.pn=temp[6].toLongLong();
             S_temp.level=0;
             S_temp.creatmode=0;

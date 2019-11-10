@@ -446,18 +446,20 @@ void MessageSocket::MessageSocketSlot_disconnect()
     global_parameters->clients.remove(this);
 
     global_parameters->lock_clientsproperty.lockForWrite();
+    qDebug()<<"global_parameters->lock_clientsproperty.lockForWrite();";
     for(int i=0;i<global_parameters->clientsproperty.size();i++)
     {
         if(global_parameters->clientsproperty.at(i).name == username)
             global_parameters->clientsproperty[i].online=false;
     }
     global_parameters->lock_clientsproperty.unlock();
-
+        qDebug()<<"global_parameters->lock_clientsproperty.unlock();";
     global_parameters->lock_clients.unlock();
-
+    qDebug()<<"global_parameters->lock_clients.unlock();";
     SendToAll(QString("/system:"+username+" left."));
     SendUserList();
     emit MessageSocketSignalToMessageServer_disconnected();
+    qDebug()<<"emit MessageSocketSignalToMessageServer_disconnected();";
 }
 
 void MessageSocket::MessageSocketSlotAnswerToMessageServer_sendtoall(const QString &msg)
