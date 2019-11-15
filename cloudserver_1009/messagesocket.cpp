@@ -293,16 +293,19 @@ void MessageSocket::SendToUser(const QString &msg)
 //    this->write(block);
 //    qDebug()<<"sendto "<<this->peerAddress().toString()<<msg;
 
-    QByteArray block;
-    QDataStream dts(&block,QIODevice::WriteOnly);
-    dts.setVersion(QDataStream::Qt_4_7);
+    if(this->state()==QAbstractSocket::ConnectedState)
+    {
+        QByteArray block;
+        QDataStream dts(&block,QIODevice::WriteOnly);
+        dts.setVersion(QDataStream::Qt_4_7);
 
-    dts<<quint16(0)<<msg;
-    dts.device()->seek(0);
-    dts<<quint16(block.size()-sizeof (quint16));
-    this->write(block);
-    this->flush();
-    qDebug()<<"send to:"<<this->peerAddress().toString()<<":"<<msg;
+        dts<<quint16(0)<<msg;
+        dts.device()->seek(0);
+        dts<<quint16(block.size()-sizeof (quint16));
+        this->write(block);
+        this->flush();
+        qDebug()<<"send to:"<<this->peerAddress().toString()<<":"<<msg;
+    }
 }
 
 void MessageSocket::SendToAll(const QString &msg)
@@ -458,8 +461,21 @@ void MessageSocket::MessageSocketSlot_disconnect()
     qDebug()<<"global_parameters->lock_clients.unlock();";
     SendToAll(QString("/system:"+username+" left."));
     SendUserList();
-    emit MessageSocketSignalToMessageServer_disconnected();
-    qDebug()<<"emit MessageSocketSignalToMessageServer_disconnected();";
+
+    global_parameters->lock_clientNum.lockForWrite();
+    global_parameters->clientNum--;
+    if(global_parameters->clientNum==0)
+    {
+        global_parameters->lock_clientNum.unlock();
+        qDebug()<<"global_parameters->clientNum=0";
+        emit MessageSocketSignalToMessageServer_disconnected();
+    }
+    else
+    {
+        global_parameters->lock_clientNum.unlock();
+        qDebug()<<"global_parameters->clientNum="<<global_parameters->clientNum;
+    }
+
 }
 
 void MessageSocket::MessageSocketSlotAnswerToMessageServer_sendtoall(const QString &msg)

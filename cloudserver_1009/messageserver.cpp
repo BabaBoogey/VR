@@ -41,19 +41,19 @@ void MessageServer::incomingConnection(int socketDesc)
     QThread *thread=new QThread;
 
     messagesocket->moveToThread(thread);
-    connect(messagesocket,SIGNAL(MessageSocketSignalToMessageServer_disconnected()),
-            this,SLOT(MessageServerSlotAnswerMessageSocket_disconnected()));
     connect(thread,SIGNAL(started()),messagesocket,SLOT(MessageSocketSlot_start()));
     connect(messagesocket,SIGNAL(MessageSocketSignalToMessageServer_disconnected()),
-            messagesocket,SLOT(deleteLater()));
-    connect(messagesocket,SIGNAL(MessageSocketSignalToMessageServer_disconnected()),
-            thread,SLOT(deleteLater()));
+            this,SLOT(MessageServerSlotAnswerMessageSocket_disconnected()));
 
-    connect(messagesocket,
-            SIGNAL(MessageSocketSignalToMessageServer_sendtoall(const QString &)),
+//    connect(messagesocket,SIGNAL(MessageSocketSignalToMessageServer_disconnected()),
+//            messagesocket,SLOT(deleteLater()));
+    connect(messagesocket,SIGNAL(MessageSocketSignalToMessageServer_disconnected()),
+            thread,SLOT(quit()));
+    connect(thread,SIGNAL(finished()),thread,SLOT(deleteLater()));
+
+    connect(messagesocket,SIGNAL(MessageSocketSignalToMessageServer_sendtoall(const QString &)),
             this,SLOT(MessageServerSlotAnswerMessageSocket_sendtoall(const QString &)));
-    connect(this,SIGNAL(MessageServerSignal_sendtoall(const QString &)),
-            messagesocket,
+    connect(this,SIGNAL(MessageServerSignal_sendtoall(const QString &)),messagesocket,
             SLOT(MessageSocketSlotAnswerToMessageServer_sendtoall(const QString &)));
 
     connect(messagesocket,SIGNAL(signal_addseg(QString)),this,SLOT(MessageServerSlotAnswerMessageSocket_addseg(QString)));
@@ -75,9 +75,9 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_sendtoall(const QString
 void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
 {
     qDebug()<<"socket disconnected ,userNUM--";
-    global_parameters->lock_clientNum.lockForWrite();
-    if(--global_parameters->clientNum==0)
-    {
+//    global_parameters->lock_clientNum.lockForWrite();
+//    if(--global_parameters->clientNum==0)
+//    {
         QRegExp fileExp("(.*)_stamp_(.*).ano");
         if(fileExp.indexIn(filename)!=-1)
         {
@@ -117,18 +117,18 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
 //            global_parameters->lock_wholePoint.unlock();
         }
 
-        global_parameters->lock_clientNum.unlock();
+//        global_parameters->lock_clientNum.unlock();
         emit MessageServerDeleted(filename);
         delete global_parameters;
         this->deleteLater();
         qDebug()<<"save successfully";
         return;
-    }
-    else
-    {
-        global_parameters->lock_clientNum.unlock();
-        qDebug()<<"server is on";
-    }
+//    }
+//    else
+//    {
+//        global_parameters->lock_clientNum.unlock();
+//        qDebug()<<"server is on";
+//    }
 }
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
@@ -184,7 +184,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
 
 //            S_temp.r=temp[5].toFloat();
             //r=1  TF,r=2 TV
-            S_temp.r=1;
+            S_temp.r=1*10+username.toInt();
 
 //            S_temp.pn=temp[6].toLongLong();
             if(i==1)
@@ -206,7 +206,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
             S_temp.z=temp[4].toFloat();
 //            S_temp.r=temp[5].toFloat();
             //r=1  TF,r=1TV
-            S_temp.r=2;
+            S_temp.r=2*10+username.toInt();
             S_temp.pn=temp[6].toLongLong();
             S_temp.level=0;
             S_temp.creatmode=0;
@@ -250,15 +250,15 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
         float y=tempNodeList.at(1).toFloat();
         float z=tempNodeList.at(2).toFloat();
 
-        for (int j=0;i<sketchedNTList.size();j++)
+        for (int j=0;j<sketchedNTList.size();j++)
         {
-            NeuronTree NT=sketchedNTList.at(i);
+            NeuronTree NT=sketchedNTList.at(j);
             NeuronSWC ss=NT.listNeuron.at(NT.listNeuron.size()-2);
             NeuronSWC ss0=NT.listNeuron.at(1);
 
             if(sqrt(pow(ss.x-x,2)+pow(ss.y-y,2)+pow(ss.z-z,2))<=2.0||sqrt(pow(ss0.x-x,2)+pow(ss0.y-y,2)+pow(ss0.z-z,2))<=2.0)
             {
-                sketchedNTList.removeAt(i);break;
+                sketchedNTList.removeAt(j);break;
             }
         }
     }
