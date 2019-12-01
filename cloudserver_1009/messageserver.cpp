@@ -1,4 +1,4 @@
-#include "messageserver.h"
+﻿#include "messageserver.h"
 #include <QDataStream>
 #include <QByteArray>
 #include <QtGlobal>
@@ -26,17 +26,14 @@ MessageServer::MessageServer(QString filename,Global_Parameters *parameters,QObj
     sketchNum=sketchedNTList.size();
 
     connect(global_parameters->timer,SIGNAL(timeout()),this,SLOT(autoSave()));
-    global_parameters->timer->start(5*60*1000);
+    global_parameters->timer->start(3*60*1000);
 }
 
 void MessageServer::incomingConnection(int socketDesc)
 {
     qDebug()<<"a new connection";
     MessageSocket *messagesocket=new MessageSocket(socketDesc,global_parameters);
-//    global_parameters->lock_clients.lockForWrite();
-//    qDebug()<<"incomming "<<messagesocket;
-//    global_parameters->clients.insert(messagesocket->peerAddress().toString(),"");
-//    global_parameters->lock_clients.unlock();
+
 
     QThread *thread=new QThread;
 
@@ -45,10 +42,9 @@ void MessageServer::incomingConnection(int socketDesc)
     connect(messagesocket,SIGNAL(MessageSocketSignalToMessageServer_disconnected()),
             this,SLOT(MessageServerSlotAnswerMessageSocket_disconnected()));
 
-//    connect(messagesocket,SIGNAL(MessageSocketSignalToMessageServer_disconnected()),
-//            messagesocket,SLOT(deleteLater()));
     connect(messagesocket,SIGNAL(MessageSocketSignalToMessageServer_disconnected()),
             thread,SLOT(quit()));
+    connect(thread,SIGNAL(finished()),messagesocket,SLOT(deleteLater()));
     connect(thread,SIGNAL(finished()),thread,SLOT(deleteLater()));
 
     connect(messagesocket,SIGNAL(MessageSocketSignalToMessageServer_sendtoall(const QString &)),
@@ -61,32 +57,27 @@ void MessageServer::incomingConnection(int socketDesc)
     connect(messagesocket,SIGNAL(signal_addmarker(QString)),this,SLOT(MessageServerSlotAnswerMessageSocket_addmarker(QString)));
     connect(messagesocket,SIGNAL(signal_delmarker(QString)),this,SLOT(MessageServerSlotAnswerMessageSocket_delmarker(QString)));
 
-
     thread->start();
-
 }
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_sendtoall(const QString &msg)
 {
     emit MessageServerSignal_sendtoall(msg);
-
 }
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
 {
     qDebug()<<"socket disconnected ,userNUM--";
-//    global_parameters->lock_clientNum.lockForWrite();
-//    if(--global_parameters->clientNum==0)
-//    {
+
         QRegExp fileExp("(.*)_stamp_(.*).ano");
         if(fileExp.indexIn(filename)!=-1)
         {
-            //qDebug()<<"in disconnected.++++";
+
             QDateTime time=QDateTime::currentDateTime();
             QString strtime=time.toString("yyyy_MM_dd_hh_mm_ss");
 
             QString tempname =fileExp.cap(1)+"_stamp_"+strtime;
-                //qDebug()<<tempname<<"here 100";
+
 
             QFile anofile("./clouddata/"+tempname+".ano");
             anofile.open(QIODevice::WriteOnly);
@@ -108,33 +99,20 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
                 }
                 global_parameters->wholeNT=V_NeuronSWC_list__2__NeuronTree(tosave);
             }
-
-//            global_parameters->lock_wholeNT.lockForWrite();
             writeESWC_file("./clouddata/"+tempname+".ano.eswc",global_parameters->wholeNT);
-//            global_parameters->lock_wholeNT.unlock();
-//            global_parameters->lock_wholePoint.lockForRead();
             writeAPO_file("./clouddata/"+tempname+".ano.apo",global_parameters->wholePoint);
-//            global_parameters->lock_wholePoint.unlock();
         }
-
-//        global_parameters->lock_clientNum.unlock();
         emit MessageServerDeleted(filename);
         delete global_parameters;
         this->deleteLater();
         qDebug()<<"save successfully";
         return;
-//    }
-//    else
-//    {
-//        global_parameters->lock_clientNum.unlock();
-//        qDebug()<<"server is on";
-//    }
 }
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
 {
-    qDebug()<<"MessageServerSlotAnswerMessageSocket_addseg\n"<<MSG;
-    /*MSG=QString("/seg:"+user + " " + msg)*/
+    qDebug()<<"MessageServerSlotAnswerMessageSocket_addseg";
+    /*MSG=QString("/seg:"+user + "__" + msg)*/
     QRegExp Reg("/seg:(.*)__(.*)");
     QString seg;
     QString username;
@@ -146,7 +124,6 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
         seg=Reg.cap(2).trimmed();
     }
 
-//    qDebug()<<"MessageServerSlotAnswerMessageSocket_addseg:================\n"<<seg<<"\n===============================";
     global_parameters->lock_clientsproperty.lockForRead();
     int colortype=21;
     for(int i=0;i<global_parameters->clientsproperty.size();i++)
@@ -166,65 +143,77 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
     newTempNT.listNeuron.clear();
     newTempNT.hashNeuron.clear();
     newTempNT.name  = "sketch_"+ QString("%1").arg(sketchNum++);
-    //qDebug()<<qsl[0];
+
+    QString head=qsl[0];
+
     for(int i=1;i<qsl.size();i++)
     {
        // qDebug()<<qsl[i]<<endl;
         NeuronSWC S_temp;
         QStringList temp=qsl[i].trimmed().split(" ");
 
-        if(temp.size()==11)//use message head to judge
+//        if(temp.size()==11)//use message head to judge
+        if(head.trimmed().split(" ").at(0)=="TeraFly")
         {
-//            S_temp.n=temp[0].toLongLong();
             S_temp.n=i;
             S_temp.type=colortype;
             S_temp.x=temp[2].toFloat();
             S_temp.y=temp[3].toFloat();
             S_temp.z=temp[4].toFloat();
-
-//            S_temp.r=temp[5].toFloat();
-            //r=1  TF,r=2 TV
-            S_temp.r=1*10+username.toInt();
-
-//            S_temp.pn=temp[6].toLongLong();
+            S_temp.r=username.toInt()*10+1;
             if(i==1)
                 S_temp.pn=-1;
             else
                 S_temp.pn=i-1;
-
             S_temp.level=temp[7].toFloat();
             S_temp.creatmode=temp[8].toFloat();
             S_temp.timestamp=temp[9].toFloat();
             S_temp.tfresindex=temp[10].toFloat();
 
-        }else if(temp.size()==7)
+        }else if(head.trimmed().split(" ").at(0)=="TeraVR")
         {
             S_temp.n=temp[0].toLongLong();
             S_temp.type=colortype;
             S_temp.x=temp[2].toFloat();
             S_temp.y=temp[3].toFloat();
             S_temp.z=temp[4].toFloat();
-//            S_temp.r=temp[5].toFloat();
-            //r=1  TF,r=1TV
-            S_temp.r=2*10+username.toInt();
+
+            S_temp.r=username.toInt()*10+2;
             S_temp.pn=temp[6].toLongLong();
             S_temp.level=0;
             S_temp.creatmode=0;
             S_temp.timestamp=0;
             S_temp.tfresindex=0;
+        }else if(head.trimmed().split(" ").at(0)=="TeraAI")
+        {
+            S_temp.n=i;
+            S_temp.type=18;
+            S_temp.x=temp[2].toFloat();
+            S_temp.y=temp[3].toFloat();
+            S_temp.z=temp[4].toFloat();
+            S_temp.r=username.toInt()*10+3;
+            if(i==1)
+                S_temp.pn=-1;
+            else
+                S_temp.pn=i-1;
+            S_temp.level=temp[7].toFloat();
+            S_temp.creatmode=temp[8].toFloat();
+            S_temp.timestamp=temp[9].toFloat();
+            S_temp.tfresindex=temp[10].toFloat();
         }
-//        S_temp
+
         newTempNT.listNeuron.append(S_temp);
         newTempNT.hashNeuron.insert(S_temp.n,newTempNT.listNeuron.size()-1);
     }
-    qDebug()<<"add seg end==========================================";
+
     sketchedNTList.push_back(newTempNT);
     global_parameters->messageUsedIndex++;
+    qDebug()<<"add seg end==========================================";
 }
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
 {
-    qDebug()<<"MessageServerSlotAnswerMessageSocket_delseg\n"<<MSG;
+    qDebug()<<"MessageServerSlotAnswerMessageSocket_delseg\n";
     /*MSG=QString("/del_curve:"+user + "__" + msg)*/
     QRegExp Reg("/del_curve:(.*)__(.*)"); //msg=node 1_node 2_....
     QString delseg;
@@ -264,72 +253,12 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
     }
     qDebug()<<"MessageServerSlotAnswerMessageSocket_delseg end=============";
 
-//    for(int)
-//    if(delMSGs.size()<2)
-//    {
-//            qDebug()<<"size < 2";
-//            return;
-//    }
-////    QString user = delMSGs.at(0);//why have username;
-//    float dx = delMSGs.at(0).toFloat();
-//    float dy = delMSGs.at(1).toFloat();
-//    float dz = delMSGs.at(2).toFloat();//global or local?? ->ask liqi
-//    float resx = delMSGs.at(3).toFloat();
-//    float resy = delMSGs.at(4).toFloat();
-//    float resz = delMSGs.at(5).toFloat();
-
-//    QString delID="";
-
-//    /*find nearest segment*/
-//    if(sketchedNTList.size()>=1)
-//    {
-//        for(int i=0;i<sketchedNTList.size();i++)
-//        {
-//            NeuronTree nt=sketchedNTList.at(i);
-//            for(int j=0;j<nt.listNeuron.size();j++)
-//            {
-////                NeuronSWC ss0;
-////                ss0=nt.listNeuron.at(j);
-////                float dist;
-////                dist=sqrt((dx-ss0.x)*(dx-ss0.x)+(dy-ss0.y)*(dy-ss0.y)
-////                          +(dz-ss0.z)*(dz-ss0.z));
-
-//                NeuronSWC ss0=nt.listNeuron.at(nt.listNeuron.size()-2);
-//                if(ss0.x==dx&&ss0.y==dy)
-
-//                if(global_parameters->global_scale!=0&& dist<dist_thres/global_parameters->global_scale)
-//                {
-//                    delID=nt.name;
-//                    goto L;
-//                }
-//            }
-//        }
-//    }
-
-//    L:  if(delID=="")
-//        {
-//            qDebug()<<"cannot find segID";
-//            return;
-//        }
-//    for(int i=0;i<sketchedNTList.size();i++)
-//    {
-//        QString NTname="";
-//        NTname = sketchedNTList.at(i).name;
-//        if(delID==NTname)
-//        {
-//            sketchedNTList.removeAt(i);
-//            qDebug()<<"delete segment success";
-//        }
-//    }
-
-
-
 }
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
 {
     qDebug()<<"MessageServerSlotAnswerMessageSocket_addmarker\n"<<MSG;
-    /*MSG=QString("/marker:" +user+" "+markermsg)*/
+    /*MSG=QString("/marker:" +user+"__"+markermsg)*/
     QRegExp Reg("/marker:(.*)__(.*)");
     QString markerpos;
     QString username;
@@ -339,7 +268,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
         markerpos=Reg.cap(2);
     }
     global_parameters->lock_clientsproperty.lockForRead();
-    qDebug()<<"+++++++++++_____________________+++++++++++";
+
     int colortype=21;
     for(int i=0;i<global_parameters->clientsproperty.size();i++)
     {
@@ -353,13 +282,11 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
     global_parameters->lock_clientsproperty.unlock();
 
     QStringList markerMSGs=markerpos.trimmed().split(" ");
-    if(markerMSGs.size()<3) return;
-    qDebug()<<"markerMSGS.SIZE:"<<markerMSGs.size();
-    qDebug()<<markerMSGs;
+    if(markerMSGs.size()<4) return;
     float mx = markerMSGs.at(0).toFloat();
     float my = markerMSGs.at(1).toFloat();
     float mz = markerMSGs.at(2).toFloat();
-    //不判断附近的点，直接add
+
     CellAPO marker0;
     marker0.x=mx;marker0.y=my;marker0.z=mz;
     qDebug()<<"marker:(x,y,z)"<<marker0.x<<","<<marker0.y<<","<<marker0.z;
@@ -367,7 +294,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
     marker0.color.r=255;
     marker0.color.g=0;
     marker0.color.b=0;
-    qDebug()<<"________+++++++____________";
+
     qDebug()<<global_parameters->wholePoint.size();
     marker0.n=global_parameters->wholePoint[global_parameters->wholePoint.size()-1].n+1;//need do something
 
@@ -393,6 +320,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
     qDebug()<<"MessageServerSlotAnswerMessageSocket_addmarker end;";
 
 }
+//not use it
 void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG)
 {
     qDebug()<<"MessageServerSlotAnswerMessageSocket_delmarker\n"<<MSG;
@@ -406,17 +334,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG)
         delmarkerpos=Reg.cap(2);
     }
 
-//    global_parameters->lock_clientsproperty.lockForRead();
-//    int colortype=21;
-//    for(int i=0;i<global_parameters->clientsproperty.size();i++)
-//    {
-//        if(global_parameters->clientsproperty.at(i).name==username)
-//        {
-//            colortype=global_parameters->clientsproperty.at(i).colortype;
-//            break;
-//        }
-//    }
-//    global_parameters->lock_clientsproperty.unlock();
+
     QStringList delmarkerPOS = delmarkerpos.trimmed().split(" ");
     if(delmarkerPOS.size()<3)
     {
@@ -443,7 +361,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG)
 
 }
 
-
+//
 void MessageServer::autoSave()
 {
     qDebug()<<"autosave";
@@ -459,9 +377,9 @@ void MessageServer::autoSave()
         QString strtime=time.toString("yyyy_MM_dd_hh_mm_ss");
 
         QString tempname =fileExp.cap(1)+"_stamp_autosave_"+strtime;
-            qDebug()<<tempname<<"here 100";
 
         QFile anofile("./autosave/"+tempname+".ano");
+        anofile.open(QIODevice::WriteOnly);
         QString str1="APOFILE="+tempname+".ano.apo";
         QString str2="SWCFILE="+tempname+".ano.eswc";
 
@@ -480,15 +398,10 @@ void MessageServer::autoSave()
             }
             global_parameters->wholeNT=V_NeuronSWC_list__2__NeuronTree(tosave);
         }
-
-//        global_parameters->lock_wholeNT.lockForWrite();
         writeESWC_file("./autosave/"+tempname+".ano.eswc",global_parameters->wholeNT);
-//        global_parameters->lock_wholeNT.unlock();
-//        global_parameters->lock_wholePoint.lockForRead();
         writeAPO_file("./autosave/"+tempname+".ano.apo",global_parameters->wholePoint);
-//        global_parameters->lock_wholePoint.unlock();
+//        global_parameters->timer->start(60*5*1000);
     }
-//    global_parameters->timer->start(5*60*1000);
 }
 
 

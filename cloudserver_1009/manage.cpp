@@ -157,7 +157,7 @@ void ManageSocket::readManage()
             QString username=LoadRex.cap(1);
             qDebug()<<QString(currentDir()+":currentDir_load."+"\n");
             this->write(QString(currentDir()+":currentDir_load."+"\n").toUtf8());
-
+            qDebug()<<"jbhfkjsdhfkjh";
         }else if(FileDownRex.indexIn(manageMSG)!=-1)
         {
             QString filename=FileDownRex.cap(1);
