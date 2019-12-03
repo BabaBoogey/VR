@@ -1,4 +1,4 @@
-#include "send_file.h"
+﻿#include "send_file.h"
 
 FileSocket_send::FileSocket_send(QString ip,QString port,QString anofile_path,QObject *parent)
     :QTcpSocket (parent)
@@ -6,19 +6,25 @@ FileSocket_send::FileSocket_send(QString ip,QString port,QString anofile_path,QO
     connect(this,SIGNAL(readyRead()),this,SLOT(readMSG()));
     connect(this,SIGNAL(disconnected()),this,SLOT(deleteLater()));
     this->connectToHost(ip,port.toInt());
-    QRegExp pathRex("(.*).ano");
-    if(pathRex.indexIn(anofile_path)!=-1)
+    if(this->waitForConnected())
     {
-        anopath=pathRex.cap(1);
+        QRegExp pathRex("(.*).ano");
+        if(pathRex.indexIn(anofile_path)!=-1)
+        {
+            anopath=pathRex.cap(1);
 
-        QFileInfo  anofile_info(anopath+".ano");
-        anoname=anofile_info.fileName();
-        QRegExp anoRex("(.*).ano");
-        if(anoRex.indexIn(anoname)!=-1)
-            anoname=anoRex.cap(1);
+            QFileInfo  anofile_info(anopath+".ano");
+            anoname=anofile_info.fileName();
+            QRegExp anoRex("(.*).ano");
+            if(anoRex.indexIn(anoname)!=-1)
+                anoname=anoRex.cap(1);
+        }
+        sendFile(anopath+".ano",anoname+".ano");
     }
-    sendFile(anopath+".ano",anoname+".ano");
-
+    else
+    {
+        qDebug()<<"error: failed to start socket_send";
+    }
 }
 
 void FileSocket_send::sendFile(QString filepath, QString filename)

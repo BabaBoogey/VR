@@ -1,4 +1,4 @@
-#include "manage.h"
+﻿#include "manage.h"
 #include <QtGlobal>
 #include "basic_c_fun/basic_surf_objs.h"
 FileServer *fileserver=0;
@@ -169,10 +169,8 @@ void ManageSocket::readManage()
 
             QString filename=FileLoadRex.cap(1);
             qDebug()<<"load :"<<filename;
-//            qDebug()<<"emit makeMessageServer(this,filename);";
             emit makeMessageServer(this,filename);
 
-//            qDebug()<<"load";
             QString anopath="./clouddata/"+filename;
             FileSocket_send *filesocket=new FileSocket_send(this->peerAddress().toString(),"9998",anopath);
         }
