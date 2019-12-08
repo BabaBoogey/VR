@@ -51,4 +51,5 @@ HEADERS += \
     neuron_editing/neuron_xforms.h \
     neuron_editing/v_neuronswc.h \
     receive_file.h \
-    send_file.h
+    send_file.h \
+    basic_c_fun/v3d_basicdatatype.h

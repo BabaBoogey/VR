@@ -1,4 +1,4 @@
-#ifndef MESSAGESOCKET_H
+﻿#ifndef MESSAGESOCKET_H
 #define MESSAGESOCKET_H
 
 #include <QtNetwork>
@@ -33,7 +33,9 @@ struct Global_Parameters{
     std::vector<clientproperty> clientsproperty;
     QReadWriteLock lock_clientsproperty;
 
-    std::vector<QString> messagelist;
+
+//    std::vector<QString> messagelist;
+    QStringList messagelist;
     QReadWriteLock lock_messagelist;
 
     QString Creator;

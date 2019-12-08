@@ -152,11 +152,16 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
         NeuronSWC S_temp;
         QStringList temp=qsl[i].trimmed().split(" ");
 
+        if(i==1||i==qsl.size()-1)
+        {
+            MessageServerSlotAnswerMessageSocket_addmarker(QString("/marker:%1__%2 %3 %4")
+              .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()));
+        }
 //        if(temp.size()==11)//use message head to judge
         if(head.trimmed().split(" ").at(0)=="TeraFly")
         {
             S_temp.n=i;
-            S_temp.type=colortype;
+            S_temp.type=temp[1].toInt();
             S_temp.x=temp[2].toFloat();
             S_temp.y=temp[3].toFloat();
             S_temp.z=temp[4].toFloat();
@@ -173,7 +178,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
         }else if(head.trimmed().split(" ").at(0)=="TeraVR")
         {
             S_temp.n=temp[0].toLongLong();
-            S_temp.type=colortype;
+            S_temp.type=temp[1].toInt();
             S_temp.x=temp[2].toFloat();
             S_temp.y=temp[3].toFloat();
             S_temp.z=temp[4].toFloat();
@@ -196,10 +201,10 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
                 S_temp.pn=-1;
             else
                 S_temp.pn=i-1;
-            S_temp.level=temp[7].toFloat();
-            S_temp.creatmode=temp[8].toFloat();
-            S_temp.timestamp=temp[9].toFloat();
-            S_temp.tfresindex=temp[10].toFloat();
+            S_temp.level=0;
+            S_temp.creatmode=0;
+            S_temp.timestamp=0;
+            S_temp.tfresindex=0;
         }
 
         newTempNT.listNeuron.append(S_temp);
