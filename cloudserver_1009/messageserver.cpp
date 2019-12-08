@@ -152,9 +152,14 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
         NeuronSWC S_temp;
         QStringList temp=qsl[i].trimmed().split(" ");
 
-        if(i==1||i==qsl.size()-1)
+        if(i==qsl.size()-1)
         {
             MessageServerSlotAnswerMessageSocket_addmarker(QString("/marker:%1__%2 %3 %4")
+              .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()));
+        }
+        if(i==1)
+        {
+            MessageServerSlotAnswerMessageSocket_delmarker(QString("/del_marker:%1__%2 %3 %4")
               .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()));
         }
 //        if(temp.size()==11)//use message head to judge
