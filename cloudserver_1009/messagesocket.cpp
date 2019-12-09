@@ -68,28 +68,23 @@ void MessageSocket::MessageSocketSlot_Read()
                 resindexProcess(ResMsg);
             }else if(segmentRex.indexIn(msg)!=-1)
             {
-                qDebug()<<msg;
                 QString seg=segmentRex.cap(1).trimmed();
                 segProcess(seg);
             }else if(deleteRex.indexIn(msg)!=-1)
             {
-                qDebug()<<msg;
                 QString delcurvepos=deleteRex.cap(1).trimmed();
                 deleteProcess(delcurvepos);
             }else if(markerRex.indexIn(msg)!=-1)
             {
-                qDebug()<<msg;
                 QString markerpos=markerRex.cap(1).trimmed();
                 markerProcess(markerpos);
             }else if(delmarkerRex.indexIn(msg)!=-1)
             {
-                qDebug()<<msg;
                 QString delmarkerpos=delmarkerRex.cap(1).trimmed();
                 delmaekerProcess(delmarkerpos);
             }else if(scaleRex.indexIn(msg)!=-1)
             {
                 float scale=scaleRex.cap(1).toFloat();
-                qDebug()<<scale;
                 if(global_parameters->global_scale!=0)
                 {
                     global_parameters->global_scale=scale;
@@ -106,12 +101,7 @@ void MessageSocket::loginProcess(const QString &name)
     global_parameters->clients[this]=name;
     global_parameters->lock_clients.unlock();
 
-    global_parameters->lock_messagelist.lockForRead();
-    int message_send=global_parameters->messagelist.size();
-    SendToUser(global_parameters->messagelist.join(","));
-    clientproperty client00={global_parameters->clientNum,name,21,false,true, message_send};
-    global_parameters->lock_messagelist.unlock();
-//    clientproperty client00={global_parameters->clientNum,name,21,false,true, 0};
+    clientproperty client00={global_parameters->clientNum,name,21,false,true, 0};
 
     if(!containsClient(name))
     {
@@ -128,7 +118,7 @@ void MessageSocket::loginProcess(const QString &name)
         int i=getUser(name);
         global_parameters->lock_clientsproperty.lockForWrite();
         global_parameters->clientsproperty[i].online=true;
-        global_parameters->clientsproperty[i].messageindex=message_send;
+        global_parameters->clientsproperty[i].messageindex=0;
         global_parameters->lock_clientsproperty.unlock();
     }
 
@@ -275,16 +265,7 @@ void MessageSocket::delmaekerProcess(const QString &delmarkerpos)
 //}
 void MessageSocket::SendToUser(const QString &msg)
 {
-//    qDebug()<<msg;
-//    QByteArray block;
-//    QDataStream out(&block, QIODevice::WriteOnly);
-//    out.setVersion(QDataStream::Qt_4_7);
 
-//    out<<quint16(0)<<msg;
-//    out.device()->seek(0);
-//    out<<quint16( block.size()-sizeof (quint16))<<msg;
-//    this->write(block);
-//    qDebug()<<"sendto "<<this->peerAddress().toString()<<msg;
 
     if(this->state()==QAbstractSocket::ConnectedState)
     {
@@ -375,17 +356,27 @@ void MessageSocket::updateUserMessage(QString username)
     global_parameters->lock_clientsproperty.unlock();
 
     global_parameters->lock_messagelist.lockForRead();
-    if(messageindex<global_parameters->messagelist.size())
+    if(messageindex!=0)
     {
-        global_parameters->lock_clientsproperty.lockForWrite();
-        if(global_parameters->clientsproperty.at(i).online)
+        if(messageindex<global_parameters->messagelist.size())
         {
-            qDebug()<< global_parameters->clientsproperty.at(i).name<<" messindex "<<":"<<messageindex;
-            SendToUser(global_parameters->messagelist.at(messageindex));
-            global_parameters->clientsproperty[i].messageindex++;
+            global_parameters->lock_clientsproperty.lockForWrite();
+            if(global_parameters->clientsproperty.at(i).online)
+            {
+                qDebug()<< global_parameters->clientsproperty.at(i).name<<" messindex "<<":"<<messageindex;
+                SendToUser(global_parameters->messagelist.at(messageindex));
+                global_parameters->clientsproperty[i].messageindex++;
+            }
+            global_parameters->lock_clientsproperty.unlock();
         }
-        global_parameters->lock_clientsproperty.unlock();
+    }else {
+             int message_send=global_parameters->messagelist.size();
+             SendToUser(global_parameters->messagelist.join(","));
+             global_parameters->lock_clientsproperty.lockForWrite();
+             global_parameters->clientsproperty[i].messageindex=message_send;
+             global_parameters->lock_clientsproperty.unlock();
     }
+
     global_parameters->lock_messagelist.unlock();
 }
 

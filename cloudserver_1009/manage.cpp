@@ -155,26 +155,19 @@ void ManageSocket::readManage()
         }else if(LoadRex.indexIn(manageMSG)!=-1)
         {
             QString username=LoadRex.cap(1);
-            qDebug()<<QString(currentDir()+":currentDir_load."+"\n");
             this->write(QString(currentDir()+":currentDir_load."+"\n").toUtf8());
-            qDebug()<<"jbhfkjsdhfkjh";
         }else if(FileDownRex.indexIn(manageMSG)!=-1)
         {
             QString filename=FileDownRex.cap(1);
             QString anopath="./clouddata/"+filename;
             FileSocket_send *filesocket=new FileSocket_send(this->peerAddress().toString(),"9998",anopath);
-
         }else if(FileLoadRex.indexIn(manageMSG)!=-1)
         {
-
             QString filename=FileLoadRex.cap(1);
-            qDebug()<<"load :"<<filename;
             emit makeMessageServer(this,filename);
-
             QString anopath="./clouddata/"+filename;
             FileSocket_send *filesocket=new FileSocket_send(this->peerAddress().toString(),"9998",anopath);
         }
-
     }
 }
 
@@ -182,8 +175,6 @@ void ManageSocket::resetfileserver()
 {
     if(fileserver!=0)
     {qDebug()<<"fileserver!=0,when deleteLater"; delete  fileserver;fileserver=0;}
-
-//    fileserver=0
 }
 QString currentDir()
 {
@@ -196,7 +187,6 @@ QString currentDir()
 
     QDir rootDir("./clouddata");
     QFileInfoList list=rootDir.entryInfoList();
-
     QStringList TEMPLIST;
     TEMPLIST.clear();
 
