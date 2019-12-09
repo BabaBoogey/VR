@@ -106,12 +106,12 @@ void MessageSocket::loginProcess(const QString &name)
     global_parameters->clients[this]=name;
     global_parameters->lock_clients.unlock();
 
-//    global_parameters->lock_messagelist.lockForRead();
-//    int message_send=global_parameters->messagelist.size();
-//    SendToUser(global_parameters->messagelist.join(","));
-//    clientproperty client00={global_parameters->clientNum,name,21,false,true, message_send};
-//    global_parameters->lock_messagelist.unlock();
-    clientproperty client00={global_parameters->clientNum,name,21,false,true, 0};
+    global_parameters->lock_messagelist.lockForRead();
+    int message_send=global_parameters->messagelist.size();
+    SendToUser(global_parameters->messagelist.join(","));
+    clientproperty client00={global_parameters->clientNum,name,21,false,true, message_send};
+    global_parameters->lock_messagelist.unlock();
+//    clientproperty client00={global_parameters->clientNum,name,21,false,true, 0};
 
     if(!containsClient(name))
     {
@@ -128,7 +128,7 @@ void MessageSocket::loginProcess(const QString &name)
         int i=getUser(name);
         global_parameters->lock_clientsproperty.lockForWrite();
         global_parameters->clientsproperty[i].online=true;
-        global_parameters->clientsproperty[i].messageindex=0;
+        global_parameters->clientsproperty[i].messageindex=message_send;
         global_parameters->lock_clientsproperty.unlock();
     }
 
