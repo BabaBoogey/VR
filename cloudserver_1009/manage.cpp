@@ -42,8 +42,6 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
                     goto label;
             }
 
-
-//            qDebug()<<messageport<<"_____here make messageport__________";
             Global_Parameters *global_parameters=new Global_Parameters;
 
             global_parameters->clients.clear();
@@ -54,11 +52,6 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
             global_parameters->wholeNT=readSWC_file("./clouddata/"+fileExp.cap(1)+".ano.eswc");
             global_parameters->wholePoint=readAPO_file("./clouddata/"+fileExp.cap(1)+".ano.apo");
 
-//            qDebug()<<"haunglei ----------------------------";
-//            global_parameters->NeuronList.clear();
-            /*-----------------问李琦------------------------*/
-//            global_parameters->sketchNum=global_parameters->wholeNT.listNeuron.size();//需要修改
-            /*-----------------问李琦------------------------*/
             global_parameters->filename=anofile_name;
             global_parameters->timer= new QTimer;
             global_parameters->messageUsedIndex=0;
