@@ -94,7 +94,6 @@ ManageSocket::ManageSocket(QObject *parent)
 
 void ManageSocket::ondisconnect()
 {
-
     qDebug()<<this->peerAddress().toString()<<"disconnected";
     this->deleteLater();
 }

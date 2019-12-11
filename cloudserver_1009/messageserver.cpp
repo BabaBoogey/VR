@@ -26,6 +26,7 @@ MessageServer::MessageServer(QString filename,Global_Parameters *parameters,QObj
     sketchNum=sketchedNTList.size();
 
     connect(global_parameters->timer,SIGNAL(timeout()),this,SLOT(autoSave()));
+    autoSave();
     global_parameters->timer->start(3*60*1000);
 }
 
@@ -69,20 +70,40 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
 {
     qDebug()<<"socket disconnected ,userNUM--";
 
-        QRegExp fileExp("(.*)_stamp_(.*).ano");
+        QRegExp fileExp("(.*).ano");
         if(fileExp.indexIn(filename)!=-1)
         {
 
-            QDateTime time=QDateTime::currentDateTime();
-            QString strtime=time.toString("yyyy_MM_dd_hh_mm_ss");
+//            QDateTime time=QDateTime::currentDateTime();
+//            QString strtime=time.toString("yyyy_MM_dd_hh_mm_ss");
 
-            QString tempname =fileExp.cap(1)+"_stamp_"+strtime;
+//            QString tempname =fileExp.cap(1)+"_stamp_"+strtime;
 
 
-            QFile anofile("./clouddata/"+tempname+".ano");
+            QString tempname ="./clouddata/"+fileExp.cap(1)+".ano";
+            QFile *f=new QFile(tempname);
+            if(f->exists())
+            {
+                f->remove();
+                delete f;
+                f=new QFile(tempname+".eswc");
+                if(f->exists())
+                {
+                    f->remove();
+                    delete f;
+                    f=new QFile(tempname+".apo");
+                    if(f->exists())
+                    {
+                        f->remove();
+                        delete f;
+                    }
+                }
+
+            }
+            QFile anofile(tempname);
             anofile.open(QIODevice::WriteOnly);
-            QString str1="APOFILE="+tempname+".ano.apo";
-            QString str2="SWCFILE="+tempname+".ano.eswc";
+            QString str1="APOFILE="+fileExp.cap(1)+".ano.apo";
+            QString str2="SWCFILE="+fileExp.cap(1)+".ano.eswc";
 
             QTextStream out(&anofile);
             out<<str1<<endl<<str2;
@@ -99,8 +120,8 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
                 }
                 global_parameters->wholeNT=V_NeuronSWC_list__2__NeuronTree(tosave);
             }
-            writeESWC_file("./clouddata/"+tempname+".ano.eswc",global_parameters->wholeNT);
-            writeAPO_file("./clouddata/"+tempname+".ano.apo",global_parameters->wholePoint);
+            writeESWC_file("./clouddata/"+fileExp.cap(1)+".ano.eswc",global_parameters->wholeNT);
+            writeAPO_file("./clouddata/"+fileExp.cap(1)+".ano.apo",global_parameters->wholePoint);
         }
         emit MessageServerDeleted(filename);
         delete global_parameters;
@@ -391,7 +412,7 @@ void MessageServer::autoSave()
     {
         rDir.mkdir("autosave");
     }
-    QRegExp fileExp("(.*)_stamp_(.*).ano");
+    QRegExp fileExp("(.*).ano");
     if(fileExp.indexIn(filename)!=-1)
     {
         QDateTime time=QDateTime::currentDateTime();
