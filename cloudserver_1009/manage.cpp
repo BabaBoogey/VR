@@ -164,6 +164,7 @@ void ManageSocket::readManage()
         }else if(FileLoadRex.indexIn(manageMSG)!=-1)
         {
             QString filename=FileLoadRex.cap(1);
+            if(filename.isEmpty()) return;
             emit makeMessageServer(this,filename);
             QString anopath="./clouddata/"+filename;
             FileSocket_send *filesocket=new FileSocket_send(this->peerAddress().toString(),"9998",anopath);

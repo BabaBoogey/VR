@@ -152,16 +152,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
         NeuronSWC S_temp;
         QStringList temp=qsl[i].trimmed().split(" ");
 
-        if(i==qsl.size()-1)
-        {
-            MessageServerSlotAnswerMessageSocket_addmarker(QString("/marker:%1__%2 %3 %4")
-              .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()));
-        }
-        if(i==1)
-        {
-            MessageServerSlotAnswerMessageSocket_delmarker(QString("/del_marker:%1__%2 %3 %4")
-              .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()));
-        }
+
 //        if(temp.size()==11)//use message head to judge
         if(head.trimmed().split(" ").at(0)=="TeraFly")
         {
@@ -179,6 +170,16 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
             S_temp.creatmode=temp[8].toFloat();
             S_temp.timestamp=temp[9].toFloat();
             S_temp.tfresindex=temp[10].toFloat();
+            if(i==qsl.size()-1)
+            {
+                MessageServerSlotAnswerMessageSocket_addmarker(QString("/marker:%1__%2 %3 %4")
+                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()));
+            }
+            if(i==1)
+            {
+                MessageServerSlotAnswerMessageSocket_delmarker(QString("/del_marker:%1__%2 %3 %4")
+                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()));
+            }
 
         }else if(head.trimmed().split(" ").at(0)=="TeraVR")
         {
@@ -194,6 +195,16 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
             S_temp.creatmode=0;
             S_temp.timestamp=0;
             S_temp.tfresindex=0;
+            if(i==qsl.size()-1)
+            {
+                MessageServerSlotAnswerMessageSocket_addmarker(QString("/marker:%1__%2 %3 %4")
+                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()));
+            }
+            if(i==1)
+            {
+                MessageServerSlotAnswerMessageSocket_delmarker(QString("/del_marker:%1__%2 %3 %4")
+                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()));
+            }
         }else if(head.trimmed().split(" ").at(0)=="TeraAI")
         {
             S_temp.n=i;

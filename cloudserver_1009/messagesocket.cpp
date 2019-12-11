@@ -443,7 +443,6 @@ void MessageSocket::MessageSocketSlot_disconnect()
     global_parameters->lock_clientsproperty.unlock();       
     global_parameters->lock_clients.unlock();
 
-
     global_parameters->lock_clientNum.lockForWrite();
     global_parameters->clientNum--;
     if(global_parameters->clientNum==0)
