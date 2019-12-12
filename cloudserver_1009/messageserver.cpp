@@ -159,7 +159,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
     global_parameters->lock_clientsproperty.unlock();
 
     QStringList qsl=QString(seg).trimmed().split("_",QString::SkipEmptyParts);
-
+    if(qsl.size()<=1) return;
     NeuronTree newTempNT;
     newTempNT.listNeuron.clear();
     newTempNT.hashNeuron.clear();
@@ -418,6 +418,7 @@ void MessageServer::autoSave()
     {
         rDir.mkdir("autosave");
     }
+    qDebug()<<"filename"<<filename;
     QRegExp fileExp("(.*).ano");
     if(fileExp.indexIn(filename)!=-1)
     {
