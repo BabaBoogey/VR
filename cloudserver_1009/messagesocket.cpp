@@ -68,22 +68,18 @@ void MessageSocket::MessageSocketSlot_Read()
                 resindexProcess(ResMsg);
             }else if(segmentRex.indexIn(msg)!=-1)
             {
-                qDebug()<<msg;
                 QString seg=segmentRex.cap(1).trimmed();
                 segProcess(seg);
             }else if(deleteRex.indexIn(msg)!=-1)
             {
-//                qDebug()<<msg;
                 QString delcurvepos=deleteRex.cap(1).trimmed();
                 deleteProcess(delcurvepos);
             }else if(markerRex.indexIn(msg)!=-1)
             {
-//                qDebug()<<msg;
                 QString markerpos=markerRex.cap(1).trimmed();
                 markerProcess(markerpos);
             }else if(delmarkerRex.indexIn(msg)!=-1)
             {
-//                qDebug()<<msg;
                 QString delmarkerpos=delmarkerRex.cap(1).trimmed();
                 delmaekerProcess(delmarkerpos);
             }else if(scaleRex.indexIn(msg)!=-1)
@@ -151,9 +147,6 @@ void MessageSocket::loginProcess(const QString &name)
     SendUserList();
     SendColortype();
     SendCreaorMsg();
-//    qDebug()<<"login :"<<name;
-
-
 }
 
 void MessageSocket::askmessageProcess()

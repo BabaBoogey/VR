@@ -1,4 +1,4 @@
-#include "receive_file.h"
+﻿#include "receive_file.h"
 FileServer::FileServer(QObject *parent):QTcpServer (parent)
 {
     clientNum=0;
@@ -68,9 +68,6 @@ void FileSocket_receive::readFile()
             m_bytesreceived=0;
             this->write(QString("received "+filename+"\n").toUtf8());
             qDebug()<<QString("received "+filename+"\n");
-//            QRegExp apoRex("(.*).apo");
-//            if(apoRex.indexIn(filename)!=-1)
-//                emit receivefile(filename);
         }
     }else {
             if(this->bytesAvailable()+m_bytesreceived>=totalsize)
@@ -94,9 +91,7 @@ void FileSocket_receive::readFile()
                 m_bytesreceived=0;
                 this->write(QString("received "+filename+"\n").toUtf8());
                 qDebug()<<QString("received "+filename+"\n");
-//                QRegExp apoRex("(.*).apo");
-//                if(apoRex.indexIn(filename)!=-1)
-//                    emit receivefile(filename);
+
             }
         }
 }

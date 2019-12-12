@@ -73,13 +73,6 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
         QRegExp fileExp("(.*).ano");
         if(fileExp.indexIn(filename)!=-1)
         {
-
-//            QDateTime time=QDateTime::currentDateTime();
-//            QString strtime=time.toString("yyyy_MM_dd_hh_mm_ss");
-
-//            QString tempname =fileExp.cap(1)+"_stamp_"+strtime;
-
-
             QString tempname ="./clouddata/"+fileExp.cap(1)+".ano";
             QFile *f=new QFile(tempname);
             if(f->exists())
@@ -169,12 +162,9 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
 
     for(int i=1;i<qsl.size();i++)
     {
-       // qDebug()<<qsl[i]<<endl;
         NeuronSWC S_temp;
         QStringList temp=qsl[i].trimmed().split(" ");
 
-
-//        if(temp.size()==11)//use message head to judge
         if(head.trimmed().split(" ").at(0)=="TeraFly")
         {
             S_temp.n=i;
@@ -331,7 +321,6 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
 
     CellAPO marker0;
     marker0.x=mx;marker0.y=my;marker0.z=mz;
-    qDebug()<<"marker:(x,y,z)"<<marker0.x<<","<<marker0.y<<","<<marker0.z;
 
     marker0.color.r=255;
     marker0.color.g=0;
@@ -361,7 +350,6 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
     }
 
     global_parameters->wholePoint.push_back(marker0);
-        qDebug()<<"add marker "<<global_parameters->wholePoint.size();
     qDebug()<<"MessageServerSlotAnswerMessageSocket_addmarker end;";
 
 }
@@ -449,7 +437,6 @@ void MessageServer::autoSave()
         }
         writeESWC_file("./autosave/"+tempname+".ano.eswc",global_parameters->wholeNT);
         writeAPO_file("./autosave/"+tempname+".ano.apo",global_parameters->wholePoint);
-//        global_parameters->timer->start(60*5*1000);
     }
 }
 
