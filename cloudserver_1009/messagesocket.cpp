@@ -116,9 +116,14 @@ void MessageSocket::loginProcess(const QString &name)
 
     }else {
         int i=getUser(name);
+        global_parameters->lock_clientNum.lockForWrite();
+        global_parameters->clientNum++;
+        global_parameters->lock_clientNum.unlock();
+
         global_parameters->lock_clientsproperty.lockForWrite();
         global_parameters->clientsproperty[i].online=true;
         global_parameters->clientsproperty[i].messageindex=0;
+        qDebug()<<global_parameters->clientsproperty[i].name<<" "<<global_parameters->clientsproperty[i].messageindex;
         global_parameters->lock_clientsproperty.unlock();
     }
 
