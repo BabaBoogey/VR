@@ -366,21 +366,26 @@ void MessageSocket::updateUserMessage(QString username)
             global_parameters->lock_clientsproperty.lockForWrite();
             if(global_parameters->clientsproperty.at(i).online)
             {
-                qDebug()<< global_parameters->clientsproperty.at(i).name<<" messindex "<<":"<<messageindex;
                 SendToUser(global_parameters->messagelist.at(messageindex));
+                qDebug()<< global_parameters->clientsproperty.at(i).name<<" messindex "<<":"<<messageindex;
                 global_parameters->clientsproperty[i].messageindex++;
             }
             global_parameters->lock_clientsproperty.unlock();
+
         }
     }else {
-             int message_send=global_parameters->messagelist.size();
-             SendToUser(global_parameters->messagelist.join(","));
-             global_parameters->lock_clientsproperty.lockForWrite();
-             global_parameters->clientsproperty[i].messageindex=message_send;
-             global_parameters->lock_clientsproperty.unlock();
+        if(messageindex<global_parameters->messagelist.size())
+        {
+            int message_send=global_parameters->messagelist.size();
+            SendToUser(global_parameters->messagelist.join(","));
+            global_parameters->lock_clientsproperty.lockForWrite();
+            global_parameters->clientsproperty[i].messageindex=message_send;
+            qDebug()<< global_parameters->clientsproperty.at(i).name<<" message_send "<<":"<<message_send;
+            global_parameters->lock_clientsproperty.unlock();
+        }
     }
-
     global_parameters->lock_messagelist.unlock();
+
 }
 
 bool MessageSocket::containsClient(const QString &name)
