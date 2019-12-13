@@ -68,6 +68,7 @@ void MessageSocket::MessageSocketSlot_Read()
                 resindexProcess(ResMsg);
             }else if(segmentRex.indexIn(msg)!=-1)
             {
+                qDebug()<<msg;
                 QString seg=segmentRex.cap(1).trimmed();
                 segProcess(seg);
             }else if(deleteRex.indexIn(msg)!=-1)
@@ -116,9 +117,6 @@ void MessageSocket::loginProcess(const QString &name)
 
     }else {
         int i=getUser(name);
-        global_parameters->lock_clientNum.lockForWrite();
-        global_parameters->clientNum++;
-        global_parameters->lock_clientNum.unlock();
         global_parameters->lock_clientNum.lockForWrite();
         global_parameters->clientNum++;
         global_parameters->lock_clientNum.unlock();
