@@ -1,30 +1,39 @@
-﻿#include "send_file.h"
+#include "send_file.h"
 
-FileSocket_send::FileSocket_send(QString ip,QString port,QString anofile_path,QObject *parent)
+FileServer_send::FileServer_send(QObject *parent):QTcpServer(parent)
+{
+    list.clear();
+    this->listen(QHostAddress::Any,9997);
+}
+
+void FileServer_send::incomingConnection(int socketDesc)
+{
+
+    FileSocket_send *filesocket=new FileSocket_send;
+    filesocket->setSocketDescriptor(socketDesc);
+    list.push_back(filesocket);
+}
+
+void FileServer_send::sendFile(QString ip, QString filename)
+{
+    for(int i=0;i<list.size();i++)
+    {
+        if(list[i]->peerAddress().toString()==ip)
+        {
+            FileSocket_send *temp=list[i];
+            list.removeAt(i);
+            temp->anoname=filename;
+            temp->sendFile("./clouddata/"+filename,filename);
+//            temp->sendFile("./clouddata/"+filename+".eswc",filename);
+//            temp->sendFile("./clouddata/"+filename+".apo",filename);
+        }
+    }
+}
+FileSocket_send::FileSocket_send(QObject *parent)
     :QTcpSocket (parent)
 {
-    connect(this,SIGNAL(readyRead()),this,SLOT(readMSG()));
     connect(this,SIGNAL(disconnected()),this,SLOT(deleteLater()));
-    this->connectToHost(ip,port.toInt());
-    if(this->waitForConnected())
-    {
-        QRegExp pathRex("(.*).ano");
-        if(pathRex.indexIn(anofile_path)!=-1)
-        {
-            anopath=pathRex.cap(1);
-
-            QFileInfo  anofile_info(anopath+".ano");
-            anoname=anofile_info.fileName();
-            QRegExp anoRex("(.*).ano");
-            if(anoRex.indexIn(anoname)!=-1)
-                anoname=anoRex.cap(1);
-        }
-        sendFile(anopath+".ano",anoname+".ano");
-    }
-    else
-    {
-        qDebug()<<"error: failed to start socket_send";
-    }
+    connect(this,SIGNAL(readyRead()),this,SLOT(readMSG()));
 }
 
 void FileSocket_send::sendFile(QString filepath, QString filename)
@@ -45,7 +54,7 @@ void FileSocket_send::sendFile(QString filepath, QString filename)
     dts<<data;
 
     this->write(block);
-    qDebug()<<"===="<<filepath;
+
 }
 
 void FileSocket_send::readMSG()
@@ -57,10 +66,10 @@ void FileSocket_send::readMSG()
         QString MSG=QString::fromUtf8(this->readLine());
         if(anoRex.indexIn(MSG)!=-1)
         {
-            sendFile(anopath+".ano.eswc",anoname+".ano.eswc");
+            sendFile("./clouddata/"+anoname+".eswc",anoname+".eswc");
         }else if(swcRex.indexIn(MSG)!=-1)
         {
-            sendFile(anopath+".ano.apo",anoname+".ano.apo");
+            sendFile("./clouddata/"+anoname+".apo",anoname+".apo");
         }else if(apoRex.indexIn(MSG)!=-1)
         {
             qDebug()<<"filesocket disconnect";
@@ -68,3 +77,5 @@ void FileSocket_send::readMSG()
         }
     }
 }
+
+

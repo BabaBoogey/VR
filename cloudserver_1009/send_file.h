@@ -1,18 +1,33 @@
 #ifndef SEND_FILE_H
 #define SEND_FILE_H
 #include <QtNetwork>
+class FileSocket_send;
+class FileServer_send:public QTcpServer
+{
+    Q_OBJECT
+public:
+
+    explicit FileServer_send(QObject *parent=0);
+    void sendFile(QString ip,QString filename);
+private:
+    void incomingConnection(int socketDesc);
+private:
+    QList<FileSocket_send *> list;
+
+
+};
+
 class FileSocket_send:public QTcpSocket
 {
     Q_OBJECT
 public:
-    explicit FileSocket_send::FileSocket_send
-    (QString ip,QString port,QString anofile_path,QObject *parent=0);
+    explicit FileSocket_send::FileSocket_send(QObject *parent=0);
 
     void sendFile(QString filepath,QString filename);
 public slots:
     void readMSG();
-private:
-    QString anopath;
+public:
+//    QString anopath;
     QString anoname;
 };
 #endif // SEND_FILE_H
