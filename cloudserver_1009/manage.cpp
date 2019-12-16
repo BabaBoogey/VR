@@ -2,6 +2,8 @@
 #include <QtGlobal>
 #include "basic_c_fun/basic_surf_objs.h"
 FileServer *fileserver=0;
+FileServer_send *fileserver_send=0;
+
 ManageServer::ManageServer(QObject *parent)
     :QTcpServer (parent)
 {
@@ -11,6 +13,7 @@ ManageServer::ManageServer(QObject *parent)
     }else {
         qDebug()<<"ManageServer is not started ,please try again.";
     }
+    fileserver_send=new FileServer_send();
 }
 
 void ManageServer::incomingConnection(int socketDesc)
@@ -20,14 +23,10 @@ void ManageServer::incomingConnection(int socketDesc)
     qDebug()<<managesocket->peerAddress().toString()<<" connected ----";
     connect(managesocket,SIGNAL(makeMessageServer(ManageSocket *,QString)),
             this,SLOT(makeMessageServer(ManageSocket *,QString)));
-
-
 }
 
 void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_name)
 {
-    //
-//    qDebug()<<"in make message server";
     QRegExp fileExp("(.*).ano");
     if(fileExp.indexIn(anofile_name)!=-1)
     {
@@ -57,15 +56,12 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
             global_parameters->messageUsedIndex=0;
             global_parameters->global_scale=0;
 
-//            qDebug()<<"inital success.-----------------------";
             MessageServer *messageserver=new MessageServer(anofile_name, global_parameters);
             if(!messageserver->listen(QHostAddress::Any,messageport.toInt()))
             {
-//                qDebug()<<anofile_name<<" MessageServer is not started.";
-
+                return;
             }else {
                  managesocket->write(QString(messageport+":messageport"+".\n").toUtf8());
-//                 qDebug()<<"here 3";
                  Map_File_MessageServer[anofile_name]=messageserver;
                  connect(messageserver,SIGNAL(MessageServerDeleted(QString)),
                         this,SLOT(messageserver_ondeltete(QString)) );
@@ -80,7 +76,6 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
 void ManageServer::messageserver_ondeltete(QString filename)
 {
     qDebug()<<"Map_File_MessageServer.remove(filename);";
-
     Map_File_MessageServer.remove(filename);
 }
 
@@ -88,7 +83,6 @@ ManageSocket::ManageSocket(QObject *parent)
     :QTcpSocket (parent)
 {
     connect(this,SIGNAL(readyRead()),this,SLOT(readManage()));
-//    connect(this,SIGNAL(disconnected()),this,SLOT(deleteLater()));
     connect(this,SIGNAL(disconnected()),this,SLOT(ondisconnect()));
 }
 
@@ -108,8 +102,6 @@ void ManageSocket::readManage()
     QRegExp FileDownRex("(.*):choose1.\n");
     QRegExp FileLoadRex("(.*):choose2.\n");
 
-
-
     while(this->canReadLine())
     {
         QString manageMSG=QString::fromUtf8(this->readLine());
@@ -127,10 +119,8 @@ void ManageSocket::readManage()
 
             QString username=ImportRex.cap(1);
             QString port_receivefile="9998";
-
             if(fileserver==0)
             {
-
                 fileserver=new FileServer;
                 connect(fileserver,SIGNAL(fileserverdeleted()),this,SLOT(resetfileserver()));
                 if(!fileserver->listen(QHostAddress::Any,port_receivefile.toInt()))
@@ -152,14 +142,18 @@ void ManageSocket::readManage()
         {
             QString filename=FileDownRex.cap(1);
             QString anopath="./clouddata/"+filename;
-            FileSocket_send *filesocket=new FileSocket_send(this->peerAddress().toString(),"9998",anopath);
+//            FileSocket_send *filesocket=new FileSocket_send(this->peerAddress().toString(),"9998",anopath);
         }else if(FileLoadRex.indexIn(manageMSG)!=-1)
         {
-            QString filename=FileLoadRex.cap(1);
-            if(filename.isEmpty()) return;
+            QString filename=FileLoadRex.cap(1).trimmed();
+            fileserver_send->sendFile(this->peerAddress().toString(),filename);
+            qDebug()<<"load :"<<filename;
             emit makeMessageServer(this,filename);
-            QString anopath="./clouddata/"+filename;
-            FileSocket_send *filesocket=new FileSocket_send(this->peerAddress().toString(),"9998",anopath);
+//            QString filename=FileLoadRex.cap(1);
+//            if(filename.isEmpty()) return;
+//            emit makeMessageServer(this,filename);
+//            QString anopath="./clouddata/"+filename;
+//            FileSocket_send *filesocket=new FileSocket_send(this->peerAddress().toString(),"9998",anopath);
         }
     }
 }
