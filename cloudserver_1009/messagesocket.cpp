@@ -21,8 +21,9 @@ void MessageSocket::MessageSocketSlot_Read()
         QRegExp deleteRex("^/del_curve:(.*)$");
         QRegExp markerRex("^/marker:(.*)$");
         QRegExp delmarkerRex("^/del_marker:(.*)$");
-        QRegExp scaleRex("^/scale:(.*)");
 
+        QRegExp scaleRex("^/scale:(.*)");
+        QRegExp creatorRex("^/creator:(.*)");
         QDataStream in(this);
         in.setVersion(QDataStream::Qt_4_7);
 
@@ -82,7 +83,7 @@ void MessageSocket::MessageSocketSlot_Read()
             }else if(delmarkerRex.indexIn(msg)!=-1)
             {
                 QString delmarkerpos=delmarkerRex.cap(1).trimmed();
-                delmaekerProcess(delmarkerpos);
+                delmarkerProcess(delmarkerpos);
             }else if(scaleRex.indexIn(msg)!=-1)
             {
                 float scale=scaleRex.cap(1).toFloat();
@@ -90,10 +91,15 @@ void MessageSocket::MessageSocketSlot_Read()
                 {
                     global_parameters->global_scale=scale;
                 }
+            }else if(creatorRex.indexIn(msg)!=-1)
+            {
+                creatorProcess(msg);
             }
 
         }
 }
+
+
 
 void MessageSocket::loginProcess(const QString &name)
 {
@@ -240,7 +246,7 @@ void MessageSocket::markerProcess(const QString &markermsg)
 }
 
 //delete marker
-void MessageSocket::delmaekerProcess(const QString &delmarkerpos)
+void MessageSocket::delmarkerProcess(const QString &delmarkerpos)
 {
     global_parameters->lock_clients.lockForRead();
     QString user=global_parameters->clients.value(this);
@@ -252,6 +258,13 @@ void MessageSocket::delmaekerProcess(const QString &delmarkerpos)
     global_parameters->lock_messagelist.unlock();
 
     //减marker ，QString("/del_marker:" +user+" "+delmarkerpos )
+}
+
+void MessageSocket::creatorProcess(const QString msg)
+{
+    global_parameters->lock_messagelist.lockForWrite();
+    global_parameters->messagelist.push_back(msg);
+    global_parameters->lock_messagelist.unlock();
 }
 
 //void MessageSocket::dragnodeProcess(const QString &dragnodepos)
