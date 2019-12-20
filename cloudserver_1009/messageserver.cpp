@@ -145,7 +145,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
         if(global_parameters->clientsproperty.at(i).name==username)
         {
             colortype=global_parameters->clientsproperty.at(i).colortype;
-            qDebug()<<username<<":"<<colortype;
+//            qDebug()<<username<<":"<<colortype;
             break;
         }
     }
@@ -307,7 +307,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
         if(global_parameters->clientsproperty.at(i).name==username)
         {
             colortype=global_parameters->clientsproperty.at(i).colortype;
-            qDebug()<<username<<":"<<colortype;
+//            qDebug()<<username<<":"<<colortype;
             break;
         }
     }
@@ -339,7 +339,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
         float dist = /*glm::*/sqrt((global_parameters->wholePoint.at(i).x-marker0.x)*(global_parameters->wholePoint.at(i).x-marker0.x)+
                                (global_parameters->wholePoint.at(i).y-marker0.y)*(global_parameters->wholePoint.at(i).y-marker0.y)+
                                (global_parameters->wholePoint.at(i).z-marker0.z)*(global_parameters->wholePoint.at(i).z-marker0.z));
-        qDebug()<<i<<" "<<global_parameters->wholePoint.at(i).x<<" "<<global_parameters->wholePoint.at(i).y<<" "<<global_parameters->wholePoint.at(i).z;
+//        qDebug()<<i<<" "<<global_parameters->wholePoint.at(i).x<<" "<<global_parameters->wholePoint.at(i).y<<" "<<global_parameters->wholePoint.at(i).z;
         if(dist<8.0)
         {
 
