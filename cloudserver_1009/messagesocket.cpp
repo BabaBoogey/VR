@@ -93,7 +93,9 @@ void MessageSocket::MessageSocketSlot_Read()
                 }
             }else if(creatorRex.indexIn(msg)!=-1)
             {
-                creatorProcess(msg);
+                qDebug()<<msg;
+
+                creatorProcess(creatorRex.cap(1));
             }
 
         }
@@ -263,8 +265,14 @@ void MessageSocket::delmarkerProcess(const QString &delmarkerpos)
 void MessageSocket::creatorProcess(const QString msg)
 {
     global_parameters->lock_messagelist.lockForWrite();
-    global_parameters->messagelist.push_back(msg);
+    global_parameters->messagelist.push_back(QString("/creator:"+msg));
     global_parameters->lock_messagelist.unlock();
+
+    global_parameters->lock_clients.lockForRead();
+    QString user=global_parameters->clients.value(this);
+    global_parameters->lock_clients.unlock();
+
+    emit signal_addmarker(QString("/marker:" +user+"__"+msg));
 }
 
 //void MessageSocket::dragnodeProcess(const QString &dragnodepos)
