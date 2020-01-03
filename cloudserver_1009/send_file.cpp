@@ -1,4 +1,4 @@
-#include "send_file.h"
+﻿#include "send_file.h"
 
 FileServer_send::FileServer_send(QObject *parent):QTcpServer(parent)
 {
@@ -63,6 +63,7 @@ void FileSocket_send::readMSG()
         QRegExp anoRex("received (.*).ano\n");
         QRegExp swcRex("received (.*).eswc\n");
         QRegExp apoRex("received (.*).apo\n");
+        QRegExp txtRex("received (.*).txt\n");
         QString MSG=QString::fromUtf8(this->readLine());
         if(anoRex.indexIn(MSG)!=-1)
         {
@@ -71,6 +72,11 @@ void FileSocket_send::readMSG()
         {
             sendFile("./clouddata/"+anoname+".apo",anoname+".apo");
         }else if(apoRex.indexIn(MSG)!=-1)
+        {
+            sendFile("./clouddata/message.txt","message.txt");
+//            qDebug()<<"filesocket disconnect";
+//            this->disconnectFromHost();
+        }else if(txtRex.indexIn(MSG)!=-1)
         {
             qDebug()<<"filesocket disconnect";
             this->disconnectFromHost();

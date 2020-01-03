@@ -111,9 +111,10 @@ void MessageSocket::loginProcess(const QString &name)
     global_parameters->lock_clients.unlock();
 
     clientproperty client00={global_parameters->clientNum,name,21,false,true, 0};
-
     if(!containsClient(name))
     {
+        client00.messageindex=global_parameters->Map_Ip_NumMessage[this->peerAddress().toString()];
+        global_parameters->Map_Ip_NumMessage.remove(this->peerAddress().toString());
         global_parameters->lock_clientNum.lockForWrite();
         global_parameters->clientNum++;
         client00.colortype=global_parameters->clientNum+3;
@@ -122,7 +123,6 @@ void MessageSocket::loginProcess(const QString &name)
         global_parameters->lock_clientsproperty.lockForWrite();
         global_parameters->clientsproperty.push_back(client00);
         global_parameters->lock_clientsproperty.unlock();
-
     }else {
         int i=getUser(name);
         global_parameters->lock_clientNum.lockForWrite();
@@ -131,7 +131,8 @@ void MessageSocket::loginProcess(const QString &name)
 
         global_parameters->lock_clientsproperty.lockForWrite();
         global_parameters->clientsproperty[i].online=true;
-        global_parameters->clientsproperty[i].messageindex=0;
+        global_parameters->clientsproperty[i].messageindex=global_parameters->Map_Ip_NumMessage[this->peerAddress().toString()];
+        global_parameters->Map_Ip_NumMessage.remove(this->peerAddress().toString());
         qDebug()<<global_parameters->clientsproperty[i].name<<" "<<global_parameters->clientsproperty[i].messageindex;
         global_parameters->lock_clientsproperty.unlock();
     }
@@ -394,7 +395,7 @@ void MessageSocket::updateUserMessage(QString username)
             global_parameters->lock_clientsproperty.unlock();
 
         }
-    }else {
+    }/*else {
         if(messageindex<global_parameters->messagelist.size())
         {
             int message_send=global_parameters->messagelist.size();
@@ -404,7 +405,7 @@ void MessageSocket::updateUserMessage(QString username)
             qDebug()<< global_parameters->clientsproperty.at(i).name<<" message_send "<<":"<<message_send;
             global_parameters->lock_clientsproperty.unlock();
         }
-    }
+    }*/
     global_parameters->lock_messagelist.unlock();
 
 }

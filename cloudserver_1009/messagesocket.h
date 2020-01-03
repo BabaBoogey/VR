@@ -47,6 +47,7 @@ struct Global_Parameters{
     QList <CellAPO> wholePoint;
     QReadWriteLock lock_wholePoint;
 
+    QMap <QString,quint64> Map_Ip_NumMessage;
 //    QList<NeuronTree> NeuronList;
 //    QReadWriteLock lock_NeuronList;
 

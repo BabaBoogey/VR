@@ -1,4 +1,4 @@
-#ifndef MESSAGESERVER_H
+﻿#ifndef MESSAGESERVER_H
 #define MESSAGESERVER_H
 
 #include <QtNetwork>
@@ -18,11 +18,12 @@ class MessageServer:public QTcpServer
 public:
     explicit MessageServer(QString filename,Global_Parameters *parameters,QObject *parent=0);
 protected:
-
+public:
+        Global_Parameters *global_parameters;
 private:
     void incomingConnection(int socketDesc);
 
-    Global_Parameters *global_parameters;
+
     QString filename;
 
     QList<NeuronTree> sketchedNTList;
