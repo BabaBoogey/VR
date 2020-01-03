@@ -177,10 +177,10 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
                 S_temp.pn=-1;
             else
                 S_temp.pn=i-1;
-            S_temp.level=temp[7].toFloat();
-            S_temp.creatmode=temp[8].toFloat();
-            S_temp.timestamp=temp[9].toFloat();
-            S_temp.tfresindex=temp[10].toFloat();
+            S_temp.level=0;
+            S_temp.creatmode=0;
+            S_temp.timestamp=0;
+            S_temp.tfresindex=0;
             if(i==qsl.size()-1)
             {
                 MessageServerSlotAnswerMessageSocket_addmarker(QString("/marker:%1__%2 %3 %4")

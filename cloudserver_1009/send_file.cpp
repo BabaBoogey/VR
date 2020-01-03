@@ -73,9 +73,8 @@ void FileSocket_send::readMSG()
             sendFile("./clouddata/"+anoname+".apo",anoname+".apo");
         }else if(apoRex.indexIn(MSG)!=-1)
         {
-            sendFile("./clouddata/message.txt","message.txt");
-//            qDebug()<<"filesocket disconnect";
-//            this->disconnectFromHost();
+            sendFile("./clouddata/"+anoname+".txt",anoname+".txt");
+
         }else if(txtRex.indexIn(MSG)!=-1)
         {
             qDebug()<<"filesocket disconnect";

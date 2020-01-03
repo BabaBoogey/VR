@@ -265,15 +265,16 @@ void MessageSocket::delmarkerProcess(const QString &delmarkerpos)
 
 void MessageSocket::creatorProcess(const QString msg)
 {
-    global_parameters->lock_messagelist.lockForWrite();
-    global_parameters->messagelist.push_back(QString("/creator:"+msg));
-    global_parameters->lock_messagelist.unlock();
-
     global_parameters->lock_clients.lockForRead();
     QString user=global_parameters->clients.value(this);
     global_parameters->lock_clients.unlock();
 
+    global_parameters->lock_messagelist.lockForWrite();
+    global_parameters->messagelist.push_back(QString("/creator:"+user+"__"+msg));
     emit signal_addmarker(QString("/marker:" +user+"__"+msg));
+    global_parameters->lock_messagelist.unlock();
+
+
 }
 
 //void MessageSocket::dragnodeProcess(const QString &dragnodepos)
@@ -381,21 +382,21 @@ void MessageSocket::updateUserMessage(QString username)
     global_parameters->lock_clientsproperty.unlock();
 
     global_parameters->lock_messagelist.lockForRead();
-    if(messageindex!=0)
-    {
+
         if(messageindex<global_parameters->messagelist.size())
         {
+//            qDebug()<<"jkghkjg";
             global_parameters->lock_clientsproperty.lockForWrite();
             if(global_parameters->clientsproperty.at(i).online)
             {
                 SendToUser(global_parameters->messagelist.at(messageindex));
-                qDebug()<< global_parameters->clientsproperty.at(i).name<<" messindex "<<":"<<messageindex;
+//                qDebug()<< global_parameters->clientsproperty.at(i).name<<" messindex "<<":"<<messageindex<<" "<<global_parameters->messagelist.at(messageindex);
                 global_parameters->clientsproperty[i].messageindex++;
             }
             global_parameters->lock_clientsproperty.unlock();
 
         }
-    }/*else {
+/*else {
         if(messageindex<global_parameters->messagelist.size())
         {
             int message_send=global_parameters->messagelist.size();
