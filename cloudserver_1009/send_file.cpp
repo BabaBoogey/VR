@@ -78,6 +78,9 @@ void FileSocket_send::readMSG()
         }else if(txtRex.indexIn(MSG)!=-1)
         {
             qDebug()<<"filesocket disconnect";
+            QFile *f=new QFile("./clouddata/"+anoname+".txt");
+            f->remove();
+            delete f;
             this->disconnectFromHost();
         }
     }

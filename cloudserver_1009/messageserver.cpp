@@ -125,7 +125,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
 {
-    qDebug()<<"MessageServerSlotAnswerMessageSocket_addseg";
+    qDebug()<<"MessageServerSlotAnswerMessageSocket_addseg\n"<<MSG;
     /*MSG=QString("/seg:"+user + "__" + msg)*/
     QRegExp Reg("/seg:(.*)__(.*)");
     QString seg;
@@ -245,7 +245,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
 {
-    qDebug()<<"MessageServerSlotAnswerMessageSocket_delseg\n";
+    qDebug()<<"MessageServerSlotAnswerMessageSocket_delseg\n"<<MSG;
     /*MSG=QString("/del_curve:"+user + "__" + msg)*/
     QRegExp Reg("/del_curve:(.*)__(.*)"); //msg=node 1_node 2_....
     QString delseg;
@@ -289,7 +289,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
 {
-    qDebug()<<"MessageServerSlotAnswerMessageSocket_addmarker\n"<<MSG<<" "<<global_parameters->wholePoint.size();
+    qDebug()<<"MessageServerSlotAnswerMessageSocket_addmarker\n"<<MSG;
     /*MSG=QString("/marker:" +user+"__"+markermsg)*/
     QRegExp Reg("/marker:(.*)__(.*)");
     QString markerpos;
@@ -340,7 +340,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
                                (global_parameters->wholePoint.at(i).y-marker0.y)*(global_parameters->wholePoint.at(i).y-marker0.y)+
                                (global_parameters->wholePoint.at(i).z-marker0.z)*(global_parameters->wholePoint.at(i).z-marker0.z));
 //        qDebug()<<i<<" "<<global_parameters->wholePoint.at(i).x<<" "<<global_parameters->wholePoint.at(i).y<<" "<<global_parameters->wholePoint.at(i).z;
-        if(dist<8.0)
+        if(dist<5)
         {
 
             global_parameters->wholePoint.removeAt(i);

@@ -1,6 +1,7 @@
-#ifndef SEND_FILE_H
+﻿#ifndef SEND_FILE_H
 #define SEND_FILE_H
 #include <QtNetwork>
+#include <QFile>S
 class FileSocket_send;
 class FileServer_send:public QTcpServer
 {
