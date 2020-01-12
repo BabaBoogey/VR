@@ -22,7 +22,7 @@ class FileSocket_send:public QTcpSocket
 {
     Q_OBJECT
 public:
-    explicit FileSocket_send::FileSocket_send(QObject *parent=0);
+    FileSocket_send(QObject *parent=0);
 
     void sendFile(QString filepath,QString filename);
 public slots:

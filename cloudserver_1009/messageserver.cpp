@@ -277,8 +277,9 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
             NeuronSWC ss=NT.listNeuron.at(NT.listNeuron.size()-2);
             NeuronSWC ss0=NT.listNeuron.at(1);
 
-            if(sqrt(pow(ss.x-x,2)+pow(ss.y-y,2)+pow(ss.z-z,2))<=2.0||sqrt(pow(ss0.x-x,2)+pow(ss0.y-y,2)+pow(ss0.z-z,2))<=2.0)
+            if(sqrt(pow(ss.x-x,2)+pow(ss.y-y,2)+pow(ss.z-z,2))<=0.01||sqrt(pow(ss0.x-x,2)+pow(ss0.y-y,2)+pow(ss0.z-z,2))<=0.01)
             {
+
                 sketchedNTList.removeAt(j);break;
             }
         }
