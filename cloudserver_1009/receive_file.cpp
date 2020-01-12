@@ -16,7 +16,7 @@ void FileServer::Socketdisconnect()
 {
     if(--clientNum==0)
     {
-        qDebug()<<"delete fileser in server";
+//        qDebug()<<"delete fileser in server";
 
         this->deleteLater();
         emit fileserverdeleted();
@@ -58,7 +58,7 @@ void FileSocket_receive::readFile()
 
             QString filename;
             in>>filename;
-            qDebug()<<filename;
+//            qDebug()<<filename;
             QByteArray block;
             in>>block;
             QFile file("./clouddata/"+filename);
@@ -67,7 +67,7 @@ void FileSocket_receive::readFile()
             file.close();
             m_bytesreceived=0;
             this->write(QString("received "+filename+"\n").toUtf8());
-            qDebug()<<QString("received "+filename+"\n");
+//            qDebug()<<QString("received "+filename+"\n");
         }
     }else {
             if(this->bytesAvailable()+m_bytesreceived>=totalsize)
@@ -81,7 +81,7 @@ void FileSocket_receive::readFile()
 
                 QString filename;
                 in>>filename;
-                qDebug()<<filename;
+//                qDebug()<<filename;
                 QByteArray block;
                 in>>block;
                 QFile file("./clouddata/"+filename);
@@ -90,7 +90,7 @@ void FileSocket_receive::readFile()
                 file.close();
                 m_bytesreceived=0;
                 this->write(QString("received "+filename+"\n").toUtf8());
-                qDebug()<<QString("received "+filename+"\n");
+//                qDebug()<<QString("received "+filename+"\n");
 
             }
         }

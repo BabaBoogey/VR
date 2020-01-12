@@ -2,7 +2,7 @@
 MessageSocket::MessageSocket(int socketDesc,Global_Parameters *parameters,QObject *parent)
     :socketId(socketDesc),global_parameters(parameters),QTcpSocket (parent)
 {
-    qDebug()<<"make a messagesocket, and don't set it's socketId ";
+//    qDebug()<<"make a messagesocket, and don't set it's socketId ";
     nextblocksize=0;
 //    qDebug()<<" global_parameters->lock_messagelist:"<<global_parameters->messagelist.size();
 }
@@ -69,7 +69,7 @@ void MessageSocket::MessageSocketSlot_Read()
                 resindexProcess(ResMsg);
             }else if(segmentRex.indexIn(msg)!=-1)
             {
-                qDebug()<<msg;
+//                qDebug()<<msg;
                 QString seg=segmentRex.cap(1).trimmed();
                 segProcess(seg);
             }else if(deleteRex.indexIn(msg)!=-1)
@@ -93,8 +93,7 @@ void MessageSocket::MessageSocketSlot_Read()
                 }
             }else if(creatorRex.indexIn(msg)!=-1)
             {
-                qDebug()<<msg;
-
+//                qDebug()<<msg;
                 creatorProcess(creatorRex.cap(1));
             }
 
@@ -476,14 +475,14 @@ void MessageSocket::MessageSocketSlot_disconnect()
     {
         global_parameters->lock_clientNum.unlock();      
         emit MessageSocketSignalToMessageServer_disconnected();
-        qDebug()<<"global_parameters->clientNum=0";
+//        qDebug()<<"global_parameters->clientNum=0";
     }
     else
     {
         global_parameters->lock_clientNum.unlock();
         SendToAll(QString("/system:"+username+" left."));
         SendUserList();
-        qDebug()<<"global_parameters->clientNum="<<global_parameters->clientNum;
+//        qDebug()<<"global_parameters->clientNum="<<global_parameters->clientNum;
     }
 
 }

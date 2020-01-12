@@ -88,15 +88,13 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
             }
         }else {
             Map_File_MessageServer.value(anofile_name)->global_parameters->lock_messagelist.lockForRead();
-//            qDebug()<<"sdsa";
-            //写文件
+
             QFile *f=new QFile("./clouddata/"+anofile_name+".txt");
             if(f->open(QIODevice::WriteOnly|QIODevice::Truncate))
             {
                 QTextStream txtoutput(f);
                 for(int i=0;i<Map_File_MessageServer.value(anofile_name)->global_parameters->messagelist.size();i++)
                 {
-//                    qDebug()<<Map_File_MessageServer.value(anofile_name)->global_parameters->messagelist.at(i);
                     txtoutput<<Map_File_MessageServer.value(anofile_name)->global_parameters->messagelist.at(i)<<endl;
                 }
                 f->close();
@@ -115,7 +113,7 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
 
 void ManageServer::messageserver_ondeltete(QString filename)
 {
-    qDebug()<<"Map_File_MessageServer.remove(filename);";
+//    qDebug()<<"Map_File_MessageServer.remove(filename);";
     Map_File_MessageServer.remove(filename);
 }
 
@@ -196,7 +194,7 @@ void ManageSocket::readManage()
 void ManageSocket::resetfileserver()
 {
     if(fileserver!=0)
-    {qDebug()<<"fileserver!=0,when deleteLater"; delete  fileserver;fileserver=0;}
+    {/*qDebug()<<"fileserver!=0,when deleteLater"; */delete  fileserver;fileserver=0;}
 }
 QString currentDir()
 {
