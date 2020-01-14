@@ -85,9 +85,9 @@ protected:
     void askmessageProcess();
     void resindexProcess(const QString &msg);
 
-    void segProcess(const QString &msg);
-    void deleteProcess(const QString &delsegpos);
-    void markerProcess(const QString &markermsg);
+    void segProcess(const QString &msg,int undoP=0);
+    void deleteProcess(const QString &delsegpos,int undoP=0);
+    void markerProcess(const QString &markermsg,int undoP=0);
     void delmarkerProcess(const QString &delmarkerpos);
 
     void creatorProcess(const QString msg);

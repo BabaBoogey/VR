@@ -24,8 +24,10 @@ void MessageSocket::MessageSocketSlot_Read()
 
         QRegExp scaleRex("^/scale:(.*)");
         QRegExp creatorRex("^/creator:(.*)");
+        QRegExp undoRex("^/undo:(.*)");
         QDataStream in(this);
         in.setVersion(QDataStream::Qt_4_7);
+
 
         while(1)
         {
@@ -95,6 +97,30 @@ void MessageSocket::MessageSocketSlot_Read()
             {
 //                qDebug()<<msg;
                 creatorProcess(creatorRex.cap(1));
+            }else if(undoRex.indexIn(msg)!=-1)
+            {
+//                qDebug()<<msg;
+                msg=undoRex.cap(1).trimmed();
+                QRegExp segmentRex("^/seg:(.*)$");
+                QRegExp deleteRex("^/del_curve:(.*)$");
+                QRegExp markerRex("^/marker:(.*)$");
+                if(segmentRex.indexIn(msg)!=-1)
+                {
+
+                    QString seg=segmentRex.cap(1).trimmed();
+//                    qDebug()<<"segment undo :"<<seg;
+                    segProcess(seg,1000);
+                }else if(deleteRex.indexIn(msg)!=-1)
+                {
+                    QString delcurvepos=deleteRex.cap(1).trimmed();
+//                    qDebug()<<"del_curve undo :"<<delcurvepos;
+                    deleteProcess(delcurvepos,1000);
+                }else if(markerRex.indexIn(msg)!=-1)
+                {
+                    QString markerpos=markerRex.cap(1).trimmed();
+//                    qDebug()<<"marker undo "<<markerpos;
+                    markerProcess(markerpos,1000);
+                }
             }
 
         }
@@ -202,7 +228,7 @@ void MessageSocket::resindexProcess(const QString &msg)
 }
 
 //add seg
-void MessageSocket::segProcess(const QString &msg)
+void MessageSocket::segProcess(const QString &msg,int undoP)
 {
 
     global_parameters->lock_clients.lockForRead();
@@ -210,7 +236,8 @@ void MessageSocket::segProcess(const QString &msg)
     global_parameters->lock_clients.unlock();
 
     global_parameters->lock_messagelist.lockForWrite();
-    global_parameters->messagelist.push_back(QString("/seg:"+user + "__" + msg));
+    global_parameters->messagelist.push_back(QString("/seg:"+    QString::number(user.toInt()+undoP) + "__" + msg));
+//    qDebug()<<QString("/seg:"+    QString::number(user.toInt()+undoP) + "__" + msg);
     emit signal_addseg(QString("/seg:"+user + "__" + msg));
     global_parameters->lock_messagelist.unlock();
 
@@ -218,14 +245,16 @@ void MessageSocket::segProcess(const QString &msg)
 }
 
 //delete seg
-void MessageSocket::deleteProcess(const QString &delsegpos)
+void MessageSocket::deleteProcess(const QString &delsegpos,int undoP)
 {
     global_parameters->lock_clients.lockForRead();
     QString user=global_parameters->clients.value(this);
     global_parameters->lock_clients.unlock();
 
     global_parameters->lock_messagelist.lockForWrite();
-    global_parameters->messagelist.push_back(QString("/del_curve:" +user+"__"+delsegpos ));
+
+    global_parameters->messagelist.push_back(QString("/del_curve:" +    QString::number(user.toInt()+undoP)+"__"+delsegpos ));
+//    qDebug()<<QString("/del_curve:" +    QString::number(user.toInt()+undoP)+"__"+delsegpos );
     emit signal_delseg(QString("/del_curve:" +user+"__"+delsegpos ));
     global_parameters->lock_messagelist.unlock();
 
@@ -233,14 +262,15 @@ void MessageSocket::deleteProcess(const QString &delsegpos)
 }
 
 //add marker
-void MessageSocket::markerProcess(const QString &markermsg)
+void MessageSocket::markerProcess(const QString &markermsg,int undoP)
 {
     global_parameters->lock_clients.lockForRead();
     QString user=global_parameters->clients.value(this);
     global_parameters->lock_clients.unlock();
 
     global_parameters->lock_messagelist.lockForWrite();
-    global_parameters->messagelist.push_back(QString("/marker:" +user+"__"+markermsg));
+    global_parameters->messagelist.push_back(QString("/marker:" +    QString::number(user.toInt()+undoP)+"__"+markermsg));
+//    qDebug()<<QString("/marker:" +    QString::number(user.toInt()+undoP)+"__"+markermsg);
     emit signal_addmarker(QString("/marker:" +user+"__"+markermsg));
     global_parameters->lock_messagelist.unlock();
 
