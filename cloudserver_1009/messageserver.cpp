@@ -341,7 +341,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
                                (global_parameters->wholePoint.at(i).y-marker0.y)*(global_parameters->wholePoint.at(i).y-marker0.y)+
                                (global_parameters->wholePoint.at(i).z-marker0.z)*(global_parameters->wholePoint.at(i).z-marker0.z));
 //        qDebug()<<i<<" "<<global_parameters->wholePoint.at(i).x<<" "<<global_parameters->wholePoint.at(i).y<<" "<<global_parameters->wholePoint.at(i).z;
-        if(dist<5)
+        if(dist<1)
         {
 
             global_parameters->wholePoint.removeAt(i);
