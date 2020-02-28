@@ -4,6 +4,7 @@
 #include <QtGlobal>
 #include "QTextStream"
 #include "basic_c_fun/v_neuronswc.h"
+#include <QDir>
 
 const double dist_thres=0.05;
 
@@ -118,6 +119,47 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
         }
         emit MessageServerDeleted(filename);
         delete global_parameters;
+
+        //write log
+        if(!QDir("./orderfile").exists()) QDir("./").mkdir("orderfile");
+        QFile f("./orderfile/"+filename+".txt");
+        if(f.open(QIODevice::Append))
+        {
+            while (!orderList.isEmpty()) {
+                f.write(orderList.at(0).toStdString().c_str());
+                orderList.removeFirst();
+            }
+        }
+        f.close();
+
+        //
+        if(!QDir("./removelog").exists()) QDir("./").mkdir("removelog");
+
+        V_NeuronSWC_list testVNL;
+        if(QFile("./removelog/"+filename+".swc").exists())
+        {
+            NeuronTree remove_stroed=readSWC_file("./removelog/"+filename+".swc");
+            testVNL= NeuronTree__2__V_NeuronSWC_list(remove_stroed);
+        }
+
+        QMap<NeuronTree,RemoveInfo>::iterator i;
+        for(i=removedNTList.begin();i!=removedNTList.end();i++)
+        {
+            NeuronTree NT=i.key();
+            RemoveInfo info=i.value();
+
+            V_NeuronSWC seg=NeuronTree__2__V_NeuronSWC_list(NT).seg.at(0);
+            for(int j=0;j<seg.row.size();j++)
+            {
+                seg.row.at(j).timestamp=info.time;
+                seg.row.at(j).r+=info.id*100;
+            }
+            testVNL.seg.push_back(seg);
+            removedNTList.erase(i);
+        }
+        NeuronTree tmp=V_NeuronSWC_list__2__NeuronTree(testVNL);
+        writeESWC_file("./removelog/"+filename+".swc",tmp);
+
         this->deleteLater();
         qDebug()<<"save successfully";
         return;
@@ -127,6 +169,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
 {
 //    qDebug()<<"MessageServerSlotAnswerMessageSocket_addseg";
     /*MSG=QString("/seg:"+user + "__" + msg)*/
+    orderList.push_back(MSG);
     QRegExp Reg("/seg:(.*)__(.*)");
     QString seg;
     QString username;
@@ -179,7 +222,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
                 S_temp.pn=i-1;
             S_temp.level=0;
             S_temp.creatmode=0;
-            S_temp.timestamp=0;
+            S_temp.timestamp=time(NULL);
             S_temp.tfresindex=0;
             if(i==qsl.size()-1)
             {
@@ -204,7 +247,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
             S_temp.pn=temp[6].toLongLong();
             S_temp.level=0;
             S_temp.creatmode=0;
-            S_temp.timestamp=0;
+            S_temp.timestamp=time(NULL);
             S_temp.tfresindex=0;
             if(i==qsl.size()-1)
             {
@@ -230,7 +273,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
                 S_temp.pn=i-1;
             S_temp.level=0;
             S_temp.creatmode=0;
-            S_temp.timestamp=0;
+            S_temp.timestamp=time(NULL);
             S_temp.tfresindex=0;
         }
 
@@ -247,6 +290,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
 {
 //    qDebug()<<"MessageServerSlotAnswerMessageSocket_delseg\n"<<MSG;
     /*MSG=QString("/del_curve:"+user + "__" + msg)*/
+        orderList.push_back(MSG);
     QRegExp Reg("/del_curve:(.*)__(.*)"); //msg=node 1_node 2_....
     QString delseg;
     QString username;
@@ -256,12 +300,11 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
         delseg=Reg.cap(2).trimmed();
     }
 
-
     QStringList delMSGs = delseg.split("_",QString::SkipEmptyParts);
 
-    if(delMSGs.size()<1) return;
+    if(delMSGs.size()<2) return;
 
-    for(int i=0;i<delMSGs.size();i++)
+    for(int i=1;i<delMSGs.size();i++)
     {
         QString tempNode=delMSGs.at(i);
         QStringList tempNodeList=tempNode.split(" ",QString::SkipEmptyParts);
@@ -279,7 +322,13 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
 
             if(sqrt(pow(ss.x-x,2)+pow(ss.y-y,2)+pow(ss.z-z,2))<=0.01||sqrt(pow(ss0.x-x,2)+pow(ss0.y-y,2)+pow(ss0.z-z,2))<=0.01)
             {
-
+                RemoveInfo info;
+                info.time=time(0);
+                if(delMSGs[0]=="TeraFly")
+                info.id=username.toInt()*10+1;
+                else if(delMSGs[0]=="TeraVR")
+                    info.id=username.toInt()*10+2;
+                removedNTList[NT]=info;
                 sketchedNTList.removeAt(j);break;
             }
         }
@@ -292,6 +341,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
 {
 //    qDebug()<<"MessageServerSlotAnswerMessageSocket_addmarker\n"<<MSG;
     /*MSG=QString("/marker:" +user+"__"+markermsg)*/
+        orderList.push_back(MSG);
     QRegExp Reg("/marker:(.*)__(.*)");
     QString markerpos;
     QString username;
@@ -359,6 +409,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG)
 {
 //    qDebug()<<"MessageServerSlotAnswerMessageSocket_delmarker\n"<<MSG;
     /*MSG=QString("/del_marker:" +user+" "+delmarkerpos )*/
+        orderList.push_back(MSG);
     QRegExp Reg("/del_marker:(.*)__(.*)");
     QString delmarkerpos;
     QString username;
@@ -439,6 +490,47 @@ void MessageServer::autoSave()
         writeESWC_file("./autosave/"+tempname+".ano.eswc",global_parameters->wholeNT);
         writeAPO_file("./autosave/"+tempname+".ano.apo",global_parameters->wholePoint);
     }
+    //write log
+    if(!QDir("./orderfile").exists()) QDir("./").mkdir("orderfile");
+    QFile f("./orderfile/"+filename+".txt");
+    if(f.open(QIODevice::Append))
+    {
+        while (!orderList.isEmpty()) {
+            f.write(orderList.at(0).toStdString().c_str());
+            orderList.removeFirst();
+        }
+    }
+    f.close();
+
+    //
+    if(!QDir("./removelog").exists()) QDir("./").mkdir("removelog");
+
+    V_NeuronSWC_list testVNL;
+    if(QFile("./removelog/"+filename+".swc").exists())
+    {
+        NeuronTree remove_stroed=readSWC_file("./removelog/"+filename+".swc");
+        testVNL= NeuronTree__2__V_NeuronSWC_list(remove_stroed);
+    }
+
+    QMap<NeuronTree,RemoveInfo>::iterator i;
+    for(i=removedNTList.begin();i!=removedNTList.end();i++)
+    {
+        NeuronTree NT=i.key();
+        RemoveInfo info=i.value();
+
+        V_NeuronSWC seg=NeuronTree__2__V_NeuronSWC_list(NT).seg.at(0);
+        for(int j=0;j<seg.row.size();j++)
+        {
+            seg.row.at(j).timestamp=info.time;
+            seg.row.at(j).r+=info.id*100;
+        }
+        testVNL.seg.push_back(seg);
+        removedNTList.erase(i);
+    }
+    NeuronTree tmp=V_NeuronSWC_list__2__NeuronTree(testVNL);
+    writeESWC_file("./removelog/"+filename+".swc",tmp);
+
+
 }
 
 

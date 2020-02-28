@@ -55,7 +55,7 @@ struct Global_Parameters{
 //    QReadWriteLock lock_sketchNum;
 
     QString filename;
-    QTimer *timer;
+    QTimer *timer;//auto save
 
     quint32 messageUsedIndex;
     QReadWriteLock lock_messageusedindex;

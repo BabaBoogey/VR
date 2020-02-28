@@ -2,7 +2,7 @@
 #define MESSAGESERVER_H
 
 #include <QtNetwork>
-
+#include <ctime>
 #include <QString>
 #include <QStringList>
 #include <QMap>
@@ -12,6 +12,12 @@
 #include "messagesocket.h"
 //#include "basic_c_fun/neuron_format_converter.h"
 #include "neuron_editing/neuron_format_converter.h"
+#include <QMap>
+struct RemoveInfo{
+    int time;
+    int id;
+};
+
 class MessageServer:public QTcpServer
 {
     Q_OBJECT
@@ -27,7 +33,10 @@ private:
     QString filename;
 
     QList<NeuronTree> sketchedNTList;
+    QMap<NeuronTree,RemoveInfo> removedNTList;
+    QStringList orderList;
     int sketchNum;
+
 //    float m_globalScale;
 
 
