@@ -142,21 +142,35 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
             testVNL= NeuronTree__2__V_NeuronSWC_list(remove_stroed);
         }
 
-        QMap<NeuronTree,RemoveInfo>::iterator i;
-        for(i=removedNTList.begin();i!=removedNTList.end();i++)
-        {
-            NeuronTree NT=i.key();
-            RemoveInfo info=i.value();
+//        QMap<NeuronTree,RemoveInfo>::iterator i;
+//        for(i=removedNTList.begin();i!=removedNTList.end();i++)
+//        {
+//            NeuronTree NT=i.key();
+//            RemoveInfo info=i.value();
 
+//            V_NeuronSWC seg=NeuronTree__2__V_NeuronSWC_list(NT).seg.at(0);
+//            for(int j=0;j<seg.row.size();j++)
+//            {
+//                seg.row.at(j).timestamp=info.time;
+//                seg.row.at(j).r+=info.id*100;
+//            }
+//            testVNL.seg.push_back(seg);
+//            removedNTList.erase(i);
+//        }
+
+        while(!removedNTList.isEmpty())
+        {
+            NeuronTree NT=removedNTList.at(0).NT;
             V_NeuronSWC seg=NeuronTree__2__V_NeuronSWC_list(NT).seg.at(0);
             for(int j=0;j<seg.row.size();j++)
             {
-                seg.row.at(j).timestamp=info.time;
-                seg.row.at(j).r+=info.id*100;
+                seg.row.at(j).timestamp=removedNTList.at(0).time;
+                seg.row.at(j).r+=removedNTList.at(0).id*100;
             }
             testVNL.seg.push_back(seg);
-            removedNTList.erase(i);
+            removedNTList.removeAt(0);
         }
+
         NeuronTree tmp=V_NeuronSWC_list__2__NeuronTree(testVNL);
         writeESWC_file("./removelog/"+filename+".swc",tmp);
 
@@ -323,12 +337,13 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
             if(sqrt(pow(ss.x-x,2)+pow(ss.y-y,2)+pow(ss.z-z,2))<=0.01||sqrt(pow(ss0.x-x,2)+pow(ss0.y-y,2)+pow(ss0.z-z,2))<=0.01)
             {
                 RemoveInfo info;
+                info.NT=NT;
                 info.time=time(0);
                 if(delMSGs[0]=="TeraFly")
                 info.id=username.toInt()*10+1;
                 else if(delMSGs[0]=="TeraVR")
                     info.id=username.toInt()*10+2;
-                removedNTList[NT]=info;
+                removedNTList.push_back(info);
                 sketchedNTList.removeAt(j);break;
             }
         }
@@ -512,20 +527,17 @@ void MessageServer::autoSave()
         testVNL= NeuronTree__2__V_NeuronSWC_list(remove_stroed);
     }
 
-    QMap<NeuronTree,RemoveInfo>::iterator i;
-    for(i=removedNTList.begin();i!=removedNTList.end();i++)
+    while(!removedNTList.isEmpty())
     {
-        NeuronTree NT=i.key();
-        RemoveInfo info=i.value();
-
+        NeuronTree NT=removedNTList.at(0).NT;
         V_NeuronSWC seg=NeuronTree__2__V_NeuronSWC_list(NT).seg.at(0);
         for(int j=0;j<seg.row.size();j++)
         {
-            seg.row.at(j).timestamp=info.time;
-            seg.row.at(j).r+=info.id*100;
+            seg.row.at(j).timestamp=removedNTList.at(0).time;
+            seg.row.at(j).r+=removedNTList.at(0).id*100;
         }
         testVNL.seg.push_back(seg);
-        removedNTList.erase(i);
+        removedNTList.removeAt(0);
     }
     NeuronTree tmp=V_NeuronSWC_list__2__NeuronTree(testVNL);
     writeESWC_file("./removelog/"+filename+".swc",tmp);

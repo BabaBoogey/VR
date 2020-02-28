@@ -14,6 +14,7 @@
 #include "neuron_editing/neuron_format_converter.h"
 #include <QMap>
 struct RemoveInfo{
+    NeuronTree NT;
     int time;
     int id;
 };
@@ -33,7 +34,7 @@ private:
     QString filename;
 
     QList<NeuronTree> sketchedNTList;
-    QMap<NeuronTree,RemoveInfo> removedNTList;
+    QList<RemoveInfo> removedNTList;
     QStringList orderList;
     int sketchNum;
 
