@@ -126,7 +126,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
         if(f.open(QIODevice::Append))
         {
             while (!orderList.isEmpty()) {
-                f.write(orderList.at(0).toStdString().c_str());
+                f.write((orderList.at(0)+"\n").toStdString().c_str());
                 orderList.removeFirst();
             }
         }
