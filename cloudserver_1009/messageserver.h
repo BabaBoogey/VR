@@ -13,10 +13,12 @@
 //#include "basic_c_fun/neuron_format_converter.h"
 #include "neuron_editing/neuron_format_converter.h"
 #include <QMap>
+#include <QDateTime>
 struct RemoveInfo{
     NeuronTree NT;
     int time;
     int id;
+//    QDateTime dateTime;
 };
 
 class MessageServer:public QTcpServer

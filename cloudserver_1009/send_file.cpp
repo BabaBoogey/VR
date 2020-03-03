@@ -84,6 +84,7 @@ void FileSocket_send::readMSG()
                 sendFile("./clouddata/"+anoname+".txt",anoname+".txt");
             else
             {
+                QFile("./clouddata/"+anoname+".txt").remove();
                 this->disconnectFromHost();
             }
 

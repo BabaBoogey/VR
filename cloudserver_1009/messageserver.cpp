@@ -5,6 +5,7 @@
 #include "QTextStream"
 #include "basic_c_fun/v_neuronswc.h"
 #include <QDir>
+#include <QTextStream>
 
 const double dist_thres=0.05;
 
@@ -125,8 +126,11 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
         QFile f("./orderfile/"+filename+".txt");
         if(f.open(QIODevice::Append))
         {
+            QTextStream txtoutput(&f);
+
             while (!orderList.isEmpty()) {
-                f.write((orderList.at(0)+"\n").toStdString().c_str());
+
+                txtoutput<<orderList.at(0)<<endl;
                 orderList.removeFirst();
             }
         }
@@ -183,7 +187,8 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
 {
 //    qDebug()<<"MessageServerSlotAnswerMessageSocket_addseg";
     /*MSG=QString("/seg:"+user + "__" + msg)*/
-    orderList.push_back(MSG);
+    qDebug()<<QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG;
+    orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
     QRegExp Reg("/seg:(.*)__(.*)");
     QString seg;
     QString username;
@@ -304,7 +309,8 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
 {
 //    qDebug()<<"MessageServerSlotAnswerMessageSocket_delseg\n"<<MSG;
     /*MSG=QString("/del_curve:"+user + "__" + msg)*/
-        orderList.push_back(MSG);
+
+        orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
     QRegExp Reg("/del_curve:(.*)__(.*)"); //msg=node 1_node 2_....
     QString delseg;
     QString username;
@@ -349,14 +355,13 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
         }
     }
 //    qDebug()<<"MessageServerSlotAnswerMessageSocket_delseg end=============";
-
 }
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
 {
 //    qDebug()<<"MessageServerSlotAnswerMessageSocket_addmarker\n"<<MSG;
     /*MSG=QString("/marker:" +user+"__"+markermsg)*/
-        orderList.push_back(MSG);
+        orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
     QRegExp Reg("/marker:(.*)__(.*)");
     QString markerpos;
     QString username;
@@ -424,7 +429,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG)
 {
 //    qDebug()<<"MessageServerSlotAnswerMessageSocket_delmarker\n"<<MSG;
     /*MSG=QString("/del_marker:" +user+" "+delmarkerpos )*/
-        orderList.push_back(MSG);
+        orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
     QRegExp Reg("/del_marker:(.*)__(.*)");
     QString delmarkerpos;
     QString username;
