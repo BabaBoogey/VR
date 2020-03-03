@@ -39,21 +39,28 @@ FileSocket_send::FileSocket_send(QObject *parent)
 void FileSocket_send::sendFile(QString filepath, QString filename)
 {
     QFile f(filepath);
-    f.open(QIODevice::ReadOnly);
-    QByteArray data=f.readAll();
-    QByteArray block;
 
-    QDataStream dts(&block,QIODevice::WriteOnly);
-    dts.setVersion(QDataStream::Qt_4_7);
 
-    dts<<qint64(0)<<qint64(0)<<filename;
-    dts.device()->seek(0);
-    dts<<(qint64)(block.size()+f.size());
-    dts<<(qint64)(block.size()-sizeof(qint64)*2);
-    dts<<filename;
-    dts<<data;
+    if(f.exists()&&f.open(QIODevice::ReadOnly))
+    {
+        QByteArray data=f.readAll();
+        QByteArray block;
 
-    this->write(block);
+        QDataStream dts(&block,QIODevice::WriteOnly);
+        dts.setVersion(QDataStream::Qt_4_7);
+
+        dts<<qint64(0)<<qint64(0)<<filename;
+        dts.device()->seek(0);
+        dts<<(qint64)(block.size()+f.size());
+        dts<<(qint64)(block.size()-sizeof(qint64)*2);
+        dts<<filename;
+        dts<<data;
+
+        this->write(block);
+    }else
+    {
+        disconnectFromHost();
+    }
 
 }
 
@@ -73,7 +80,12 @@ void FileSocket_send::readMSG()
             sendFile("./clouddata/"+anoname+".apo",anoname+".apo");
         }else if(apoRex.indexIn(MSG)!=-1)
         {
-            sendFile("./clouddata/"+anoname+".txt",anoname+".txt");
+            if(QFile("./clouddata/"+anoname+".txt").exists())
+                sendFile("./clouddata/"+anoname+".txt",anoname+".txt");
+            else
+            {
+                this->disconnectFromHost();
+            }
 
         }else if(txtRex.indexIn(MSG)!=-1)
         {

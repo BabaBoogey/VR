@@ -178,8 +178,9 @@ void ManageSocket::readManage()
             this->write(QString(currentDir()+":currentDir_load."+"\n").toUtf8());
         }else if(FileDownRex.indexIn(manageMSG)!=-1)
         {
-            QString filename=FileDownRex.cap(1);
+            QString filename=FileDownRex.cap(1).trimmed();
             QString anopath="./clouddata/"+filename;
+            fileserver_send->sendFile(this->peerAddress().toString(),anopath);
 //            FileSocket_send *filesocket=new FileSocket_send(this->peerAddress().toString(),"9998",anopath);
         }else if(FileLoadRex.indexIn(manageMSG)!=-1)
         {
