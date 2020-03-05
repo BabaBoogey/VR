@@ -89,6 +89,7 @@ protected:
     void deleteProcess(const QString &delsegpos,int undoP=0);
     void markerProcess(const QString &markermsg,int undoP=0);
     void delmarkerProcess(const QString &delmarkerpos);
+    void retypeProcess(const QString &retypeMSG);
 
     void creatorProcess(const QString msg);
 //    void dragnodeProcess(const QString &dragnodepos);
@@ -110,5 +111,6 @@ signals:
     void signal_delseg(QString);
     void signal_addmarker(QString);
     void signal_delmarker(QString);
+    void signal_retype(QString);
 };
 #endif // MESSAGESOCKET_H

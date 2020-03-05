@@ -59,8 +59,71 @@ void MessageServer::incomingConnection(int socketDesc)
     connect(messagesocket,SIGNAL(signal_delseg(QString)),this,SLOT(MessageServerSlotAnswerMessageSocket_delseg(QString)));
     connect(messagesocket,SIGNAL(signal_addmarker(QString)),this,SLOT(MessageServerSlotAnswerMessageSocket_addmarker(QString)));
     connect(messagesocket,SIGNAL(signal_delmarker(QString)),this,SLOT(MessageServerSlotAnswerMessageSocket_delmarker(QString)));
+    connect(messagesocket,SIGNAL(signal_retype(QString)),this,SLOT(MessageServerSlotAnswerMessageSocket_retype(QString)));
 
     thread->start();
+}
+
+void MessageServer::MessageServerSlotAnswerMessageSocket_retype( QString MSG)
+{
+    QRegExp Reg("/retype:(.*)__(.*)");
+    QString delseg;
+    QString username;
+    if(Reg.indexIn(MSG)!=-1)
+    {
+        username=Reg.cap(1).trimmed();
+        delseg=Reg.cap(2).trimmed();
+    }
+     QStringList delMSGs = delseg.split("_",QString::SkipEmptyParts);
+     if(delMSGs.size()<2) return;
+
+     for(int i=1;i<delMSGs.size();i++)
+     {
+         QString tempNode=delMSGs.at(i);
+         QStringList tempNodeList=tempNode.split(" ",QString::SkipEmptyParts);
+
+         if(tempNodeList.size()<3) return ;
+         float x=tempNodeList.at(0).toFloat();
+         float y=tempNodeList.at(1).toFloat();
+         float z=tempNodeList.at(2).toFloat();
+         int type=tempNodeList.at(3).toInt();
+
+         for (int j=0;j<sketchedNTList.size();j++)
+         {
+             NeuronTree NT=sketchedNTList.at(j);
+             NeuronSWC ss=NT.listNeuron.at(NT.listNeuron.size()-2);
+             NeuronSWC ss0=NT.listNeuron.at(1);
+
+             if(sqrt(pow(ss.x-x,2)+pow(ss.y-y,2)+pow(ss.z-z,2))<=0.01||sqrt(pow(ss0.x-x,2)+pow(ss0.y-y,2)+pow(ss0.z-z,2))<=0.01)
+             {
+                 sketchedNTList.removeAt(j);
+                 NeuronTree newTempNT;
+                 newTempNT.listNeuron.clear();
+                 newTempNT.hashNeuron.clear();
+                 newTempNT.name=NT.name;
+                 for(int k=0;k<NT.listNeuron.size();k++)
+                 {
+                     NeuronSWC S_temp;
+                     S_temp.n=NT.listNeuron.at(k).n;
+                     S_temp.type=type;
+                     S_temp.x=NT.listNeuron.at(k).x;
+                     S_temp.y=NT.listNeuron.at(k).y;
+                     S_temp.z=NT.listNeuron.at(k).z;
+                     S_temp.r=NT.listNeuron.at(k).r;
+
+                         S_temp.pn=NT.listNeuron.at(k).pn;
+                     S_temp.level=NT.listNeuron.at(k).level;
+                     S_temp.creatmode=NT.listNeuron.at(k).creatmode;
+                     S_temp.timestamp=NT.listNeuron.at(k).timestamp;
+                     S_temp.tfresindex=NT.listNeuron.at(k).tfresindex;
+                     newTempNT.listNeuron.append(S_temp);
+                     newTempNT.hashNeuron.insert(S_temp.n,newTempNT.listNeuron.size()-1);
+                 }
+                 sketchedNTList.insert(j,newTempNT);break;
+
+             }
+         }
+     }
 }
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_sendtoall(const QString &msg)
@@ -187,7 +250,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
 {
 //    qDebug()<<"MessageServerSlotAnswerMessageSocket_addseg";
     /*MSG=QString("/seg:"+user + "__" + msg)*/
-    qDebug()<<QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG;
+//    qDebug()<<QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG;
     orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
     QRegExp Reg("/seg:(.*)__(.*)");
     QString seg;

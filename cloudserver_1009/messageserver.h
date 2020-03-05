@@ -52,6 +52,9 @@ public slots:
     void MessageServerSlotAnswerMessageSocket_delseg(QString);
     void MessageServerSlotAnswerMessageSocket_addmarker(QString);
     void MessageServerSlotAnswerMessageSocket_delmarker(QString);
+    void MessageServerSlotAnswerMessageSocket_retype(QString);
+//    void MessageServerSlotAnswerMessageSocket_insert(QString);
+//    void MessageServerSlotAnswerMessageSocket_directconnect(QString);
     void autoSave();
 signals:
     void MessageServerSignal_sendtoall(const QString &msg);

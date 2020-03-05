@@ -21,6 +21,7 @@ void MessageSocket::MessageSocketSlot_Read()
         QRegExp deleteRex("^/del_curve:(.*)$");
         QRegExp markerRex("^/marker:(.*)$");
         QRegExp delmarkerRex("^/del_marker:(.*)$");
+        QRegExp retypeRex("^/retype:(.*)$");
 
         QRegExp scaleRex("^/scale:(.*)");
         QRegExp creatorRex("^/creator:(.*)");
@@ -121,6 +122,10 @@ void MessageSocket::MessageSocketSlot_Read()
 //                    qDebug()<<"marker undo "<<markerpos;
                     markerProcess(markerpos,1000);
                 }
+            }else if(retypeRex.indexIn(msg)!=-1)
+            {
+                QString MSG=markerRex.cap(1).trimmed();
+                retypeProcess(MSG);
             }
 
         }
@@ -292,6 +297,17 @@ void MessageSocket::delmarkerProcess(const QString &delmarkerpos)
     //减marker ，QString("/del_marker:" +user+" "+delmarkerpos )
 }
 
+void MessageSocket::retypeProcess(const QString &retypeMSG)
+{
+    global_parameters->lock_clients.lockForRead();
+    QString user=global_parameters->clients.value(this);
+    global_parameters->lock_clients.unlock();
+
+    global_parameters->lock_messagelist.lockForWrite();
+    global_parameters->messagelist.push_back(QString("/retype:" +user+"__"+retypeMSG ));
+    emit signal_retype(QString("/del_marker:" +user+"__"+retypeMSG ));
+    global_parameters->lock_messagelist.unlock();
+}
 void MessageSocket::creatorProcess(const QString msg)
 {
     global_parameters->lock_clients.lockForRead();
