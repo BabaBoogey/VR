@@ -4,6 +4,7 @@ MessageSocket::MessageSocket(int socketDesc,Global_Parameters *parameters,QObjec
 {
 //    qDebug()<<"make a messagesocket, and don't set it's socketId ";
     nextblocksize=0;
+    qDebug()<<"socket conected "<<this<<" "<<socketDesc;
 //    qDebug()<<" global_parameters->lock_messagelist:"<<global_parameters->messagelist.size();
 }
 
@@ -187,6 +188,7 @@ void MessageSocket::loginProcess(const QString &name)
         global_parameters->lock_Creator.unlock();
     }
     global_parameters->lock_clientsproperty.unlock();
+    qDebug()<<name<< " log in";
 
     SendToAll(QString("/system:" + name + " joined."));
     SendUserList();

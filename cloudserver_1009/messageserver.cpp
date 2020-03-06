@@ -530,7 +530,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
 {
 //    qDebug()<<"MessageServerSlotAnswerMessageSocket_addseg";
     /*MSG=QString("/seg:"+user + "__" + msg)*/
-//    qDebug()<<QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG;
+    qDebug()<<QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG;
     orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
     QRegExp Reg("/seg:(.*)__(.*)");
     QString seg;
@@ -726,13 +726,14 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
         }
     }
     global_parameters->lock_clientsproperty.unlock();
-
+    int type;
     QStringList markerMSGs=markerpos.trimmed().split(" ");
     if(markerMSGs.size()<3) return;
     float mx = markerMSGs.at(0).toFloat();
     float my = markerMSGs.at(1).toFloat();
     float mz = markerMSGs.at(2).toFloat();
-    int type=markerMSGs.at(3).toInt();
+    if(markerMSGs.size()==7)
+        type=markerMSGs.at(3).toInt();
 
     CellAPO marker0;
     marker0.x=mx;marker0.y=my;marker0.z=mz;
