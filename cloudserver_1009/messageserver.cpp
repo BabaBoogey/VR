@@ -93,14 +93,14 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_retype( QString MSG)
 
          for (int j=0;j<sketchedNTList.size();j++)
          {
-             qDebug()<<"in Sssds";
+//             qDebug()<<"in Sssds";
              NeuronTree NT=sketchedNTList.at(j);
              NeuronSWC ss=NT.listNeuron.at(NT.listNeuron.size()-2);
              NeuronSWC ss0=NT.listNeuron.at(1);
 
              if(sqrt(pow(ss.x-x,2)+pow(ss.y-y,2)+pow(ss.z-z,2))<=0.01||sqrt(pow(ss0.x-x,2)+pow(ss0.y-y,2)+pow(ss0.z-z,2))<=0.01)
              {
-                 qDebug()<<"in reypr";
+//                 qDebug()<<"in reypr";
                  sketchedNTList.removeAt(j);
                  NeuronTree newTempNT;
                  newTempNT.listNeuron.clear();
