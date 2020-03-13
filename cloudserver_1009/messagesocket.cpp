@@ -55,7 +55,7 @@ void MessageSocket::MessageSocketSlot_Read()
             }
 
             msg=msg.trimmed();
-
+//                            qDebug()<<msg;
             if(loginRex.indexIn(msg)!=-1)
             {
                 QString user=loginRex.cap(1).trimmed();
@@ -73,7 +73,7 @@ void MessageSocket::MessageSocketSlot_Read()
                 resindexProcess(ResMsg);
             }else if(segmentRex.indexIn(msg)!=-1)
             {
-//                qDebug()<<msg;
+
                 QString seg=segmentRex.cap(1).trimmed();
                 segProcess(seg);
             }else if(deleteRex.indexIn(msg)!=-1)
@@ -125,7 +125,8 @@ void MessageSocket::MessageSocketSlot_Read()
                 }
             }else if(retypeRex.indexIn(msg)!=-1)
             {
-                QString MSG=markerRex.cap(1).trimmed();
+                QString MSG=retypeRex.cap(1).trimmed();
+                qDebug()<<msg<<MSG;
                 retypeProcess(MSG);
             }
 
@@ -307,7 +308,7 @@ void MessageSocket::retypeProcess(const QString &retypeMSG)
 
     global_parameters->lock_messagelist.lockForWrite();
     global_parameters->messagelist.push_back(QString("/retype:" +user+"__"+retypeMSG ));
-    emit signal_retype(QString("/del_marker:" +user+"__"+retypeMSG ));
+    emit signal_retype(QString("/retype:" +user+"__"+retypeMSG ));
     global_parameters->lock_messagelist.unlock();
 }
 void MessageSocket::creatorProcess(const QString msg)

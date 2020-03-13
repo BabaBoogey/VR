@@ -8,287 +8,7 @@
 #include <QTextStream>
 
 const double dist_thres=0.05;
-const int neuron_type_color[ ][3] = {///////////////////////////////////////////////////////
-        {255, 255, 255},  // white,   0-undefined
-        {20,  20,  20 },  // black,   1-soma
-        {200, 20,  0  },  // red,     2-axon
-        {0,   20,  200},  // blue,    3-dendrite
-        {200, 0,   200},  // purple,  4-apical dendrite
-        //the following is Hanchuan's extended color. 090331
-        {0,   200, 200},  // cyan,    5
-        {220, 200, 0  },  // yellow,  6
-        {0,   200, 20 },  // green,   7
-        {188, 94,  37 },  // coffee,  8
-        {180, 200, 120},  // asparagus,	9
-        {250, 100, 120},  // salmon,	10
-        {120, 200, 200},  // ice,		11
-        {100, 120, 200},  // orchid,	12
-    //the following is Hanchuan's further extended color. 111003
-    {255, 128, 168},  //	13
-    {128, 255, 168},  //	14
-    {128, 168, 255},  //	15
-    {168, 255, 128},  //	16
-    {255, 168, 128},  //	17
-    {168, 128, 255}, //	18
-    {0, 0, 0}, //19 //totally black. PHC, 2012-02-15
-    //the following (20-275) is used for matlab heat map. 120209 by WYN
-    {0,0,131}, //20
-    {0,0,135},
-    {0,0,139},
-    {0,0,143},
-    {0,0,147},
-    {0,0,151},
-    {0,0,155},
-    {0,0,159},
-    {0,0,163},
-    {0,0,167},
-    {0,0,171},
-    {0,0,175},
-    {0,0,179},
-    {0,0,183},
-    {0,0,187},
-    {0,0,191},
-    {0,0,195},
-    {0,0,199},
-    {0,0,203},
-    {0,0,207},
-    {0,0,211},
-    {0,0,215},
-    {0,0,219},
-    {0,0,223},
-    {0,0,227},
-    {0,0,231},
-    {0,0,235},
-    {0,0,239},
-    {0,0,243},
-    {0,0,247},
-    {0,0,251},
-    {0,0,255},
-    {0,3,255},
-    {0,7,255},
-    {0,11,255},
-    {0,15,255},
-    {0,19,255},
-    {0,23,255},
-    {0,27,255},
-    {0,31,255},
-    {0,35,255},
-    {0,39,255},
-    {0,43,255},
-    {0,47,255},
-    {0,51,255},
-    {0,55,255},
-    {0,59,255},
-    {0,63,255},
-    {0,67,255},
-    {0,71,255},
-    {0,75,255},
-    {0,79,255},
-    {0,83,255},
-    {0,87,255},
-    {0,91,255},
-    {0,95,255},
-    {0,99,255},
-    {0,103,255},
-    {0,107,255},
-    {0,111,255},
-    {0,115,255},
-    {0,119,255},
-    {0,123,255},
-    {0,127,255},
-    {0,131,255},
-    {0,135,255},
-    {0,139,255},
-    {0,143,255},
-    {0,147,255},
-    {0,151,255},
-    {0,155,255},
-    {0,159,255},
-    {0,163,255},
-    {0,167,255},
-    {0,171,255},
-    {0,175,255},
-    {0,179,255},
-    {0,183,255},
-    {0,187,255},
-    {0,191,255},
-    {0,195,255},
-    {0,199,255},
-    {0,203,255},
-    {0,207,255},
-    {0,211,255},
-    {0,215,255},
-    {0,219,255},
-    {0,223,255},
-    {0,227,255},
-    {0,231,255},
-    {0,235,255},
-    {0,239,255},
-    {0,243,255},
-    {0,247,255},
-    {0,251,255},
-    {0,255,255},
-    {3,255,251},
-    {7,255,247},
-    {11,255,243},
-    {15,255,239},
-    {19,255,235},
-    {23,255,231},
-    {27,255,227},
-    {31,255,223},
-    {35,255,219},
-    {39,255,215},
-    {43,255,211},
-    {47,255,207},
-    {51,255,203},
-    {55,255,199},
-    {59,255,195},
-    {63,255,191},
-    {67,255,187},
-    {71,255,183},
-    {75,255,179},
-    {79,255,175},
-    {83,255,171},
-    {87,255,167},
-    {91,255,163},
-    {95,255,159},
-    {99,255,155},
-    {103,255,151},
-    {107,255,147},
-    {111,255,143},
-    {115,255,139},
-    {119,255,135},
-    {123,255,131},
-    {127,255,127},
-    {131,255,123},
-    {135,255,119},
-    {139,255,115},
-    {143,255,111},
-    {147,255,107},
-    {151,255,103},
-    {155,255,99},
-    {159,255,95},
-    {163,255,91},
-    {167,255,87},
-    {171,255,83},
-    {175,255,79},
-    {179,255,75},
-    {183,255,71},
-    {187,255,67},
-    {191,255,63},
-    {195,255,59},
-    {199,255,55},
-    {203,255,51},
-    {207,255,47},
-    {211,255,43},
-    {215,255,39},
-    {219,255,35},
-    {223,255,31},
-    {227,255,27},
-    {231,255,23},
-    {235,255,19},
-    {239,255,15},
-    {243,255,11},
-    {247,255,7},
-    {251,255,3},
-    {255,255,0},
-    {255,251,0},
-    {255,247,0},
-    {255,243,0},
-    {255,239,0},
-    {255,235,0},
-    {255,231,0},
-    {255,227,0},
-    {255,223,0},
-    {255,219,0},
-    {255,215,0},
-    {255,211,0},
-    {255,207,0},
-    {255,203,0},
-    {255,199,0},
-    {255,195,0},
-    {255,191,0},
-    {255,187,0},
-    {255,183,0},
-    {255,179,0},
-    {255,175,0},
-    {255,171,0},
-    {255,167,0},
-    {255,163,0},
-    {255,159,0},
-    {255,155,0},
-    {255,151,0},
-    {255,147,0},
-    {255,143,0},
-    {255,139,0},
-    {255,135,0},
-    {255,131,0},
-    {255,127,0},
-    {255,123,0},
-    {255,119,0},
-    {255,115,0},
-    {255,111,0},
-    {255,107,0},
-    {255,103,0},
-    {255,99,0},
-    {255,95,0},
-    {255,91,0},
-    {255,87,0},
-    {255,83,0},
-    {255,79,0},
-    {255,75,0},
-    {255,71,0},
-    {255,67,0},
-    {255,63,0},
-    {255,59,0},
-    {255,55,0},
-    {255,51,0},
-    {255,47,0},
-    {255,43,0},
-    {255,39,0},
-    {255,35,0},
-    {255,31,0},
-    {255,27,0},
-    {255,23,0},
-    {255,19,0},
-    {255,15,0},
-    {255,11,0},
-    {255,7,0},
-    {255,3,0},
-    {255,0,0},
-    {251,0,0},
-    {247,0,0},
-    {243,0,0},
-    {239,0,0},
-    {235,0,0},
-    {231,0,0},
-    {227,0,0},
-    {223,0,0},
-    {219,0,0},
-    {215,0,0},
-    {211,0,0},
-    {207,0,0},
-    {203,0,0},
-    {199,0,0},
-    {195,0,0},
-    {191,0,0},
-    {187,0,0},
-    {183,0,0},
-    {179,0,0},
-    {175,0,0},
-    {171,0,0},
-    {167,0,0},
-    {163,0,0},
-    {159,0,0},
-    {155,0,0},
-    {151,0,0},
-    {147,0,0},
-    {143,0,0},
-    {139,0,0},
-    {135,0,0},
-    {131,0,0},
-    {127,0,0} //275
-        };
+
 MessageServer::MessageServer(QString filename,Global_Parameters *parameters,QObject *parent)
     :global_parameters(parameters),QTcpServer (parent),filename(filename),sketchNum(0)
 {
@@ -346,6 +66,7 @@ void MessageServer::incomingConnection(int socketDesc)
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_retype( QString MSG)
 {
+        orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
     QRegExp Reg("/retype:(.*)__(.*)");
     QString delseg;
     QString username;
@@ -355,31 +76,36 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_retype( QString MSG)
         delseg=Reg.cap(2).trimmed();
     }
      QStringList delMSGs = delseg.split("_",QString::SkipEmptyParts);
-     if(delMSGs.size()<2) return;
+     qDebug()<<"delMSGs:"<<delMSGs;
+     if(delMSGs.size()<1) return;
 
-     for(int i=1;i<delMSGs.size();i++)
+     for(int i=0;i<delMSGs.size();i++)
      {
          QString tempNode=delMSGs.at(i);
          QStringList tempNodeList=tempNode.split(" ",QString::SkipEmptyParts);
 
-         if(tempNodeList.size()<3) return ;
+         if(tempNodeList.size()<4) return ;
          float x=tempNodeList.at(0).toFloat();
          float y=tempNodeList.at(1).toFloat();
          float z=tempNodeList.at(2).toFloat();
          int type=tempNodeList.at(3).toInt();
 
+
          for (int j=0;j<sketchedNTList.size();j++)
          {
+             qDebug()<<"in Sssds";
              NeuronTree NT=sketchedNTList.at(j);
              NeuronSWC ss=NT.listNeuron.at(NT.listNeuron.size()-2);
              NeuronSWC ss0=NT.listNeuron.at(1);
 
              if(sqrt(pow(ss.x-x,2)+pow(ss.y-y,2)+pow(ss.z-z,2))<=0.01||sqrt(pow(ss0.x-x,2)+pow(ss0.y-y,2)+pow(ss0.z-z,2))<=0.01)
              {
+                 qDebug()<<"in reypr";
                  sketchedNTList.removeAt(j);
                  NeuronTree newTempNT;
                  newTempNT.listNeuron.clear();
                  newTempNT.hashNeuron.clear();
+
                  newTempNT.name=NT.name;
                  for(int k=0;k<NT.listNeuron.size();k++)
                  {
@@ -399,11 +125,13 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_retype( QString MSG)
                      newTempNT.listNeuron.append(S_temp);
                      newTempNT.hashNeuron.insert(S_temp.n,newTempNT.listNeuron.size()-1);
                  }
-                 sketchedNTList.insert(j,newTempNT);break;
+                 sketchedNTList.push_front(newTempNT);break;
 
              }
          }
      }
+     global_parameters->messageUsedIndex++;
+     qDebug()<<"retype end";
 }
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_sendtoall(const QString &msg)
@@ -461,13 +189,12 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
             writeESWC_file("./clouddata/"+fileExp.cap(1)+".ano.eswc",global_parameters->wholeNT);
             writeAPO_file("./clouddata/"+fileExp.cap(1)+".ano.apo",global_parameters->wholePoint);
         }
-        emit MessageServerDeleted(filename);
-        delete global_parameters;
 
         //write log
         if(!QDir("./orderfile").exists()) QDir("./").mkdir("orderfile");
         QFile f("./orderfile/"+filename+".txt");
-        if(f.open(QIODevice::Append))
+
+        if(f.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Append))
         {
             QTextStream txtoutput(&f);
 
@@ -479,7 +206,6 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
         }
         f.close();
 
-        //
         if(!QDir("./removelog").exists()) QDir("./").mkdir("removelog");
 
         V_NeuronSWC_list testVNL;
@@ -488,22 +214,6 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
             NeuronTree remove_stroed=readSWC_file("./removelog/"+filename+".swc");
             testVNL= NeuronTree__2__V_NeuronSWC_list(remove_stroed);
         }
-
-//        QMap<NeuronTree,RemoveInfo>::iterator i;
-//        for(i=removedNTList.begin();i!=removedNTList.end();i++)
-//        {
-//            NeuronTree NT=i.key();
-//            RemoveInfo info=i.value();
-
-//            V_NeuronSWC seg=NeuronTree__2__V_NeuronSWC_list(NT).seg.at(0);
-//            for(int j=0;j<seg.row.size();j++)
-//            {
-//                seg.row.at(j).timestamp=info.time;
-//                seg.row.at(j).r+=info.id*100;
-//            }
-//            testVNL.seg.push_back(seg);
-//            removedNTList.erase(i);
-//        }
 
         while(!removedNTList.isEmpty())
         {
@@ -521,6 +231,9 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
         NeuronTree tmp=V_NeuronSWC_list__2__NeuronTree(testVNL);
         writeESWC_file("./removelog/"+filename+".swc",tmp);
 
+        emit MessageServerDeleted(filename);
+        delete global_parameters;
+
         this->deleteLater();
         qDebug()<<"save successfully";
         return;
@@ -529,8 +242,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
 void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
 {
 //    qDebug()<<"MessageServerSlotAnswerMessageSocket_addseg";
-    /*MSG=QString("/seg:"+user + "__" + msg)*/
-    qDebug()<<QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG;
+//    qDebug()<<QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG;
     orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
     QRegExp Reg("/seg:(.*)__(.*)");
     QString seg;
@@ -738,9 +450,9 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
     CellAPO marker0;
     marker0.x=mx;marker0.y=my;marker0.z=mz;
 
-    marker0.color.r=neuron_type_color[type][0];
-    marker0.color.g=neuron_type_color[type][1];
-    marker0.color.b=neuron_type_color[type][2];
+    marker0.color.r=0;
+    marker0.color.g=0;
+    marker0.color.b=255;
 
 //    qDebug()<<global_parameters->wholePoint.size();
     marker0.n=global_parameters->wholePoint[global_parameters->wholePoint.size()-1].n+1;//need do something
@@ -858,7 +570,7 @@ void MessageServer::autoSave()
     //write log
     if(!QDir("./orderfile").exists()) QDir("./").mkdir("orderfile");
     QFile f("./orderfile/"+filename+".txt");
-    if(f.open(QIODevice::Append))
+    if(f.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Append))
     {
         while (!orderList.isEmpty()) {
             f.write(orderList.at(0).toStdString().c_str());
@@ -891,8 +603,6 @@ void MessageServer::autoSave()
     }
     NeuronTree tmp=V_NeuronSWC_list__2__NeuronTree(testVNL);
     writeESWC_file("./removelog/"+filename+".swc",tmp);
-
-
 }
 
 
