@@ -203,6 +203,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
                 txtoutput<<orderList.at(0)<<endl;
                 orderList.removeFirst();
             }
+            txtoutput<<endl;
         }
         f.close();
 
