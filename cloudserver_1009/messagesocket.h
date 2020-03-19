@@ -62,6 +62,9 @@ struct Global_Parameters{
 
     float global_scale;
 
+    QMap <QString,int> *userInfo;
+    QReadWriteLock lock_userInfo;
+
 };
 
 class MessageSocket:public QTcpSocket
@@ -97,6 +100,7 @@ private:
     Global_Parameters *global_parameters;
     int socketId;
     quint16 nextblocksize;
+    QString id;
 
 
 public slots:

@@ -18,14 +18,15 @@ void FileServer_send::sendFile(QString ip, QString filename)
 {
     for(int i=0;i<list.size();i++)
     {
+//        qDebug()<<list[i]->peerAddress();
         if(list[i]->peerAddress().toString()==ip)
         {
+//            qDebug()<<"Dafasfa";
             FileSocket_send *temp=list[i];
             list.removeAt(i);
             temp->anoname=filename;
             temp->sendFile("./clouddata/"+filename,filename);
-//            temp->sendFile("./clouddata/"+filename+".eswc",filename);
-//            temp->sendFile("./clouddata/"+filename+".apo",filename);
+            break;
         }
     }
 }
@@ -39,10 +40,12 @@ FileSocket_send::FileSocket_send(QObject *parent)
 void FileSocket_send::sendFile(QString filepath, QString filename)
 {
     QFile f(filepath);
+//    qDebug()<<filepath;
 
 
     if(f.exists()&&f.open(QIODevice::ReadOnly))
     {
+//            qDebug()<<filename;
         QByteArray data=f.readAll();
         QByteArray block;
 
@@ -57,6 +60,7 @@ void FileSocket_send::sendFile(QString filepath, QString filename)
         dts<<data;
 
         this->write(block);
+//        qDebug()<<"asafas";
     }else
     {
         disconnectFromHost();

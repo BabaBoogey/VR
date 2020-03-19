@@ -137,10 +137,23 @@ void MessageSocket::MessageSocketSlot_Read()
 
 void MessageSocket::loginProcess(const QString &name)
 {
-
+    id.clear();
     global_parameters->lock_clients.lockForWrite();
     global_parameters->clients[this]=name;
     global_parameters->lock_clients.unlock();
+
+    global_parameters->lock_userInfo.lockForWrite();
+    if(global_parameters->userInfo->value(name,-1)!=-1)
+    {
+        id=QString::number(global_parameters->userInfo->value(name));
+    }else
+    {
+        int count=global_parameters->userInfo->size()+1;
+        id=QString::number(count);
+        global_parameters->userInfo->insert(name,count);
+    }
+    global_parameters->lock_userInfo.unlock();
+    qDebug()<<"afjdljsadsflkj";
 
     clientproperty client00={global_parameters->clientNum,name,21,false,true, 0};
     if(!containsClient(name))
@@ -244,9 +257,10 @@ void MessageSocket::segProcess(const QString &msg,int undoP)
     global_parameters->lock_clients.unlock();
 
     global_parameters->lock_messagelist.lockForWrite();
-    global_parameters->messagelist.push_back(QString("/seg:"+    QString::number(user.toInt()+undoP) + "__" + msg));
+
+    global_parameters->messagelist.push_back(QString("/seg:"+    user+QString::number(undoP) + "__" + msg));
 //    qDebug()<<QString("/seg:"+    QString::number(user.toInt()+undoP) + "__" + msg);
-    emit signal_addseg(QString("/seg:"+user + "__" + msg));
+    emit signal_addseg(QString("/seg:"+id + "__" + msg));
     global_parameters->lock_messagelist.unlock();
 
 
@@ -261,9 +275,9 @@ void MessageSocket::deleteProcess(const QString &delsegpos,int undoP)
 
     global_parameters->lock_messagelist.lockForWrite();
 
-    global_parameters->messagelist.push_back(QString("/del_curve:" +    QString::number(user.toInt()+undoP)+"__"+delsegpos ));
+    global_parameters->messagelist.push_back(QString("/del_curve:" +    user+QString::number(undoP)+"__"+delsegpos ));
 //    qDebug()<<QString("/del_curve:" +    QString::number(user.toInt()+undoP)+"__"+delsegpos );
-    emit signal_delseg(QString("/del_curve:" +user+"__"+delsegpos ));
+    emit signal_delseg(QString("/del_curve:" +id+"__"+delsegpos ));
     global_parameters->lock_messagelist.unlock();
 
 
@@ -276,10 +290,11 @@ void MessageSocket::markerProcess(const QString &markermsg,int undoP)
     QString user=global_parameters->clients.value(this);
     global_parameters->lock_clients.unlock();
 
+    qDebug()<<user;
     global_parameters->lock_messagelist.lockForWrite();
-    global_parameters->messagelist.push_back(QString("/marker:" +    QString::number(user.toInt()+undoP)+"__"+markermsg));
+    global_parameters->messagelist.push_back(QString("/marker:" +    user+QString::number(undoP)+"__"+markermsg));
 //    qDebug()<<QString("/marker:" +    QString::number(user.toInt()+undoP)+"__"+markermsg);
-    emit signal_addmarker(QString("/marker:" +user+"__"+markermsg));
+    emit signal_addmarker(QString("/marker:" +id+"__"+markermsg));
     global_parameters->lock_messagelist.unlock();
 
 
@@ -294,7 +309,7 @@ void MessageSocket::delmarkerProcess(const QString &delmarkerpos)
 
     global_parameters->lock_messagelist.lockForWrite();
     global_parameters->messagelist.push_back(QString("/del_marker:" +user+"__"+delmarkerpos ));
-    emit signal_delmarker(QString("/del_marker:" +user+"__"+delmarkerpos ));
+    emit signal_delmarker(QString("/del_marker:" +id+"__"+delmarkerpos ));
     global_parameters->lock_messagelist.unlock();
 
     //减marker ，QString("/del_marker:" +user+" "+delmarkerpos )
@@ -308,7 +323,7 @@ void MessageSocket::retypeProcess(const QString &retypeMSG)
 
     global_parameters->lock_messagelist.lockForWrite();
     global_parameters->messagelist.push_back(QString("/retype:" +user+"__"+retypeMSG ));
-    emit signal_retype(QString("/retype:" +user+"__"+retypeMSG ));
+    emit signal_retype(QString("/retype:" +id+"__"+retypeMSG ));
     global_parameters->lock_messagelist.unlock();
 }
 void MessageSocket::creatorProcess(const QString msg)

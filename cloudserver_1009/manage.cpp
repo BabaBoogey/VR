@@ -14,6 +14,29 @@ ManageServer::ManageServer(QObject *parent)
         qDebug()<<"ManageServer is not started ,please try again.";
     }
     fileserver_send=new FileServer_send();
+
+
+    if(!QDir("./userInfo").exists())
+        QDir("./").mkdir("userInfo");
+    QFile userInfoFile("./userInfo/userInfo.txt");
+    if(userInfoFile.exists())
+    {
+        if(userInfoFile.open(QIODevice::ReadOnly| QIODevice::Text))
+        {
+            while(!userInfoFile.atEnd())
+            {
+                QByteArray line = userInfoFile.readLine();
+                QStringList user=QString(line).split(" ",QString::SkipEmptyParts);
+                if(user.size()!=2)
+                {
+                    qDebug()<<"ERROR user info:"<<user;
+                    continue;
+                }
+                userList.insert(user.at(0).trimmed(),user.at(1).trimmed().toInt());
+            }
+        }
+    }
+    userInfoFile.close();
 }
 
 void ManageServer::incomingConnection(int socketDesc)
@@ -57,6 +80,7 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
             global_parameters->global_scale=0;
 
             global_parameters->Map_Ip_NumMessage.clear();
+            global_parameters->userInfo=&userList;
 
             MessageServer *messageserver=new MessageServer(anofile_name, global_parameters);
             if(!messageserver->listen(QHostAddress::Any,messageport.toInt()))
@@ -179,8 +203,8 @@ void ManageSocket::readManage()
         }else if(FileDownRex.indexIn(manageMSG)!=-1)
         {
             QString filename=FileDownRex.cap(1).trimmed();
-            QString anopath="./clouddata/"+filename;
-            fileserver_send->sendFile(this->peerAddress().toString(),anopath);
+//            QString anopath="./clouddata/"+filename;
+            fileserver_send->sendFile(this->peerAddress().toString(),filename);
 //            FileSocket_send *filesocket=new FileSocket_send(this->peerAddress().toString(),"9998",anopath);
         }else if(FileLoadRex.indexIn(manageMSG)!=-1)
         {
@@ -213,9 +237,9 @@ QString currentDir()
 
     for(unsigned i=0;i<list.size();i++)
     {
-        QRegExp anoRex("(.*).ano");
-        QRegExp eswcRex("(.*).ano.eswc");
-        QRegExp apoRex("(.*).ano.apo");
+        QRegExp anoRex("(.*).ano$");
+        QRegExp eswcRex("(.*).ano.eswc$");
+        QRegExp apoRex("(.*).ano.apo$");
         QFileInfo tmpFileInfo=list.at(i);
         if(!tmpFileInfo.isDir())
         {

@@ -43,6 +43,7 @@ public slots:
     void messageserver_ondeltete(QString);
 public:
     QMap <QString ,MessageServer* > Map_File_MessageServer;
+    QMap <QString,int> userList;
 public:
 
 };
