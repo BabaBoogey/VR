@@ -25,7 +25,10 @@ void FileServer_send::sendFile(QString ip, QString filename)
             FileSocket_send *temp=list[i];
             list.removeAt(i);
             temp->anoname=filename;
-            temp->sendFile("./clouddata/"+filename,filename);
+            if(filename.contains("stamp"))
+                temp->sendFile("./autosave/"+filename,filename);
+            else
+                temp->sendFile("./clouddata/"+filename,filename);
             break;
         }
     }
@@ -78,26 +81,18 @@ void FileSocket_send::readMSG()
         QString MSG=QString::fromUtf8(this->readLine());
         if(anoRex.indexIn(MSG)!=-1)
         {
-            sendFile("./clouddata/"+anoname+".eswc",anoname+".eswc");
+            if(anoname.contains("stamp"))
+                sendFile("./autosave/"+anoname+".eswc",anoname+".eswc");
+            else
+                sendFile("./clouddata/"+anoname+".eswc",anoname+".eswc");
         }else if(swcRex.indexIn(MSG)!=-1)
         {
+            if(anoname.contains("stamp"))
+                sendFile("./autosave/"+anoname+".apo",anoname+".apo");
+            else
             sendFile("./clouddata/"+anoname+".apo",anoname+".apo");
         }else if(apoRex.indexIn(MSG)!=-1)
         {
-            if(QFile("./clouddata/"+anoname+".txt").exists())
-                sendFile("./clouddata/"+anoname+".txt",anoname+".txt");
-            else
-            {
-                QFile("./clouddata/"+anoname+".txt").remove();
-                this->disconnectFromHost();
-            }
-
-        }else if(txtRex.indexIn(MSG)!=-1)
-        {
-            qDebug()<<"filesocket disconnect";
-            QFile *f=new QFile("./clouddata/"+anoname+".txt");
-            f->remove();
-            delete f;
             this->disconnectFromHost();
         }
     }

@@ -26,9 +26,6 @@ signals:
     void makeMessageServer(ManageSocket *managesocket,QString anofile_name);
 
 private:
-
-
-
 };
 
 class ManageServer:public QTcpServer
@@ -47,7 +44,4 @@ public:
 public:
 
 };
-
-
-
 #endif // MANAGESERVER_H

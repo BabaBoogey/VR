@@ -101,7 +101,7 @@ void MessageSocket::MessageSocketSlot_Read()
                 creatorProcess(creatorRex.cap(1));
             }else if(undoRex.indexIn(msg)!=-1)
             {
-//                qDebug()<<msg;
+                qDebug()<<msg;
                 msg=undoRex.cap(1).trimmed();
                 QRegExp segmentRex("^/seg:(.*)$");
                 QRegExp deleteRex("^/del_curve:(.*)$");

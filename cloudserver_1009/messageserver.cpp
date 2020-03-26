@@ -6,6 +6,7 @@
 #include "basic_c_fun/v_neuronswc.h"
 #include <QDir>
 #include <QTextStream>
+#include <QString>
 
 const double dist_thres=0.05;
 
@@ -28,7 +29,7 @@ MessageServer::MessageServer(QString filename,Global_Parameters *parameters,QObj
     sketchNum=sketchedNTList.size();
 
     connect(global_parameters->timer,SIGNAL(timeout()),this,SLOT(autoSave()));
-    autoSave();
+    //autoSave();
     global_parameters->timer->start(3*60*1000);
 }
 
@@ -422,6 +423,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
             }
         }
     }
+    global_parameters->messageUsedIndex++;
 //    qDebug()<<"MessageServerSlotAnswerMessageSocket_delseg end=============";
 }
 
@@ -438,19 +440,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
         username=Reg.cap(1);
         markerpos=Reg.cap(2);
     }
-//    global_parameters->lock_clientsproperty.lockForRead();
 
-//    int colortype=21;
-//    for(int i=0;i<global_parameters->clientsproperty.size();i++)
-//    {
-//        if(global_parameters->clientsproperty.at(i).name==username)
-//        {
-//            colortype=global_parameters->clientsproperty.at(i).colortype;
-////            qDebug()<<username<<":"<<colortype;
-//            break;
-//        }
-//    }
-//    global_parameters->lock_clientsproperty.unlock();
     int type=2;
     QStringList markerMSGs=markerpos.trimmed().split(" ");
     if(markerMSGs.size()<3) return;
@@ -776,6 +766,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
     marker0.color.b=neuron_type_color[type][2];
     global_parameters->wholePoint.push_back(marker0);
 //    qDebug()<<"MessageServerSlotAnswerMessageSocket_addmarker end;";
+    global_parameters->messageUsedIndex++;
 
 }
 //not use it
@@ -820,50 +811,101 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG)
             break;
         }
     }
+    global_parameters->messageUsedIndex++;
 
 }
 
 //
-void MessageServer::autoSave()
+QMap<quint32 ,QString> MessageServer::autoSave()
 {
-    qDebug()<<"autosave";
+    quint32 cnt=global_parameters->messageUsedIndex;
+    QMap<quint32 ,QString> map;
     QDir rDir("./");
     if(!rDir.cd("autosave"))
     {
         rDir.mkdir("autosave");
     }
-    qDebug()<<"filename"<<filename;
     QRegExp fileExp("(.*).ano");
     if(fileExp.indexIn(filename)!=-1)
     {
         QDateTime time=QDateTime::currentDateTime();
         QString strtime=time.toString("yyyy_MM_dd_hh_mm_ss");
 
-        QString tempname =fileExp.cap(1)+"_stamp_autosave_"+strtime;
-
-        QFile anofile("./autosave/"+tempname+".ano");
-        anofile.open(QIODevice::WriteOnly);
-        QString str1="APOFILE="+tempname+".ano.apo";
-        QString str2="SWCFILE="+tempname+".ano.eswc";
-
-        QTextStream out(&anofile);
-        out<<str1<<endl<<str2;
-        anofile.close();
+        QString filebaseName=fileExp.cap(1);
 
         {
-            V_NeuronSWC_list tosave;
-            tosave.clear();
-            for(int i=0;i<sketchedNTList.size();i++)
+            QString tempname =filebaseName+"_stamp_autosave_"+strtime+QString::number(cnt);
+            QFile anofile("./autosave/"+tempname+".ano");
+            anofile.open(QIODevice::WriteOnly);
+            QString str1="APOFILE="+tempname+".ano.apo";
+            QString str2="SWCFILE="+tempname+".ano.eswc";
+
+            QTextStream out(&anofile);
+            out<<str1<<endl<<str2;
+            anofile.close();
+
             {
-                NeuronTree ss=sketchedNTList.at(i);
-                V_NeuronSWC ss_temp=NeuronTree__2__V_NeuronSWC_list(ss).seg.at(0);
-                tosave.seg.push_back(ss_temp);
+                V_NeuronSWC_list tosave;
+                tosave.clear();
+                for(int i=0;i<sketchedNTList.size();i++)
+                {
+                    NeuronTree ss=sketchedNTList.at(i);
+                    V_NeuronSWC ss_temp=NeuronTree__2__V_NeuronSWC_list(ss).seg.at(0);
+                    tosave.seg.push_back(ss_temp);
+                }
+                global_parameters->wholeNT=V_NeuronSWC_list__2__NeuronTree(tosave);
             }
-            global_parameters->wholeNT=V_NeuronSWC_list__2__NeuronTree(tosave);
+            writeESWC_file(QString("./autosave/%1.ano.eswc").arg(tempname),global_parameters->wholeNT);
+            writeAPO_file(QString("./autosave/%1.ano.apo").arg(tempname),global_parameters->wholePoint);
+            map[cnt]=tempname+".ano";
         }
-        writeESWC_file("./autosave/"+tempname+".ano.eswc",global_parameters->wholeNT);
-        writeAPO_file("./autosave/"+tempname+".ano.apo",global_parameters->wholePoint);
+
+        {
+            QString tempname ="./clouddata/"+filebaseName+".ano";
+//            QFile *f=new QFile(tempname);
+//            if(f->exists())
+//            {
+//                f->remove();
+//                delete f;
+//                f=new QFile(tempname+".eswc");
+//                if(f->exists())
+//                {
+//                    f->remove();
+//                    delete f;
+//                    f=new QFile(tempname+".apo");
+//                    if(f->exists())
+//                    {
+//                        f->remove();
+//                        delete f;
+//                    }
+//                }
+
+//            }
+            QFile anofile(tempname);
+            anofile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+            QString str1="APOFILE="+filebaseName+".ano.apo";
+            QString str2="SWCFILE="+filebaseName+".ano.eswc";
+
+            QTextStream out(&anofile);
+            out<<str1<<endl<<str2;
+            anofile.close();
+
+            {
+                V_NeuronSWC_list tosave;
+                tosave.clear();
+                for(int i=0;i<sketchedNTList.size();i++)
+                {
+                    NeuronTree ss=sketchedNTList.at(i);
+                    V_NeuronSWC ss_temp=NeuronTree__2__V_NeuronSWC_list(ss).seg.at(0);
+                    tosave.seg.push_back(ss_temp);
+                }
+                global_parameters->wholeNT=V_NeuronSWC_list__2__NeuronTree(tosave);
+            }
+            writeESWC_file("./clouddata/"+fileExp.cap(1)+".ano.eswc",global_parameters->wholeNT);
+            writeAPO_file("./clouddata/"+fileExp.cap(1)+".ano.apo",global_parameters->wholePoint);
+        }
     }
+
     //write log
     if(!QDir("./orderfile").exists()) QDir("./").mkdir("orderfile");
     QFile f("./orderfile/"+filename+".txt");
@@ -886,7 +928,6 @@ void MessageServer::autoSave()
         NeuronTree remove_stroed=readSWC_file("./removelog/"+filename+".swc");
         testVNL= NeuronTree__2__V_NeuronSWC_list(remove_stroed);
     }
-    qDebug()<<"hhkhkjhkjdhkjs";
     while(removedNTList.size()!=0)
     {
         NeuronTree NT=removedNTList.at(0).NT;
@@ -898,34 +939,28 @@ void MessageServer::autoSave()
         }
         testVNL.seg.push_back(seg);
         removedNTList.removeAt(0);
-        qDebug()<<"1";
     }
 
     NeuronTree tmp=V_NeuronSWC_list__2__NeuronTree(testVNL);
     writeESWC_file("./removelog/"+filename+".swc",tmp);
 
-            qDebug()<<"dsadsf2";
     QFile userInfoFile("./userInfo/userInfo.txt");
     if(userInfoFile.open(QIODevice::Truncate|QIODevice::Text|QIODevice::WriteOnly))
         {
             QTextStream __stream(&userInfoFile);
-                    qDebug()<<"dsadsf3";
             global_parameters->lock_userInfo.lockForRead();
-                    qDebug()<<"dsadsf4";
             for(quint64 i=0;i<global_parameters->userInfo->size();i++)
             {
-                qDebug()<<i;
+//                qDebug()<<i;
                 QString _=global_parameters->userInfo->keys().at(i)+" "
                         +QString::number(global_parameters->userInfo->value(global_parameters->userInfo->keys().at(i)));
-                qDebug()<<_;
+//                qDebug()<<_;
                 __stream<<_<<endl;
             }
             global_parameters->lock_userInfo.unlock();
         }
-        userInfoFile.close();
-        qDebug()<<"dsadsf1";
-
+    userInfoFile.close();
+    return map;
 }
-
 
 

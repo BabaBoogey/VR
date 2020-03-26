@@ -31,18 +31,12 @@ public:
         Global_Parameters *global_parameters;
 private:
     void incomingConnection(int socketDesc);
-
-
     QString filename;
 
     QList<NeuronTree> sketchedNTList;
     QList<RemoveInfo> removedNTList;
     QStringList orderList;
     int sketchNum;
-
-//    float m_globalScale;
-
-
 
 public slots:
     void MessageServerSlotAnswerMessageSocket_sendtoall(const QString &msg);
@@ -55,16 +49,10 @@ public slots:
     void MessageServerSlotAnswerMessageSocket_retype(QString);
 //    void MessageServerSlotAnswerMessageSocket_insert(QString);
 //    void MessageServerSlotAnswerMessageSocket_directconnect(QString);
-    void autoSave();
+    QMap<quint32 ,QString> autoSave();
 signals:
     void MessageServerSignal_sendtoall(const QString &msg);
     void MessageServerDeleted(QString);
 
 };
-
-
-
-
-
-
 #endif // MESSAGESERVER_H
