@@ -14,11 +14,24 @@
 #include "neuron_editing/neuron_format_converter.h"
 #include <QMap>
 #include <QDateTime>
+#include <managesocket.h>
+#include "send_file.h"
 struct RemoveInfo{
     NeuronTree NT;
     int time;
     int id;
 //    QDateTime dateTime;
+};
+class MessageServer;
+struct ForAUTOSave
+{
+
+    QString ip;
+    FileServer_send *fileserver_send=0;
+    ManageSocket *managesocket=0;
+    QMap <QString ,MessageServer* > *Map_File_MessageServer=0;
+    QString anofile_name;
+    QString messageport;
 };
 
 class MessageServer:public QTcpServer
@@ -44,12 +57,13 @@ public slots:
 
     void MessageServerSlotAnswerMessageSocket_addseg(QString);
     void MessageServerSlotAnswerMessageSocket_delseg(QString);
-    void MessageServerSlotAnswerMessageSocket_addmarker(QString);
-    void MessageServerSlotAnswerMessageSocket_delmarker(QString);
+    void MessageServerSlotAnswerMessageSocket_addmarker(QString,bool flag=0);
+    void MessageServerSlotAnswerMessageSocket_delmarker(QString,bool flag=0);
     void MessageServerSlotAnswerMessageSocket_retype(QString);
 //    void MessageServerSlotAnswerMessageSocket_insert(QString);
 //    void MessageServerSlotAnswerMessageSocket_directconnect(QString);
     QMap<quint32 ,QString> autoSave();
+    void userLoad(ForAUTOSave);
 signals:
     void MessageServerSignal_sendtoall(const QString &msg);
     void MessageServerDeleted(QString);

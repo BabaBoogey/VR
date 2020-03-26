@@ -83,28 +83,49 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
             global_parameters->userInfo=&userList;
             global_parameters->messageUsedIndex=0;
 
+
             MessageServer *messageserver=new MessageServer(anofile_name, global_parameters);
+            connect(this,SIGNAL(userload(ForAUTOSave)),messageserver,SLOT(userLoad(ForAUTOSave)));
             if(!messageserver->listen(QHostAddress::Any,messageport.toInt()))
             {
                 return;
             }else {
 
-                QMap<quint32 ,QString> map=messageserver->autoSave();
-                messageserver->global_parameters->Map_Ip_NumMessage[managesocket->peerAddress().toString()]=map.keys().at(0);
+                //timeout xinhao ->槽
+                ForAUTOSave forautosave;
+                forautosave.ip=managesocket->peerAddress().toString();//
+                forautosave.fileserver_send=fileserver_send;//
+                forautosave.managesocket=managesocket;//
+                forautosave.Map_File_MessageServer=&Map_File_MessageServer;//
+                forautosave.anofile_name=anofile_name;//
+                forautosave.messageport=messageport;//
+                emit userload(forautosave);
+//                QMap<quint32 ,QString> map=messageserver->autoSave();
+//                messageserver->global_parameters->Map_Ip_NumMessage[managesocket->peerAddress().toString()]=map.keys().at(0);
 
-                fileserver_send->sendFile(managesocket->peerAddress().toString(),map.values().at(0));
-                 managesocket->write(QString(messageport+":messageport"+".\n").toUtf8());
-                 Map_File_MessageServer[anofile_name]=messageserver;
+//                fileserver_send->sendFile(managesocket->peerAddress().toString(),map.values().at(0));
+//                 managesocket->write(QString(messageport+":messageport"+".\n").toUtf8());
+//                 Map_File_MessageServer[anofile_name]=messageserver;
                  connect(messageserver,SIGNAL(MessageServerDeleted(QString)),
                         this,SLOT(messageserver_ondeltete(QString)) );
             }
         }else {
 
-            QMap<quint32 ,QString> map=Map_File_MessageServer.value(anofile_name)->autoSave();
-            Map_File_MessageServer.value(anofile_name)->global_parameters-> Map_Ip_NumMessage[managesocket->peerAddress().toString()]=map.keys().at(0);
-            fileserver_send->sendFile(managesocket->peerAddress().toString(),map.values().at(0));
+//            QMap<quint32 ,QString> map=Map_File_MessageServer.value(anofile_name)->autoSave();
+//            Map_File_MessageServer.value(anofile_name)->global_parameters-> Map_Ip_NumMessage[managesocket->peerAddress().toString()]=map.keys().at(0);
+//            fileserver_send->sendFile(managesocket->peerAddress().toString(),map.values().at(0));
             QString messageport=QString::number(Map_File_MessageServer[anofile_name]->serverPort());
-            managesocket->write(QString(messageport+":messageport"+".\n").toUtf8());
+//            managesocket->write(QString(messageport+":messageport"+".\n").toUtf8());
+
+
+            ForAUTOSave forautosave;
+            forautosave.ip=managesocket->peerAddress().toString();//
+            forautosave.fileserver_send=fileserver_send;//
+            forautosave.managesocket=managesocket;//
+            forautosave.Map_File_MessageServer=&Map_File_MessageServer;//
+            forautosave.anofile_name=anofile_name;//
+            forautosave.messageport=messageport;//
+            emit userload(forautosave);
         }
     }
 }

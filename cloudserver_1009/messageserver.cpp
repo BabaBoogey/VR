@@ -7,8 +7,26 @@
 #include <QDir>
 #include <QTextStream>
 #include <QString>
+#include <QMap>
 
 const double dist_thres=0.05;
+
+void MessageServer::userLoad(ForAUTOSave foraotosave)
+{
+    QString ip=foraotosave.ip;
+    FileServer_send  *fileserver_send=foraotosave.fileserver_send;
+    ManageSocket *managesocket=foraotosave.managesocket;
+    QMap <QString ,MessageServer* > *Map_File_MessageServer=foraotosave.Map_File_MessageServer;
+    QString messageport=foraotosave.messageport;
+    QString anofile_name=foraotosave.anofile_name;
+
+    QMap<quint32 ,QString> map=this->autoSave();
+    this->global_parameters->Map_Ip_NumMessage[managesocket->peerAddress().toString()]=map.keys().at(0);
+    fileserver_send->sendFile(ip,map.values().at(0));
+    managesocket->write(QString(messageport+":messageport"+".\n").toUtf8());
+    (*Map_File_MessageServer)[anofile_name]=this;
+
+}
 
 MessageServer::MessageServer(QString filename,Global_Parameters *parameters,QObject *parent)
     :global_parameters(parameters),QTcpServer (parent),filename(filename),sketchNum(0)
@@ -67,6 +85,8 @@ void MessageServer::incomingConnection(int socketDesc)
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_retype( QString MSG)
 {
+    global_parameters->messageUsedIndex++;
+    qDebug()<<"messageindex="<<global_parameters->messageUsedIndex;
         orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
     QRegExp Reg("/retype:(.*)__(.*)");
     QString delseg;
@@ -131,7 +151,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_retype( QString MSG)
              }
          }
      }
-     global_parameters->messageUsedIndex++;
+//     global_parameters->messageUsedIndex++;
      qDebug()<<"retype end";
 }
 
@@ -257,6 +277,8 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
 {
 //    qDebug()<<"MessageServerSlotAnswerMessageSocket_addseg";
 //    qDebug()<<QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG;
+    global_parameters->messageUsedIndex++;
+    qDebug()<<"messageindex="<<global_parameters->messageUsedIndex;
     orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
     QRegExp Reg("/seg:(.*)__(.*)");
     QString seg;
@@ -315,12 +337,12 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
             if(i==qsl.size()-1)
             {
                 MessageServerSlotAnswerMessageSocket_addmarker(QString("/marker:%1__%2 %3 %4")
-                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()));
+                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()),1);
             }
             if(i==1)
             {
                 MessageServerSlotAnswerMessageSocket_delmarker(QString("/del_marker:%1__%2 %3 %4")
-                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()));
+                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()),1);
             }
 
         }else if(head.trimmed().split(" ").at(0)=="TeraVR")
@@ -340,12 +362,12 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
             if(i==qsl.size()-1)
             {
                 MessageServerSlotAnswerMessageSocket_addmarker(QString("/marker:%1__%2 %3 %4")
-                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()));
+                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()),1);
             }
             if(i==1)
             {
                 MessageServerSlotAnswerMessageSocket_delmarker(QString("/del_marker:%1__%2 %3 %4")
-                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()));
+                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()),1);
             }
         }else if(head.trimmed().split(" ").at(0)=="TeraAI")
         {
@@ -370,15 +392,16 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
     }
 
     sketchedNTList.push_back(newTempNT);
-    global_parameters->messageUsedIndex++;
-//    qDebug()<<"add seg end==========================================";
+//    global_parameters->messageUsedIndex++;
+    qDebug()<<"add seg end==========================================";
 }
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
 {
 //    qDebug()<<"MessageServerSlotAnswerMessageSocket_delseg\n"<<MSG;
     /*MSG=QString("/del_curve:"+user + "__" + msg)*/
-
+    global_parameters->messageUsedIndex++;
+    qDebug()<<"messageindex="<<global_parameters->messageUsedIndex;
         orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
     QRegExp Reg("/del_curve:(.*)__(.*)"); //msg=node 1_node 2_....
     QString delseg;
@@ -423,12 +446,15 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
             }
         }
     }
-    global_parameters->messageUsedIndex++;
-//    qDebug()<<"MessageServerSlotAnswerMessageSocket_delseg end=============";
+//    global_parameters->messageUsedIndex++;
+    qDebug()<<"MessageServerSlotAnswerMessageSocket_delseg end=============";
 }
 
-void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
+void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG,bool flag)
 {
+    if(!flag)
+        global_parameters->messageUsedIndex++;
+    qDebug()<<"messageindex="<<global_parameters->messageUsedIndex;
 //    qDebug()<<"MessageServerSlotAnswerMessageSocket_addmarker\n"<<MSG;
     /*MSG=QString("/marker:" +user+"__"+markermsg)*/
         orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
@@ -765,13 +791,17 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
     marker0.color.g=neuron_type_color[type][1];
     marker0.color.b=neuron_type_color[type][2];
     global_parameters->wholePoint.push_back(marker0);
-//    qDebug()<<"MessageServerSlotAnswerMessageSocket_addmarker end;";
-    global_parameters->messageUsedIndex++;
+    qDebug()<<"MessageServerSlotAnswerMessageSocket_addmarker end;";
+//    global_parameters->messageUsedIndex++;
+
 
 }
 //not use it
-void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG)
+void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG,bool flag)
 {
+    if(!flag)
+    global_parameters->messageUsedIndex++;
+    qDebug()<<"messageindex="<<global_parameters->messageUsedIndex;
 //    qDebug()<<"MessageServerSlotAnswerMessageSocket_delmarker\n"<<MSG;
     /*MSG=QString("/del_marker:" +user+" "+delmarkerpos )*/
         orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
@@ -811,13 +841,15 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG)
             break;
         }
     }
-    global_parameters->messageUsedIndex++;
+//    global_parameters->messageUsedIndex++;
+
 
 }
 
 //
 QMap<quint32 ,QString> MessageServer::autoSave()
 {
+
     quint32 cnt=global_parameters->messageUsedIndex;
     QMap<quint32 ,QString> map;
     QDir rDir("./");
@@ -960,6 +992,7 @@ QMap<quint32 ,QString> MessageServer::autoSave()
             global_parameters->lock_userInfo.unlock();
         }
     userInfoFile.close();
+    qDebug()<<"aksdjhfkjhjfkh"<<cnt;
     return map;
 }
 

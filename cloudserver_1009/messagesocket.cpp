@@ -73,7 +73,7 @@ void MessageSocket::MessageSocketSlot_Read()
                 resindexProcess(ResMsg);
             }else if(segmentRex.indexIn(msg)!=-1)
             {
-
+                qDebug()<<msg;
                 QString seg=segmentRex.cap(1).trimmed();
                 segProcess(seg);
             }else if(deleteRex.indexIn(msg)!=-1)
@@ -363,6 +363,7 @@ void MessageSocket::SendToUser(const QString &msg)
         dts.setVersion(QDataStream::Qt_4_7);
 
         dts<<quint16(0)<<msg;
+        qDebug()<<this->peerAddress().toString()<<" "<<msg;
         dts.device()->seek(0);
         dts<<quint16(block.size()-sizeof (quint16));
         this->write(block);

@@ -42,6 +42,7 @@ HEADERS += \
     basic_c_fun/v_neuronswc.h \
     customdebug.h \
     manage.h \
+    managesocket.h \
     messageserver.h \
     messagesocket.h \
     neuron_editing/apo_xforms.h \
