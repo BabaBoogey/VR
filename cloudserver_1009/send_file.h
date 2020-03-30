@@ -10,6 +10,7 @@ public:
 
     explicit FileServer_send(QObject *parent=0);
     void sendFile(QString ip,QString filename);
+    void sendV3draw(QString ip,QString filename);
 private:
     void incomingConnection(int socketDesc);
 private:

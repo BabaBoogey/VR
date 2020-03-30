@@ -18,10 +18,8 @@ void FileServer_send::sendFile(QString ip, QString filename)
 {
     for(int i=0;i<list.size();i++)
     {
-//        qDebug()<<list[i]->peerAddress();
         if(list[i]->peerAddress().toString()==ip)
         {
-//            qDebug()<<"Dafasfa";
             FileSocket_send *temp=list[i];
             list.removeAt(i);
             temp->anoname=filename;
@@ -30,6 +28,20 @@ void FileServer_send::sendFile(QString ip, QString filename)
             else
                 temp->sendFile("./clouddata/"+filename,filename);
             break;
+        }
+    }
+}
+
+void FileServer_send::sendV3draw(QString ip, QString filename)
+{
+    for(int i=0;i<list.size();i++)
+    {
+        if(list[i]->peerAddress().toString()==ip)
+        {
+            FileSocket_send *temp=list[i];
+            list.removeAt(i);
+            temp->anoname.clear();
+            temp->sendFile("./v3draw/"+filename,filename);
         }
     }
 }

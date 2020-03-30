@@ -20,7 +20,6 @@ struct RemoveInfo{
     NeuronTree NT;
     int time;
     int id;
-//    QDateTime dateTime;
 };
 class MessageServer;
 struct ForAUTOSave
@@ -38,7 +37,7 @@ class MessageServer:public QTcpServer
 {
     Q_OBJECT
 public:
-    explicit MessageServer(QString filename,Global_Parameters *parameters,QObject *parent=0);
+    explicit MessageServer(QString filename,Global_Parameters *parameters=0,QObject *parent=0);
 protected:
 public:
         Global_Parameters *global_parameters;

@@ -2,10 +2,8 @@
 MessageSocket::MessageSocket(int socketDesc,Global_Parameters *parameters,QObject *parent)
     :socketId(socketDesc),global_parameters(parameters),QTcpSocket (parent)
 {
-//    qDebug()<<"make a messagesocket, and don't set it's socketId ";
     nextblocksize=0;
     qDebug()<<"socket conected "<<this<<" "<<socketDesc;
-//    qDebug()<<" global_parameters->lock_messagelist:"<<global_parameters->messagelist.size();
 }
 
 void MessageSocket::MessageSocketSlot_Read()
@@ -55,7 +53,6 @@ void MessageSocket::MessageSocketSlot_Read()
             }
 
             msg=msg.trimmed();
-//                            qDebug()<<msg;
             if(loginRex.indexIn(msg)!=-1)
             {
                 QString user=loginRex.cap(1).trimmed();
@@ -78,14 +75,17 @@ void MessageSocket::MessageSocketSlot_Read()
                 segProcess(seg);
             }else if(deleteRex.indexIn(msg)!=-1)
             {
+                qDebug()<<msg;
                 QString delcurvepos=deleteRex.cap(1).trimmed();
                 deleteProcess(delcurvepos);
             }else if(markerRex.indexIn(msg)!=-1)
             {
+                qDebug()<<msg;
                 QString markerpos=markerRex.cap(1).trimmed();
                 markerProcess(markerpos);
             }else if(delmarkerRex.indexIn(msg)!=-1)
             {
+                qDebug()<<msg;
                 QString delmarkerpos=delmarkerRex.cap(1).trimmed();
                 delmarkerProcess(delmarkerpos);
             }else if(scaleRex.indexIn(msg)!=-1)
@@ -108,25 +108,23 @@ void MessageSocket::MessageSocketSlot_Read()
                 QRegExp markerRex("^/marker:(.*)$");
                 if(segmentRex.indexIn(msg)!=-1)
                 {
-
                     QString seg=segmentRex.cap(1).trimmed();
-//                    qDebug()<<"segment undo :"<<seg;
                     segProcess(seg,1000);
                 }else if(deleteRex.indexIn(msg)!=-1)
                 {
                     QString delcurvepos=deleteRex.cap(1).trimmed();
-//                    qDebug()<<"del_curve undo :"<<delcurvepos;
+
                     deleteProcess(delcurvepos,1000);
                 }else if(markerRex.indexIn(msg)!=-1)
                 {
                     QString markerpos=markerRex.cap(1).trimmed();
-//                    qDebug()<<"marker undo "<<markerpos;
+
                     markerProcess(markerpos,1000);
                 }
             }else if(retypeRex.indexIn(msg)!=-1)
             {
                 QString MSG=retypeRex.cap(1).trimmed();
-                qDebug()<<msg<<MSG;
+                qDebug()<<msg;
                 retypeProcess(MSG);
             }
 
@@ -153,7 +151,7 @@ void MessageSocket::loginProcess(const QString &name)
         global_parameters->userInfo->insert(name,count);
     }
     global_parameters->lock_userInfo.unlock();
-    qDebug()<<"afjdljsadsflkj";
+
 
     clientproperty client00={global_parameters->clientNum,name,21,false,true, 0};
     if(!containsClient(name))
@@ -262,8 +260,6 @@ void MessageSocket::segProcess(const QString &msg,int undoP)
 //    qDebug()<<QString("/seg:"+    QString::number(user.toInt()+undoP) + "__" + msg);
     emit signal_addseg(QString("/seg:"+id + "__" + msg));
     global_parameters->lock_messagelist.unlock();
-
-
 }
 
 //delete seg
@@ -274,7 +270,6 @@ void MessageSocket::deleteProcess(const QString &delsegpos,int undoP)
     global_parameters->lock_clients.unlock();
 
     global_parameters->lock_messagelist.lockForWrite();
-
     global_parameters->messagelist.push_back(QString("/del_curve:" +    user+QString::number(undoP)+"__"+delsegpos ));
 //    qDebug()<<QString("/del_curve:" +    QString::number(user.toInt()+undoP)+"__"+delsegpos );
     emit signal_delseg(QString("/del_curve:" +id+"__"+delsegpos ));
@@ -290,7 +285,6 @@ void MessageSocket::markerProcess(const QString &markermsg,int undoP)
     QString user=global_parameters->clients.value(this);
     global_parameters->lock_clients.unlock();
 
-    qDebug()<<user;
     global_parameters->lock_messagelist.lockForWrite();
     global_parameters->messagelist.push_back(QString("/marker:" +    user+QString::number(undoP)+"__"+markermsg));
 //    qDebug()<<QString("/marker:" +    QString::number(user.toInt()+undoP)+"__"+markermsg);
@@ -529,7 +523,6 @@ void MessageSocket::MessageSocketSlot_disconnect()
             global_parameters->clientsproperty[i].online=false;
 //            global_parameters->clientsproperty.erase(global_parameters->clientsproperty.begin()+i);
         }
-
     }
     global_parameters->lock_clientsproperty.unlock();       
     global_parameters->lock_clients.unlock();

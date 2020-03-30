@@ -20,7 +20,6 @@ struct clientproperty{
     bool online;
     int messageindex;
     int Creator_res;
-
 };
 
 struct Global_Parameters{
@@ -32,8 +31,6 @@ struct Global_Parameters{
 
     std::vector<clientproperty> clientsproperty;
     QReadWriteLock lock_clientsproperty;
-
-
 //    std::vector<QString> messagelist;
     QStringList messagelist;
     QReadWriteLock lock_messagelist;
@@ -48,11 +45,6 @@ struct Global_Parameters{
     QReadWriteLock lock_wholePoint;
 
     QMap <QString,quint64> Map_Ip_NumMessage;
-//    QList<NeuronTree> NeuronList;
-//    QReadWriteLock lock_NeuronList;
-
-//    int sketchNum;
-//    QReadWriteLock lock_sketchNum;
 
     QString filename;
     QTimer *timer;//auto save

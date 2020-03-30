@@ -17,8 +17,7 @@ void FileServer::Socketdisconnect()
     if(--clientNum==0)
     {
 //        qDebug()<<"delete fileser in server";
-
-        this->deleteLater();
+//        this->deleteLater();
         emit fileserverdeleted();
     }
 }

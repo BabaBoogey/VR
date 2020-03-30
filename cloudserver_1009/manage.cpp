@@ -1,6 +1,7 @@
 ﻿#include "manage.h"
 #include <QtGlobal>
 #include "basic_c_fun/basic_surf_objs.h"
+#include <iostream>
 FileServer *fileserver=0;
 FileServer_send *fileserver_send=0;
 
@@ -13,11 +14,14 @@ ManageServer::ManageServer(QObject *parent)
     }else {
         qDebug()<<"ManageServer is not started ,please try again.";
     }
-    fileserver_send=new FileServer_send();
 
+    Map_File_MessageServer.clear();
+    userList.clear();
+    fileserver_send=new FileServer_send(this);//make server for load and down
 
     if(!QDir("./userInfo").exists())
         QDir("./").mkdir("userInfo");
+
     QFile userInfoFile("./userInfo/userInfo.txt");
     if(userInfoFile.exists())
     {
@@ -37,11 +41,12 @@ ManageServer::ManageServer(QObject *parent)
         }
     }
     userInfoFile.close();
+
 }
 
 void ManageServer::incomingConnection(int socketDesc)
 {
-    ManageSocket *managesocket=new ManageSocket;
+    ManageSocket *managesocket=new ManageSocket(this);
     managesocket->setSocketDescriptor(socketDesc);
     qDebug()<<managesocket->peerAddress().toString()<<" connected ----";
     connect(managesocket,SIGNAL(makeMessageServer(ManageSocket *,QString)),
@@ -84,10 +89,11 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
             global_parameters->messageUsedIndex=0;
 
 
-            MessageServer *messageserver=new MessageServer(anofile_name, global_parameters);
+            MessageServer *messageserver=new MessageServer(anofile_name, global_parameters,this);
             connect(this,SIGNAL(userload(ForAUTOSave)),messageserver,SLOT(userLoad(ForAUTOSave)));
             if(!messageserver->listen(QHostAddress::Any,messageport.toInt()))
             {
+                std::cerr<<"can not make messageserver for "<<anofile_name.toStdString()<<std::endl;
                 return;
             }else {
 
@@ -178,11 +184,11 @@ void ManageSocket::readManage()
             QString port_receivefile="9998";
             if(fileserver==0)
             {
-                fileserver=new FileServer;
+                fileserver=new FileServer(this);
                 connect(fileserver,SIGNAL(fileserverdeleted()),this,SLOT(resetfileserver()));
                 if(!fileserver->listen(QHostAddress::Any,port_receivefile.toInt()))
                 {
-                    qDebug()<<"error:cannot start fileserver.";
+                    std::cerr<<"error:cannot start fileserver.";
                     return;
                 }
             }
@@ -198,14 +204,10 @@ void ManageSocket::readManage()
         }else if(FileDownRex.indexIn(manageMSG)!=-1)
         {
             QString filename=FileDownRex.cap(1).trimmed();
-//            QString anopath="./clouddata/"+filename;
             fileserver_send->sendFile(this->peerAddress().toString(),filename);
-//            FileSocket_send *filesocket=new FileSocket_send(this->peerAddress().toString(),"9998",anopath);
         }else if(FileLoadRex.indexIn(manageMSG)!=-1)
         {
             QString filename=FileLoadRex.cap(1).trimmed();
-//            fileserver_send->sendFile(this->peerAddress().toString(),filename); //move to make messageserver
-//            qDebug()<<"load :"<<filename;
             emit makeMessageServer(this,filename);
         }
     }
@@ -226,7 +228,8 @@ QString currentDir()
     }
 
     QDir rootDir("./clouddata");
-    QFileInfoList list=rootDir.entryInfoList();
+    QFileInfoList list=rootDir.entryInfoList(QStringList()<<".ano",QDir::Files|QDir::NoDotAndDotDot);
+
     QStringList TEMPLIST;
     TEMPLIST.clear();
 
