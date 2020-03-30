@@ -869,8 +869,10 @@ QMap<quint32 ,QString> MessageServer::autoSave()
                 QTextStream out(&anofile);
                 out<<str1<<endl<<str2;
                 anofile.close();
-                writeESWC_file("./clouddata/"+tempname+".eswc",global_parameters->wholeNT);
-                writeAPO_file("./clouddata/"+tempname+".apo",global_parameters->wholePoint);
+//                qDebug()<<
+                writeESWC_file(tempname+".eswc",global_parameters->wholeNT);
+//                qDebug()<<"dasdsa";
+                writeAPO_file(tempname+".apo",global_parameters->wholePoint);
             }
         }
     }else

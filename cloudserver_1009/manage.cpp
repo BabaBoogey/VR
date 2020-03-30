@@ -196,10 +196,12 @@ void ManageSocket::readManage()
         }else if(DownRex.indexIn(manageMSG)!=-1)
         {
             QString username=DownRex.cap(1);
+//            qDebug()<<currentDir();
             this->write(QString(currentDir()+":currentDir_down."+"\n").toUtf8());
         }else if(LoadRex.indexIn(manageMSG)!=-1)
         {
             QString username=LoadRex.cap(1);
+//            qDebug()<<currentDir();
             this->write(QString(currentDir()+":currentDir_load."+"\n").toUtf8());
         }else if(FileDownRex.indexIn(manageMSG)!=-1)
         {
@@ -228,7 +230,7 @@ QString currentDir()
     }
 
     QDir rootDir("./clouddata");
-    QFileInfoList list=rootDir.entryInfoList(QStringList()<<".ano",QDir::Files|QDir::NoDotAndDotDot);
+    QFileInfoList list=rootDir.entryInfoList(QStringList()<<"*.ano",QDir::Files|QDir::NoDotAndDotDot);
 
     QStringList TEMPLIST;
     TEMPLIST.clear();
