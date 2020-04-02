@@ -2,6 +2,7 @@
 #include <QtGlobal>
 #include "basic_c_fun/basic_surf_objs.h"
 #include <iostream>
+#include "cropimage.h"
 FileServer *fileserver=0;
 FileServer_send *fileserver_send=0;
 
@@ -21,6 +22,8 @@ ManageServer::ManageServer(QObject *parent)
 
     if(!QDir("./userInfo").exists())
         QDir("./").mkdir("userInfo");
+    if(!QDir("./v3draw").exists())
+        QDir("./").mkdir("v3draw");
 
     QFile userInfoFile("./userInfo/userInfo.txt");
     if(userInfoFile.exists())
@@ -164,6 +167,8 @@ void ManageSocket::readManage()
     QRegExp LoadRex("(.*):load.\n");
     QRegExp FileDownRex("(.*):choose1.\n");
     QRegExp FileLoadRex("(.*):choose2.\n");
+    QRegExp ImageDownRex("(.*):choose3.\n");
+    QRegExp ImgBlockRex("(.*):imgblock.\n");
 
     while(this->canReadLine())
     {
@@ -207,12 +212,41 @@ void ManageSocket::readManage()
         {
             QString filename=FileDownRex.cap(1).trimmed();
             fileserver_send->sendFile(this->peerAddress().toString(),filename);
-        }else if(FileLoadRex.indexIn(manageMSG)!=-1)
-        {
-            QString filename=FileLoadRex.cap(1).trimmed();
-            emit makeMessageServer(this,filename);
+        }else if(ImgBlockRex.indexIn(manageMSG)!=-1){
+            this->write(QString(currentDirImg()+":currentDirImg_down."+"\n").toUtf8());
+        }else if(ImageDownRex.indexIn(manageMSG)!=-1){
+            QString filename = manageMSG.section(' ', 1, 1);
+            fileserver_send->sendV3draw(this->peerAddress().toString(),filename);
         }
     }
+}
+
+QString currentDirImg()
+{
+    QDir rDir("./");
+    if(!rDir.cd("v3draw"))
+    {
+        rDir.mkdir("v3draw");
+        rDir.cd("v3draw");
+    }
+
+    QDir rootDir("./v3draw");
+    QFileInfoList list=rootDir.entryInfoList();
+    QStringList TEMPLIST;
+    TEMPLIST.clear();
+
+    for(unsigned i=0;i<list.size();i++)
+    {
+        QRegExp v3drawRex("(.*).v3draw$");
+        QFileInfo tmpFileInfo=list.at(i);
+        if(!tmpFileInfo.isDir())
+        {
+            QString fileName = tmpFileInfo.fileName();
+            if(v3drawRex.indexIn(fileName)!=-1)
+                TEMPLIST.append(fileName);
+        }
+    }
+    return TEMPLIST.join(";");
 }
 
 void ManageSocket::resetfileserver()

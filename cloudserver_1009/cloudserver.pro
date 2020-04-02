@@ -40,6 +40,7 @@ HEADERS += \
     basic_c_fun/basic_surf_objs.h \
     basic_c_fun/v3d_message.h \
     basic_c_fun/v_neuronswc.h \
+    cropimage.h \
     customdebug.h \
     manage.h \
     managesocket.h \
