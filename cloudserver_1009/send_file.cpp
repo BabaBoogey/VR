@@ -42,6 +42,7 @@ void FileServer_send::sendV3draw(QString ip, QString filename)
             list.removeAt(i);
             temp->anoname.clear();
             temp->sendFile("./v3draw/"+filename,filename);
+            temp->disconnectFromHost();
         }
     }
 }
@@ -75,6 +76,8 @@ void FileSocket_send::sendFile(QString filepath, QString filename)
         dts<<data;
 
         this->write(block);
+        this->flush();
+        this->waitForBytesWritten();
 //        qDebug()<<"asafas";
     }else
     {
