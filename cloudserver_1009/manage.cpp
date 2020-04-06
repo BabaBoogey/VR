@@ -2,7 +2,7 @@
 #include <QtGlobal>
 #include "basic_c_fun/basic_surf_objs.h"
 #include <iostream>
-#include "cropimage.h"
+//#include "cropimage.h"
 FileServer *fileserver=0;
 FileServer_send *fileserver_send=0;
 
@@ -211,8 +211,14 @@ void ManageSocket::readManage()
         }else if(FileDownRex.indexIn(manageMSG)!=-1)
         {
             QString filename=FileDownRex.cap(1).trimmed();
+            qDebug()<<"down file:"<<filename;
             fileserver_send->sendFile(this->peerAddress().toString(),filename);
-        }else if(ImgBlockRex.indexIn(manageMSG)!=-1){
+        }else if(FileLoadRex.indexIn(manageMSG)!=-1)
+        {
+            QString filename=FileLoadRex.cap(1).trimmed();
+            emit makeMessageServer(this,filename);
+        }
+        else if(ImgBlockRex.indexIn(manageMSG)!=-1){
             this->write(QString(currentDirImg()+":currentDirImg_down."+"\n").toUtf8());
         }else if(ImageDownRex.indexIn(manageMSG)!=-1){
             QString filename = manageMSG.section(' ', 1, 1);

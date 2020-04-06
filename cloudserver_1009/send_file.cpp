@@ -23,7 +23,7 @@ void FileServer_send::sendFile(QString ip, QString filename)
             FileSocket_send *temp=list[i];
             list.removeAt(i);
             temp->anoname=filename;
-            if(filename.contains("stamp"))
+            if(filename.contains("stamp_autosave"))
                 temp->sendFile("./autosave/"+filename,filename);
             else
                 temp->sendFile("./clouddata/"+filename,filename);
@@ -96,13 +96,13 @@ void FileSocket_send::readMSG()
         QString MSG=QString::fromUtf8(this->readLine());
         if(anoRex.indexIn(MSG)!=-1)
         {
-            if(anoname.contains("stamp"))
+            if(anoname.contains("stamp_autosave"))
                 sendFile("./autosave/"+anoname+".eswc",anoname+".eswc");
             else
                 sendFile("./clouddata/"+anoname+".eswc",anoname+".eswc");
         }else if(swcRex.indexIn(MSG)!=-1)
         {
-            if(anoname.contains("stamp"))
+            if(anoname.contains("stamp_autosave"))
                 sendFile("./autosave/"+anoname+".apo",anoname+".apo");
             else
             sendFile("./clouddata/"+anoname+".apo",anoname+".apo");

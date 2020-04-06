@@ -457,10 +457,12 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG,b
 
     CellAPO marker0;
     marker0.x=mx;marker0.y=my;marker0.z=mz;
+//    qDebug()<<"marker0"
 
     marker0.color.r=0;
     marker0.color.g=0;
     marker0.color.b=255;
+
 
 //    qDebug()<<global_parameters->wholePoint.size();
     if(global_parameters->wholePoint.size())
@@ -471,7 +473,14 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG,b
     marker0.orderinfo="";
     marker0.name="";
     marker0.comment="";
-
+    std::cout<<"AddMarkerFunction: marker0("<<marker0.x<<","<<marker0.y<<","<<marker0.z<<","<<marker0.color.r<<","<<marker0.color.g<<","<<marker0.color.b<<")"<<std::endl;
+    for(int i=0;i<global_parameters->wholePoint.size();i++)
+    {
+        std::cout<<"AddMarkerFunction: marker"<<i<<"("<<
+       global_parameters->wholePoint.at(i).x<<","<<global_parameters->wholePoint.at(i).y<<","<<global_parameters->wholePoint.at(i).z<<","
+        <<global_parameters->wholePoint.at(i).color.r<<","<<global_parameters->wholePoint.at(i).color.g<<","<<global_parameters->wholePoint.at(i).color.b
+        <<")"<<std::endl;
+    }
     for(int i=0;i<global_parameters->wholePoint.size();i++)
     {
         float dist = sqrt((global_parameters->wholePoint.at(i).x-marker0.x)*(global_parameters->wholePoint.at(i).x-marker0.x)+
@@ -480,9 +489,16 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG,b
 
         if(dist<1)
         {
-
+            std::cout<<"AddMarkerFunction: RemoveMarker"<<i<<"("
+                    <<global_parameters->wholePoint.at(i).x<<","<<global_parameters->wholePoint.at(i).y<<","<<global_parameters->wholePoint.at(i).z<<","
+                   <<global_parameters->wholePoint.at(i).color.r<<","<<global_parameters->wholePoint.at(i).color.g<<","<<global_parameters->wholePoint.at(i).color.b<<")"
+                    <<std::endl;
             global_parameters->wholePoint.removeAt(i);
-            qDebug()<<"delete marker "<<global_parameters->wholePoint.size();
+            for(int i=0;i<global_parameters->wholePoint.size();i++)
+            {
+                global_parameters->wholePoint[i].n=i+1;
+            }
+            std::cout<<"still "<<global_parameters->wholePoint.size()<<" marker(s)";
             return;
         }
     }
@@ -513,7 +529,10 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG,b
     marker0.color.r=neuron_type_color[type][0];
     marker0.color.g=neuron_type_color[type][1];
     marker0.color.b=neuron_type_color[type][2];
+    std::cout<<"AddMarkerFunction: AddMarker("<<marker0.x<<","<<marker0.y<<","<<marker0.z<<","<<marker0.color.r<<","<<marker0.color.g<<","<<marker0.color.b<<")"<<std::endl;
     global_parameters->wholePoint.push_back(marker0);
+
+    std::cout<<"still "<<global_parameters->wholePoint.size()<<" marker(s)";
     qDebug()<<"MessageServerSlotAnswerMessageSocket_addmarker end;";
 //    global_parameters->messageUsedIndex++;
 }
@@ -543,6 +562,14 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG,b
     float my = delmarkerPOS.at(1).toFloat();
     float mz = delmarkerPOS.at(2).toFloat();
 
+    std::cout<<"DelMarkerFunction: marker0("<<mx<<","<<mx<<","<<mx<<")";
+    for(int i=0;i<global_parameters->wholePoint.size();i++)
+    {
+        std::cout<<"DelMarkerFunction: marker"<<i<<"("<<
+       global_parameters->wholePoint.at(i).x<<","<<global_parameters->wholePoint.at(i).y<<","<<global_parameters->wholePoint.at(i).z<<","
+        <<global_parameters->wholePoint.at(i).color.r<<","<<global_parameters->wholePoint.at(i).color.g<<","<<global_parameters->wholePoint.at(i).color.b
+        <<")"<<std::endl;
+    }
     for(int i=0;i<global_parameters->wholePoint.size();i++)
     {
         CellAPO marker0=global_parameters->wholePoint.at(i);
@@ -550,8 +577,20 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG,b
                          (my-marker0.y)*(my-marker0.y)+(mz-marker0.z)*(mz-marker0.z));
         if(dist<1)
         {
+            std::cout<<"AddMarkerFunction: marker"<<i<<"("<<
+           global_parameters->wholePoint.at(i).x<<","<<global_parameters->wholePoint.at(i).y<<","<<global_parameters->wholePoint.at(i).z<<","
+            <<global_parameters->wholePoint.at(i).color.r<<","<<global_parameters->wholePoint.at(i).color.g<<","<<global_parameters->wholePoint.at(i).color.b
+            <<")"<<std::endl;
             global_parameters->wholePoint.removeAt(i);
+            std::cout<<"still "<<global_parameters->wholePoint.size()<<" marker(s)";
+            for(int i=0;i<global_parameters->wholePoint.size();i++)
+            {
+                global_parameters->wholePoint[i].n=i+1;
+            }
             break;
+        }else
+        {
+            std::cout<<"DelMarkerFunction: marker0("<<mx<<","<<mx<<","<<mx<<")"<<":can not find";
         }
     }
 }
