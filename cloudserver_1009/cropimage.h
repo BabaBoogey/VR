@@ -65,7 +65,7 @@ int loadRawRegion(char * filename, unsigned char * & img, V3DLONG * & sz, V3DLON
     V3DLONG fileSize = ftell(fid);
 #endif
 
-    std::cout << "file size: " << fileSize << std::endl;
+    qDebug() << "file size: " << fileSize << endl;
     rewind(fid);
 /*
 #endif

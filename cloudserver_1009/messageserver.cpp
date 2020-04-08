@@ -20,14 +20,15 @@ void MessageServer::userLoad(ForAUTOSave foraotosave)
     QMap <QString ,MessageServer* > *Map_File_MessageServer=foraotosave.Map_File_MessageServer;
     QString messageport=foraotosave.messageport;
     QString anofile_name=foraotosave.anofile_name;
-
+        qDebug()<<"makeMessageServer:7";
 
     QMap<quint32 ,QString> map=this->autoSave();//message index->autosave filename
     this->global_parameters->Map_Ip_NumMessage[managesocket->peerAddress().toString()]=map.keys().at(0);
-    qDebug()<<"auto save for load"<<map.keys().at(0);
+    qDebug()<<"auto save for load"<<map.keys().at(0)<<" "<<map.values().at(0);
     fileserver_send->sendFile(ip,map.values().at(0));
     managesocket->write(QString(messageport+":messageport"+".\n").toUtf8());
     (*Map_File_MessageServer)[anofile_name]=this;
+    qDebug()<<"makeMessageServer:8";
 }
 
 MessageServer::MessageServer(QString filename,Global_Parameters *parameters,QObject *parent)
@@ -45,7 +46,7 @@ MessageServer::MessageServer(QString filename,Global_Parameters *parameters,QObj
             sketchedNTList.push_back(SS);
     }
     sketchNum=sketchedNTList.size();
-
+    connect(this,SIGNAL(userLoadSignal(ForAUTOSave)),this,SLOT(userLoad(ForAUTOSave)));
     connect(global_parameters->timer,SIGNAL(timeout()),this,SLOT(autoSave()));
     //autoSave();
     global_parameters->timer->start(3*60*1000);
@@ -318,7 +319,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
             if(i==qsl.size()-1)
             {
                 MessageServerSlotAnswerMessageSocket_addmarker(QString("/marker:%1__%2 %3 %4")
-                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()),1);
+                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()),1*100+temp[1].toInt());
             }
             if(i==1)
             {
@@ -343,7 +344,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
             if(i==qsl.size()-1)
             {
                 MessageServerSlotAnswerMessageSocket_addmarker(QString("/marker:%1__%2 %3 %4")
-                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()),1);
+                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()),1*100+temp[1].toInt());
             }
             if(i==1)
             {
@@ -430,9 +431,9 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
     qDebug()<<"MessageServerSlotAnswerMessageSocket_delseg end=============";
 }
 
-void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG,bool flag)
+void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG,int flag)
 {
-    if(!flag)
+    if(!flag/100)
         global_parameters->messageUsedIndex++;
     qDebug()<<"messageindex="<<global_parameters->messageUsedIndex;
     /*MSG=QString("/marker:" +user+"__"+markermsg)*/
@@ -454,6 +455,8 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG,b
     float mz = markerMSGs.at(2).toFloat();
     if(markerMSGs.size()==7)
         type=markerMSGs.at(6).toInt();
+    if(flag/100==1)
+        type=flag%100;
 
     CellAPO marker0;
     marker0.x=mx;marker0.y=my;marker0.z=mz;
@@ -473,13 +476,13 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG,b
     marker0.orderinfo="";
     marker0.name="";
     marker0.comment="";
-    std::cout<<"AddMarkerFunction: marker0("<<marker0.x<<","<<marker0.y<<","<<marker0.z<<","<<marker0.color.r<<","<<marker0.color.g<<","<<marker0.color.b<<")"<<std::endl;
+    qDebug()<<"AddMarkerFunction: marker0("<<marker0.x<<","<<marker0.y<<","<<marker0.z<<","<<marker0.color.r<<","<<marker0.color.g<<","<<marker0.color.b<<")";
     for(int i=0;i<global_parameters->wholePoint.size();i++)
     {
-        std::cout<<"AddMarkerFunction: marker"<<i<<"("<<
+        qDebug()<<"AddMarkerFunction: marker"<<i<<"("<<
        global_parameters->wholePoint.at(i).x<<","<<global_parameters->wholePoint.at(i).y<<","<<global_parameters->wholePoint.at(i).z<<","
         <<global_parameters->wholePoint.at(i).color.r<<","<<global_parameters->wholePoint.at(i).color.g<<","<<global_parameters->wholePoint.at(i).color.b
-        <<")"<<std::endl;
+        <<")";
     }
     for(int i=0;i<global_parameters->wholePoint.size();i++)
     {
@@ -487,52 +490,30 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG,b
                                (global_parameters->wholePoint.at(i).y-marker0.y)*(global_parameters->wholePoint.at(i).y-marker0.y)+
                                (global_parameters->wholePoint.at(i).z-marker0.z)*(global_parameters->wholePoint.at(i).z-marker0.z));
 
-        if(dist<1)
+        if(dist<1.0)
         {
-            std::cout<<"AddMarkerFunction: RemoveMarker"<<i<<"("
+            qDebug()<<"AddMarkerFunction: RemoveMarker"<<i<<"("
                     <<global_parameters->wholePoint.at(i).x<<","<<global_parameters->wholePoint.at(i).y<<","<<global_parameters->wholePoint.at(i).z<<","
                    <<global_parameters->wholePoint.at(i).color.r<<","<<global_parameters->wholePoint.at(i).color.g<<","<<global_parameters->wholePoint.at(i).color.b<<")"
-                    <<std::endl;
+                    <<endl;
             global_parameters->wholePoint.removeAt(i);
             for(int i=0;i<global_parameters->wholePoint.size();i++)
             {
                 global_parameters->wholePoint[i].n=i+1;
             }
-            std::cout<<"still "<<global_parameters->wholePoint.size()<<" marker(s)";
+            qDebug()<<"still "<<global_parameters->wholePoint.size()<<" marker(s)";
             return;
         }
     }
-    const int neuron_type_color[ ][3] = {///////////////////////////////////////////////////////
-            {255, 255, 255},  // white,   0-undefined
-            {20,  20,  20 },  // black,   1-soma
-            {200, 20,  0  },  // red,     2-axon
-            {0,   20,  200},  // blue,    3-dendrite
-            {200, 0,   200},  // purple,  4-apical dendrite
-            //the following is Hanchuan's extended color. 090331
-            {0,   200, 200},  // cyan,    5
-            {220, 200, 0  },  // yellow,  6
-            {0,   200, 20 },  // green,   7
-            {188, 94,  37 },  // coffee,  8
-            {180, 200, 120},  // asparagus,	9
-            {250, 100, 120},  // salmon,	10
-            {120, 200, 200},  // ice,		11
-            {100, 120, 200},  // orchid,	12
-        //the following is Hanchuan's further extended color. 111003
-        {255, 128, 168},  //	13
-        {128, 255, 168},  //	14
-        {128, 168, 255},  //	15
-        {168, 255, 128},  //	16
-        {255, 168, 128},  //	17
-        {168, 128, 255}, //	18
-            };
 
-    marker0.color.r=neuron_type_color[type][0];
-    marker0.color.g=neuron_type_color[type][1];
-    marker0.color.b=neuron_type_color[type][2];
-    std::cout<<"AddMarkerFunction: AddMarker("<<marker0.x<<","<<marker0.y<<","<<marker0.z<<","<<marker0.color.r<<","<<marker0.color.g<<","<<marker0.color.b<<")"<<std::endl;
+
+    marker0.color.r=neuron_type_color[type].x();
+    marker0.color.g=neuron_type_color[type].y();
+    marker0.color.b=neuron_type_color[type].z();
+    qDebug()<<"AddMarkerFunction: AddMarker("<<marker0.x<<","<<marker0.y<<","<<marker0.z<<","<<marker0.color.r<<","<<marker0.color.g<<","<<marker0.color.b<<")"<<endl;
     global_parameters->wholePoint.push_back(marker0);
 
-    std::cout<<"still "<<global_parameters->wholePoint.size()<<" marker(s)";
+    qDebug()<<"still "<<global_parameters->wholePoint.size()<<" marker(s)";
     qDebug()<<"MessageServerSlotAnswerMessageSocket_addmarker end;";
 //    global_parameters->messageUsedIndex++;
 }
@@ -562,27 +543,27 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG,b
     float my = delmarkerPOS.at(1).toFloat();
     float mz = delmarkerPOS.at(2).toFloat();
 
-    std::cout<<"DelMarkerFunction: marker0("<<mx<<","<<mx<<","<<mx<<")";
+    qDebug()<<"DelMarkerFunction: marker0("<<mx<<","<<mx<<","<<mx<<")";
     for(int i=0;i<global_parameters->wholePoint.size();i++)
     {
-        std::cout<<"DelMarkerFunction: marker"<<i<<"("<<
+        qDebug()<<"DelMarkerFunction: marker"<<i<<"("<<
        global_parameters->wholePoint.at(i).x<<","<<global_parameters->wholePoint.at(i).y<<","<<global_parameters->wholePoint.at(i).z<<","
         <<global_parameters->wholePoint.at(i).color.r<<","<<global_parameters->wholePoint.at(i).color.g<<","<<global_parameters->wholePoint.at(i).color.b
-        <<")"<<std::endl;
+        <<")"<<endl;
     }
     for(int i=0;i<global_parameters->wholePoint.size();i++)
     {
         CellAPO marker0=global_parameters->wholePoint.at(i);
         double dist=sqrt((mx-marker0.x)*(mx-marker0.x)+
                          (my-marker0.y)*(my-marker0.y)+(mz-marker0.z)*(mz-marker0.z));
-        if(dist<1)
+        if(dist<8.0)
         {
-            std::cout<<"AddMarkerFunction: marker"<<i<<"("<<
+            qDebug()<<"AddMarkerFunction: marker"<<i<<"("<<
            global_parameters->wholePoint.at(i).x<<","<<global_parameters->wholePoint.at(i).y<<","<<global_parameters->wholePoint.at(i).z<<","
             <<global_parameters->wholePoint.at(i).color.r<<","<<global_parameters->wholePoint.at(i).color.g<<","<<global_parameters->wholePoint.at(i).color.b
-            <<")"<<std::endl;
+            <<")"<<endl;
             global_parameters->wholePoint.removeAt(i);
-            std::cout<<"still "<<global_parameters->wholePoint.size()<<" marker(s)";
+            qDebug()<<"still "<<global_parameters->wholePoint.size()<<" marker(s)";
             for(int i=0;i<global_parameters->wholePoint.size();i++)
             {
                 global_parameters->wholePoint[i].n=i+1;
@@ -590,7 +571,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG,b
             break;
         }else
         {
-            std::cout<<"DelMarkerFunction: marker0("<<mx<<","<<mx<<","<<mx<<")"<<":can not find";
+            qDebug()<<"DelMarkerFunction: marker0("<<mx<<","<<mx<<","<<mx<<")"<<":can not find";
         }
     }
 }
@@ -612,7 +593,7 @@ QMap<quint32 ,QString> MessageServer::autoSave()
         QString strtime=time.toString("yyyy_MM_dd_hh_mm_ss");
 
         QString filebaseName=fileExp.cap(1);
-
+        qDebug()<<"makeMessageServer:1";
         //save ano apo eswc
         {
             {
@@ -655,6 +636,7 @@ QMap<quint32 ,QString> MessageServer::autoSave()
 //                qDebug()<<"dasdsa";
                 writeAPO_file(tempname+".apo",global_parameters->wholePoint);
             }
+            qDebug()<<"makeMessageServer:9";
         }
     }else
     {
