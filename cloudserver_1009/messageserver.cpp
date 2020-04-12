@@ -26,7 +26,9 @@ void MessageServer::userLoad(ForAUTOSave foraotosave)
     this->global_parameters->Map_Ip_NumMessage[managesocket->peerAddress().toString()]=map.keys().at(0);
     qDebug()<<"auto save for load"<<map.keys().at(0)<<" "<<map.values().at(0);
     fileserver_send->sendFile(ip,map.values().at(0));
+    qDebug()<<"makeMessageServer:·0";
     managesocket->write(QString(messageport+":messageport"+".\n").toUtf8());
+    qDebug()<<"makeMessageServer:11";
     (*Map_File_MessageServer)[anofile_name]=this;
     qDebug()<<"makeMessageServer:8";
 }
@@ -42,7 +44,7 @@ MessageServer::MessageServer(QString filename,Global_Parameters *parameters,QObj
         seg_temp.reverse();
         SS = V_NeuronSWC__2__NeuronTree(seg_temp);
         SS.name = "loaded_" + QString("%1").arg(i);
-        if (SS.listNeuron.size()>0)
+        if (SS.listNeuron.size()>2)
             sketchedNTList.push_back(SS);
     }
     sketchNum=sketchedNTList.size();
@@ -116,6 +118,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_retype( QString MSG)
          for (int j=0;j<sketchedNTList.size();j++)
          {
              NeuronTree NT=sketchedNTList.at(j);
+             if(NT.listNeuron.size()<=2) continue;
              NeuronSWC ss=NT.listNeuron.at(NT.listNeuron.size()-2);
              NeuronSWC ss0=NT.listNeuron.at(1);
 
@@ -298,7 +301,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
     for(int i=1;i<qsl.size();i++)
     {
         NeuronSWC S_temp;
-        QStringList temp=qsl[i].trimmed().split(" ");
+        QStringList temp=qsl[i].trimmed().split(" ",QString::SkipEmptyParts);
 
         if(head.trimmed().split(" ").at(0)=="TeraFly")
         {
@@ -382,48 +385,73 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
 
     /*MSG=QString("/del_curve:"+user + "__" + msg)*/
     global_parameters->messageUsedIndex++;
-    qDebug()<<"messageindex="<<global_parameters->messageUsedIndex;
+    qDebug()<<"messageindex="<<global_parameters->messageUsedIndex<<MSG;
     orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
     QRegExp Reg("/del_curve:(.*)__(.*)"); //msg=node 1_node 2_....
     QString delseg;
     QString username;
+    qDebug()<<"messageindex=7";
     if(Reg.indexIn(MSG)!=-1)
     {
         username=Reg.cap(1).trimmed();
+        qDebug()<<"messageindex=8";
         delseg=Reg.cap(2).trimmed();
     }
 
+
+    qDebug()<<"messageindex=1";
     QStringList delMSGs = delseg.split("_",QString::SkipEmptyParts);
 
     if(delMSGs.size()<2) return;
+
+    for(int i=0;i<delMSGs.size();i++)
+        qDebug()<<delMSGs.at(i);
 
     for(int i=1;i<delMSGs.size();i++)
     {
         QString tempNode=delMSGs.at(i);
         QStringList tempNodeList=tempNode.split(" ",QString::SkipEmptyParts);
 
+        qDebug()<<"messageindex=2";
         if(tempNodeList.size()<3) return ;
         float x=tempNodeList.at(0).toFloat();
         float y=tempNodeList.at(1).toFloat();
         float z=tempNodeList.at(2).toFloat();
 
+        qDebug()<<"messageindex=3";
         for (int j=0;j<sketchedNTList.size();j++)
         {
+
             NeuronTree NT=sketchedNTList.at(j);
+            if(NT.listNeuron.size()<=2)
+            {
+                std::cerr<<j << "SIZE <=2"<<std::endl;
+                continue;
+            }
+
+            qDebug()<<"messageindex=3   "<<sketchedNTList.size()<<" "<<NT.listNeuron.size();
             NeuronSWC ss=NT.listNeuron.at(NT.listNeuron.size()-2);
             NeuronSWC ss0=NT.listNeuron.at(1);
-
+            qDebug()<<"messageindex=3   "<<sketchedNTList.size();
+            qDebug()<<"messageindex=9   "<<j;
             if(sqrt(pow(ss.x-x,2)+pow(ss.y-y,2)+pow(ss.z-z,2))<=0.01||sqrt(pow(ss0.x-x,2)+pow(ss0.y-y,2)+pow(ss0.z-z,2))<=0.01)
             {
                 RemoveInfo info;
                 info.NT=NT;
                 info.time=time(0);
+                qDebug()<<"messageindex=3   "<<username;
                 if(delMSGs[0]=="TeraFly")
                 info.id=username.toInt()*10+1;
                 else if(delMSGs[0]=="TeraVR")
                     info.id=username.toInt()*10+2;
+                qDebug()<<"messageindex=6";
                 removedNTList.push_back(info);
-                sketchedNTList.removeAt(j);break;
+                sketchedNTList.removeAt(j);
+                qDebug()<<"messageindex=5";break;
+            }
+            else
+            {
+                qDebug()<<"messageindex=4";
             }
         }
     }
@@ -435,7 +463,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG,i
 {
     if(!flag/100)
         global_parameters->messageUsedIndex++;
-    qDebug()<<"messageindex="<<global_parameters->messageUsedIndex;
+//    qDebug()<<"messageindex="<<global_parameters->messageUsedIndex;
     /*MSG=QString("/marker:" +user+"__"+markermsg)*/
     orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
     QRegExp Reg("/marker:(.*)__(.*)");
@@ -448,7 +476,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG,i
     }
 
     int type=2;
-    QStringList markerMSGs=markerpos.trimmed().split(" ");
+    QStringList markerMSGs=markerpos.trimmed().split(" ",QString::SkipEmptyParts);
     if(markerMSGs.size()<3) return;
     float mx = markerMSGs.at(0).toFloat();
     float my = markerMSGs.at(1).toFloat();
@@ -476,14 +504,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG,i
     marker0.orderinfo="";
     marker0.name="";
     marker0.comment="";
-    qDebug()<<"AddMarkerFunction: marker0("<<marker0.x<<","<<marker0.y<<","<<marker0.z<<","<<marker0.color.r<<","<<marker0.color.g<<","<<marker0.color.b<<")";
-    for(int i=0;i<global_parameters->wholePoint.size();i++)
-    {
-        qDebug()<<"AddMarkerFunction: marker"<<i<<"("<<
-       global_parameters->wholePoint.at(i).x<<","<<global_parameters->wholePoint.at(i).y<<","<<global_parameters->wholePoint.at(i).z<<","
-        <<global_parameters->wholePoint.at(i).color.r<<","<<global_parameters->wholePoint.at(i).color.g<<","<<global_parameters->wholePoint.at(i).color.b
-        <<")";
-    }
+
     for(int i=0;i<global_parameters->wholePoint.size();i++)
     {
         float dist = sqrt((global_parameters->wholePoint.at(i).x-marker0.x)*(global_parameters->wholePoint.at(i).x-marker0.x)+
@@ -492,28 +513,50 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG,i
 
         if(dist<1.0)
         {
-            qDebug()<<"AddMarkerFunction: RemoveMarker"<<i<<"("
-                    <<global_parameters->wholePoint.at(i).x<<","<<global_parameters->wholePoint.at(i).y<<","<<global_parameters->wholePoint.at(i).z<<","
-                   <<global_parameters->wholePoint.at(i).color.r<<","<<global_parameters->wholePoint.at(i).color.g<<","<<global_parameters->wholePoint.at(i).color.b<<")"
-                    <<endl;
+
             global_parameters->wholePoint.removeAt(i);
             for(int i=0;i<global_parameters->wholePoint.size();i++)
             {
                 global_parameters->wholePoint[i].n=i+1;
             }
-            qDebug()<<"still "<<global_parameters->wholePoint.size()<<" marker(s)";
             return;
         }
     }
 
+    const int neuron_type_color[ ][3] = {///////////////////////////////////////////////////////
+            {255, 255, 255},  // white,   0-undefined
+            {20,  20,  20 },  // black,   1-soma
+            {200, 20,  0  },  // red,     2-axon
+            {0,   20,  200},  // blue,    3-dendrite
+            {200, 0,   200},  // purple,  4-apical dendrite
+            //the following is Hanchuan's extended color. 090331
+            {0,   200, 200},  // cyan,    5
+            {220, 200, 0  },  // yellow,  6
+            {0,   200, 20 },  // green,   7
+            {188, 94,  37 },  // coffee,  8
+            {180, 200, 120},  // asparagus,	9
+            {250, 100, 120},  // salmon,	10
+            {120, 200, 200},  // ice,		11
+            {100, 120, 200},  // orchid,	12
+        //the following is Hanchuan's further extended color. 111003
+        {255, 128, 168},  //	13
+        {128, 255, 168},  //	14
+        {128, 168, 255},  //	15
+        {168, 255, 128},  //	16
+        {255, 168, 128},  //	17
+        {168, 128, 255}, //	18
+        {0, 0, 0}, //19 //totally black. PHC, 2012-02-15
+        //the following (20-275) is used for matlab heat map. 120209 by WYN
+        {0,0,131}, //20
 
-    marker0.color.r=neuron_type_color[type].x();
-    marker0.color.g=neuron_type_color[type].y();
-    marker0.color.b=neuron_type_color[type].z();
-    qDebug()<<"AddMarkerFunction: AddMarker("<<marker0.x<<","<<marker0.y<<","<<marker0.z<<","<<marker0.color.r<<","<<marker0.color.g<<","<<marker0.color.b<<")"<<endl;
+            };
+    marker0.color.r=neuron_type_color[type][0];
+    marker0.color.g=neuron_type_color[type][1];
+    marker0.color.b=neuron_type_color[type][2];
+//    qDebug()<<"AddMarkerFunction: AddMarker("<<marker0.x<<","<<marker0.y<<","<<marker0.z<<","<<marker0.color.r<<","<<marker0.color.g<<","<<marker0.color.b<<")"<<endl;
     global_parameters->wholePoint.push_back(marker0);
 
-    qDebug()<<"still "<<global_parameters->wholePoint.size()<<" marker(s)";
+//    qDebug()<<"still "<<global_parameters->wholePoint.size()<<" marker(s)";
     qDebug()<<"MessageServerSlotAnswerMessageSocket_addmarker end;";
 //    global_parameters->messageUsedIndex++;
 }
@@ -522,7 +565,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG,b
 {
     if(!flag)
     global_parameters->messageUsedIndex++;
-    qDebug()<<"messageindex="<<global_parameters->messageUsedIndex;
+//    qDebug()<<"messageindex="<<global_parameters->messageUsedIndex;
     orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
     QRegExp Reg("/del_marker:(.*)__(.*)");
     QString delmarkerpos;
@@ -532,7 +575,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG,b
         username=Reg.cap(1);
         delmarkerpos=Reg.cap(2);
     }
-    QStringList delmarkerPOS = delmarkerpos.trimmed().split(" ");
+    QStringList delmarkerPOS = delmarkerpos.trimmed().split(" ",QString::SkipEmptyParts);
     if(delmarkerPOS.size()<3)
     {
             qDebug()<<"size < 4";
@@ -543,14 +586,6 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG,b
     float my = delmarkerPOS.at(1).toFloat();
     float mz = delmarkerPOS.at(2).toFloat();
 
-    qDebug()<<"DelMarkerFunction: marker0("<<mx<<","<<mx<<","<<mx<<")";
-    for(int i=0;i<global_parameters->wholePoint.size();i++)
-    {
-        qDebug()<<"DelMarkerFunction: marker"<<i<<"("<<
-       global_parameters->wholePoint.at(i).x<<","<<global_parameters->wholePoint.at(i).y<<","<<global_parameters->wholePoint.at(i).z<<","
-        <<global_parameters->wholePoint.at(i).color.r<<","<<global_parameters->wholePoint.at(i).color.g<<","<<global_parameters->wholePoint.at(i).color.b
-        <<")"<<endl;
-    }
     for(int i=0;i<global_parameters->wholePoint.size();i++)
     {
         CellAPO marker0=global_parameters->wholePoint.at(i);
@@ -558,21 +593,14 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG,b
                          (my-marker0.y)*(my-marker0.y)+(mz-marker0.z)*(mz-marker0.z));
         if(dist<8.0)
         {
-            qDebug()<<"AddMarkerFunction: marker"<<i<<"("<<
-           global_parameters->wholePoint.at(i).x<<","<<global_parameters->wholePoint.at(i).y<<","<<global_parameters->wholePoint.at(i).z<<","
-            <<global_parameters->wholePoint.at(i).color.r<<","<<global_parameters->wholePoint.at(i).color.g<<","<<global_parameters->wholePoint.at(i).color.b
-            <<")"<<endl;
             global_parameters->wholePoint.removeAt(i);
-            qDebug()<<"still "<<global_parameters->wholePoint.size()<<" marker(s)";
             for(int i=0;i<global_parameters->wholePoint.size();i++)
             {
                 global_parameters->wholePoint[i].n=i+1;
             }
             break;
-        }else
-        {
-            qDebug()<<"DelMarkerFunction: marker0("<<mx<<","<<mx<<","<<mx<<")"<<":can not find";
         }
+
     }
 }
 

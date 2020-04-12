@@ -20,6 +20,7 @@ void FileServer_send::sendFile(QString ip, QString filename)
     {
         if(list[i]->peerAddress().toString()==ip)
         {
+            qDebug()<<"makeMessageServer:12";
             FileSocket_send *temp=list[i];
             list.removeAt(i);
             temp->anoname=filename;
