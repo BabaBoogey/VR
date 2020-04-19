@@ -20,17 +20,12 @@ void MessageServer::userLoad(ForAUTOSave foraotosave)
     QMap <QString ,MessageServer* > *Map_File_MessageServer=foraotosave.Map_File_MessageServer;
     QString messageport=foraotosave.messageport;
     QString anofile_name=foraotosave.anofile_name;
-        qDebug()<<"makeMessageServer:7";
 
     QMap<quint32 ,QString> map=this->autoSave();//message index->autosave filename
     this->global_parameters->Map_Ip_NumMessage[managesocket->peerAddress().toString()]=map.keys().at(0);
-    qDebug()<<"auto save for load"<<map.keys().at(0)<<" "<<map.values().at(0);
     fileserver_send->sendFile(ip,map.values().at(0));
-    qDebug()<<"makeMessageServer:·0";
     managesocket->write(QString(messageport+":messageport"+".\n").toUtf8());
-    qDebug()<<"makeMessageServer:11";
     (*Map_File_MessageServer)[anofile_name]=this;
-    qDebug()<<"makeMessageServer:8";
 }
 
 MessageServer::MessageServer(QString filename,Global_Parameters *parameters,QObject *parent)

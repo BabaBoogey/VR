@@ -260,34 +260,34 @@ void ManageSocket::readManage()
                 QString __=tmp.cap(1).trimmed();
                 QString string=__+"_" +QString::number(xpos)+ "_" + QString::number(xpos) + "_" + QString::number(xpos)+
                                         "_" +QString::number(blocksize)+"_"+QString::number(blocksize)+ "_"+QString::number(blocksize);
-                qDebug()<<__;
-                qDebug()<<string;
+//                qDebug()<<__;
+//                qDebug()<<string;
 
 
-                qDebug()<<"-=================-----";
+//                qDebug()<<"-=================-----";
                 QProcess p;
                 CellAPO centerAPO;
                 centerAPO.x=xpos;centerAPO.y=ypos;centerAPO.z=zpos;
                 QList <CellAPO> List_APO_Write;
                 List_APO_Write.push_back(centerAPO);
                 writeAPO_file(string+".apo",List_APO_Write);//get .apo to get .v3draw
-                qDebug()<<"-=================-----ecfd";
+//                qDebug()<<"-=================-----ecfd";
 
 
                 QString order1 =QString("xvfb-run -a ./vaa3d -x ./plugins/image_geometry/crop3d_image_series/libcropped3DImageSeries.so "
                                 "-f cropTerafly -i ./%0/%1/ %2.apo ./ -p %3 %4 %5")
                         .arg(IMAGEDIR).arg(filename).arg(string).arg(blocksize).arg(blocksize).arg(blocksize);
-                qDebug()<<"order="<<order1;
+//                qDebug()<<"order="<<order1;
                 qDebug()<<p.execute(order1.toStdString().c_str());
 
                 QString fName=QString("%1.000_%2.000_%3.000.v3draw").arg(xpos).arg(ypos).arg(zpos);
 
                 fileserver_send->sendV3draw(this->peerAddress().toString(),fName);
-                qDebug()<<"-============fesfsef=====-----ecfd";
-//                {
-//                    QFile f1(string+".apo"); f1.remove();
-//                    QFile f2("./"+fName); f2.remove();
-//                }
+//                qDebug()<<"-============fesfsef=====-----ecfd";
+                {
+                    QFile f1(string+".apo"); qDebug()<<f1.remove();
+                    QFile f2("./"+fName); qDebug()<<f2.remove();
+                }
              }
 
         }else if(ImageDownRex.indexIn(manageMSG)!=-1){
