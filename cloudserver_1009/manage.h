@@ -11,6 +11,7 @@
 //class ManageSocket;
 QString currentDir();
 QString currentDirImg();
+
 class FileServer;
 
 class ManageServer:public QTcpServer

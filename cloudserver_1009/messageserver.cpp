@@ -48,7 +48,7 @@ MessageServer::MessageServer(QString filename,Global_Parameters *parameters,QObj
             sketchedNTList.push_back(SS);
     }
     sketchNum=sketchedNTList.size();
-    connect(this,SIGNAL(userLoadSignal(ForAUTOSave)),this,SLOT(userLoad(ForAUTOSave)));
+//    connect(this,SIGNAL(userLoadSignal(ForAUTOSave)),this,SLOT(userLoad(ForAUTOSave)));
     connect(global_parameters->timer,SIGNAL(timeout()),this,SLOT(autoSave()));
     //autoSave();
     global_parameters->timer->start(3*60*1000);

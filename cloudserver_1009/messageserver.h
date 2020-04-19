@@ -39,12 +39,12 @@ class MessageServer:public QTcpServer
     Q_OBJECT
 public:
     explicit MessageServer(QString filename,Global_Parameters *parameters=0,QObject *parent=0);
-    inline void emitUserLoad(ForAUTOSave t)
-    {
-        emit userLoadSignal(t);
-    }
+//    inline void emitUserLoad(ForAUTOSave t)
+//    {
+//        emit userLoadSignal(t);
+//    }
 signals:
-    void userLoadSignal(ForAUTOSave);
+//    void userLoadSignal(ForAUTOSave);
 protected:
 public:
         Global_Parameters *global_parameters;

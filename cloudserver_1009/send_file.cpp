@@ -11,6 +11,7 @@ void FileServer_send::incomingConnection(int socketDesc)
 
     FileSocket_send *filesocket=new FileSocket_send;
     filesocket->setSocketDescriptor(socketDesc);
+
     list.push_back(filesocket);
 }
 
@@ -42,8 +43,10 @@ void FileServer_send::sendV3draw(QString ip, QString filename)
             FileSocket_send *temp=list[i];
             list.removeAt(i);
             temp->anoname.clear();
-            temp->sendFile("./v3draw/"+filename,filename);
+            temp->sendFile("./"+filename,filename);
             temp->disconnectFromHost();
+
+
         }
     }
 }

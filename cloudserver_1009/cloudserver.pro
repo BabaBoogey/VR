@@ -52,6 +52,18 @@ HEADERS += \
     neuron_editing/neuron_sim_scores.h \
     neuron_editing/neuron_xforms.h \
     neuron_editing/v_neuronswc.h \
+    publicEnum.h \
     receive_file.h \
     send_file.h \
     basic_c_fun/v3d_basicdatatype.h
+
+win32:
+{
+
+RESOURCES +=
+DEFINES+=__WINDOWS__
+}
+unix:!macx{
+RESOURCES +=
+DEFINES+=__CENTOS__
+}

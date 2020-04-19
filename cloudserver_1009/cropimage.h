@@ -2,10 +2,12 @@
 #define CROPIMAGE_H
 #include <QString>
 #include <iostream>
+#include "publicEnum.h"
+
 #define b_VERBOSE_PRINT 0
 typedef  long long V3DLONG;
 typedef int BIT32_UNIT;
-enum ImagePixelType {V3D_UNKNOWN, V3D_UINT8, V3D_UINT16, V3D_THREEBYTE, V3D_FLOAT32};
+
 char checkMachineEndian()
 {
     char e='N'; //for unknown endianness

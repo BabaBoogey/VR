@@ -2,6 +2,8 @@
 #include <QtGlobal>
 #include "basic_c_fun/basic_surf_objs.h"
 #include <iostream>
+
+#define IMAGEDIR "image"
 //#include "cropimage.h"
 FileServer *fileserver=0;
 FileServer_send *fileserver_send=0;
@@ -94,12 +96,16 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
 
 
             MessageServer *messageserver=new MessageServer(anofile_name, global_parameters,this);
+            QThread *thread=new QThread(this);
+            messageserver->moveToThread(thread);
             //
             qDebug()<<"makeMessageServer:2";
 //            connect(this,SIGNAL(userload(ForAUTOSave)),messageserver,SLOT(userLoad(ForAUTOSave)));
             if(!messageserver->listen(QHostAddress::Any,messageport.toInt()))
             {
                 std::cerr<<"can not make messageserver for "<<anofile_name.toStdString()<<endl;
+                messageserver->deleteLater();
+                thread->deleteLater();
                 return;
             }else {
 
@@ -111,7 +117,11 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
                 forautosave.Map_File_MessageServer=&Map_File_MessageServer;//
                 forautosave.anofile_name=anofile_name;//
                 forautosave.messageport=messageport;//
-                messageserver->emitUserLoad(forautosave);
+                connect(this,SIGNAL(userload(ForAUTOSave)),messageserver,SLOT(userLoad(ForAUTOSave)));
+                emit(userload(forautosave));
+                disconnect(this,SIGNAL(userload(ForAUTOSave)),messageserver,SLOT(userLoad(ForAUTOSave)));
+
+//                messageserver->emitUserLoad(forautosave);
                 qDebug()<<"makeMessageServer:3";
 //                QMap<quint32 ,QString> map=messageserver->autoSave();
 //                messageserver->global_parameters->Map_Ip_NumMessage[managesocket->peerAddress().toString()]=map.keys().at(0);
@@ -121,6 +131,10 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
 //                 Map_File_MessageServer[anofile_name]=messageserver;
                  connect(messageserver,SIGNAL(MessageServerDeleted(QString)),
                         this,SLOT(messageserver_ondeltete(QString)) );
+                 connect(messageserver,SIGNAL(MessageServerDeleted(QString)),
+                        thread,SLOT(quiet()) );
+                 connect(thread,SIGNAL(finished()),thread,SLOT(deleteLater()) );
+
             }
         }else {
 
@@ -138,7 +152,11 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
             forautosave.Map_File_MessageServer=&Map_File_MessageServer;//
             forautosave.anofile_name=anofile_name;//
             forautosave.messageport=messageport;//
-            Map_File_MessageServer.value(anofile_name)->emitUserLoad(forautosave);
+            connect(this,SIGNAL(userload(ForAUTOSave)),Map_File_MessageServer.value(anofile_name),SLOT(userLoad(ForAUTOSave)));
+            emit(userload(forautosave));
+            disconnect(this,SIGNAL(userload(ForAUTOSave)),Map_File_MessageServer.value(anofile_name),SLOT(userLoad(ForAUTOSave)));
+
+//            Map_File_MessageServer.value(anofile_name)->emitUserLoad(forautosave);
             qDebug()<<"makeMessageServer:5";
         }
     }
@@ -206,17 +224,14 @@ void ManageSocket::readManage()
         }else if(DownRex.indexIn(manageMSG)!=-1)
         {
             QString username=DownRex.cap(1);
-//            qDebug()<<currentDir();
             this->write(QString(currentDir()+":currentDir_down."+"\n").toUtf8());
         }else if(LoadRex.indexIn(manageMSG)!=-1)
         {
             QString username=LoadRex.cap(1);
-//            qDebug()<<currentDir();
             this->write(QString(currentDir()+":currentDir_load."+"\n").toUtf8());
         }else if(FileDownRex.indexIn(manageMSG)!=-1)
         {
             QString filename=FileDownRex.cap(1).trimmed();
-            qDebug()<<"down file:"<<filename;
             fileserver_send->sendFile(this->peerAddress().toString(),filename);
         }else if(FileLoadRex.indexIn(manageMSG)!=-1)
         {
@@ -224,10 +239,59 @@ void ManageSocket::readManage()
             emit makeMessageServer(this,filename);
         }
         else if(ImgBlockRex.indexIn(manageMSG)!=-1){
-            this->write(QString(currentDirImg()+":currentDirImg_down."+"\n").toUtf8());
+            QStringList paraList=ImgBlockRex.cap(1).trimmed().split("__",QString::SkipEmptyParts);
+            QString filename=paraList.at(0);//1. tf name/RES  2. .v3draw// test:17302_00001/RES(54600x34412x9847);
+//            QString filename="17302_00001RES(54600x34412x9847)";
+
+            int xpos=paraList.at(1).toInt();
+            int ypos=paraList.at(2).toInt();
+            int zpos=paraList.at(3).toInt();
+            int blocksize=paraList.at(4).toInt();
+//#ifdef __CENTOS__
+        if(filename.contains("v3draw"))
+        {
+            qDebug()<<"error";
+        }
+        else
+            {
+                QRegExp tmp("(.*)RES(.*)");
+                tmp.indexIn(filename);
+
+                QString __=tmp.cap(1).trimmed();
+                QString string=__+"_" +QString::number(xpos)+ "_" + QString::number(xpos) + "_" + QString::number(xpos)+
+                                        "_" +QString::number(blocksize)+"_"+QString::number(blocksize)+ "_"+QString::number(blocksize);
+                qDebug()<<__;
+                qDebug()<<string;
+
+
+                qDebug()<<"-=================-----";
+                QProcess p;
+                CellAPO centerAPO;
+                centerAPO.x=xpos;centerAPO.y=ypos;centerAPO.z=zpos;
+                QList <CellAPO> List_APO_Write;
+                List_APO_Write.push_back(centerAPO);
+                writeAPO_file(string+".apo",List_APO_Write);//get .apo to get .v3draw
+                qDebug()<<"-=================-----ecfd";
+
+
+                QString order1 =QString("xvfb-run -a ./vaa3d -x ./plugins/image_geometry/crop3d_image_series/libcropped3DImageSeries.so "
+                                "-f cropTerafly -i ./%0/%1/ %2.apo ./ -p %3 %4 %5")
+                        .arg(IMAGEDIR).arg(filename).arg(string).arg(blocksize).arg(blocksize).arg(blocksize);
+                qDebug()<<"order="<<order1;
+                qDebug()<<p.execute(order1.toStdString().c_str());
+
+                QString fName=QString("%1.000_%2.000_%3.000.v3draw").arg(xpos).arg(ypos).arg(zpos);
+
+                fileserver_send->sendV3draw(this->peerAddress().toString(),fName);
+                qDebug()<<"-============fesfsef=====-----ecfd";
+//                {
+//                    QFile f1(string+".apo"); f1.remove();
+//                    QFile f2("./"+fName); f2.remove();
+//                }
+             }
+
         }else if(ImageDownRex.indexIn(manageMSG)!=-1){
-            QString filename = manageMSG.section(' ', 1, 1);
-            fileserver_send->sendV3draw(this->peerAddress().toString(),filename);
+            this->write(QString(currentDirImg()+"currentDirImg."+"\n").toUtf8());
         }
     }
 }
@@ -235,26 +299,21 @@ void ManageSocket::readManage()
 QString currentDirImg()
 {
     QDir rDir("./");
-    if(!rDir.cd("v3draw"))
+    if(!rDir.cd(IMAGEDIR))
     {
-        rDir.mkdir("v3draw");
-        rDir.cd("v3draw");
+        rDir.mkdir(IMAGEDIR);
     }
 
-    QDir rootDir("./v3draw");
-    QFileInfoList list=rootDir.entryInfoList();
+    QDir rootDir(IMAGEDIR);
+    QFileInfoList list=rootDir.entryInfoList(QDir::NoDotAndDotDot);
     QStringList TEMPLIST;
     TEMPLIST.clear();
-
     for(unsigned i=0;i<list.size();i++)
     {
-        QRegExp v3drawRex("(.*).v3draw$");
-        QFileInfo tmpFileInfo=list.at(i);
-        if(!tmpFileInfo.isDir())
+        QString fileName=list.at(i).fileName();
+        if(fileName.contains("RES")||fileName.contains("v3draw"))
         {
-            QString fileName = tmpFileInfo.fileName();
-            if(v3drawRex.indexIn(fileName)!=-1)
-                TEMPLIST.append(fileName);
+            TEMPLIST.append(fileName);
         }
     }
     return TEMPLIST.join(";");
@@ -271,7 +330,6 @@ QString currentDir()
     if(!rDir.cd("clouddata"))
     {
         rDir.mkdir("clouddata");
-        rDir.cd("clouddata");
     }
 
     QDir rootDir("./clouddata");
