@@ -237,8 +237,7 @@ void ManageSocket::readManage()
         {
             QString filename=FileLoadRex.cap(1).trimmed();
             emit makeMessageServer(this,filename);
-        }
-        else if(ImgBlockRex.indexIn(manageMSG)!=-1){
+        }else if(ImgBlockRex.indexIn(manageMSG)!=-1){
             QStringList paraList=ImgBlockRex.cap(1).trimmed().split("__",QString::SkipEmptyParts);
             QString filename=paraList.at(0);//1. tf name/RES  2. .v3draw// test:17302_00001/RES(54600x34412x9847);
 //            QString filename="17302_00001RES(54600x34412x9847)";
@@ -254,44 +253,47 @@ void ManageSocket::readManage()
         }
         else
             {
-                QRegExp tmp("(.*)RES(.*)");
-                tmp.indexIn(filename);
+               try {
+                        QRegExp tmp("(.*)RES(.*)");
+                        tmp.indexIn(filename);
 
-                QString __=tmp.cap(1).trimmed();
-                QString string=__+"_" +QString::number(xpos)+ "_" + QString::number(xpos) + "_" + QString::number(xpos)+
-                                        "_" +QString::number(blocksize)+"_"+QString::number(blocksize)+ "_"+QString::number(blocksize);
-//                qDebug()<<__;
-//                qDebug()<<string;
-
-
-//                qDebug()<<"-=================-----";
-                QProcess p;
-                CellAPO centerAPO;
-                centerAPO.x=xpos;centerAPO.y=ypos;centerAPO.z=zpos;
-                QList <CellAPO> List_APO_Write;
-                List_APO_Write.push_back(centerAPO);
-                writeAPO_file(string+".apo",List_APO_Write);//get .apo to get .v3draw
-//                qDebug()<<"-=================-----ecfd";
+                        QString __=tmp.cap(1).trimmed();
+                        QString string=__+"_" +QString::number(xpos)+ "_" + QString::number(xpos) + "_" + QString::number(xpos)+
+                                "_" +QString::number(blocksize)+"_"+QString::number(blocksize)+ "_"+QString::number(blocksize);
+                                        qDebug()<<__;
+                                        qDebug()<<string;
 
 
-                QString order1 =QString("xvfb-run -a ./vaa3d -x ./plugins/image_geometry/crop3d_image_series/libcropped3DImageSeries.so "
-                                "-f cropTerafly -i ./%0/%1/ %2.apo ./ -p %3 %4 %5")
-                        .arg(IMAGEDIR).arg(filename).arg(string).arg(blocksize).arg(blocksize).arg(blocksize);
-//                qDebug()<<"order="<<order1;
-                qDebug()<<p.execute(order1.toStdString().c_str());
+                        //                qDebug()<<"-=================-----";
+                        QProcess p;
+                        CellAPO centerAPO;
+                        centerAPO.x=xpos;centerAPO.y=ypos;centerAPO.z=zpos;
+                        QList <CellAPO> List_APO_Write;
+                        List_APO_Write.push_back(centerAPO);
+                        writeAPO_file(string+".apo",List_APO_Write);//get .apo to get .v3draw
+                                        qDebug()<<"-=================-----ecfd";
 
-                QString fName=QString("%1.000_%2.000_%3.000.v3draw").arg(xpos).arg(ypos).arg(zpos);
 
-                fileserver_send->sendV3draw(this->peerAddress().toString(),fName);
-//                qDebug()<<"-============fesfsef=====-----ecfd";
-                {
-                    QFile f1(string+".apo"); qDebug()<<f1.remove();
-                    QFile f2("./"+fName); qDebug()<<f2.remove();
+                        QString order1 =QString("xvfb-run -a ./vaa3d -x ./plugins/image_geometry/crop3d_image_series/libcropped3DImageSeries.so "
+                                                "-f cropTerafly -i ./%0/%1/ %2.apo ./ -p %3 %4 %5")
+                                .arg(IMAGEDIR).arg(filename).arg(string).arg(blocksize).arg(blocksize).arg(blocksize);
+                                        qDebug()<<"order="<<order1;
+                        qDebug()<<p.execute(order1.toStdString().c_str());
+
+                        QString fName=QString("%1.000_%2.000_%3.000.v3draw").arg(xpos).arg(ypos).arg(zpos);
+
+                        fileserver_send->sendV3draw(this->peerAddress().toString(),fName);
+                                        qDebug()<<"-============fesfsef=====-----ecfd";
+                        {
+                            QFile f1(string+".apo"); qDebug()<<f1.remove();
+                            QFile f2("./"+fName); qDebug()<<f2.remove();
+                        }
+                }catch(...){
+                    qDebug()<<"error:"<<paraList;
                 }
-             }
-
+            }
         }else if(ImageDownRex.indexIn(manageMSG)!=-1){
-            this->write(QString(currentDirImg()+"currentDirImg."+"\n").toUtf8());
+            this->write(QString(currentDirImg()+":currentDirImg."+"\n").toUtf8());
         }
     }
 }

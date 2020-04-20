@@ -385,16 +385,16 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
     QRegExp Reg("/del_curve:(.*)__(.*)"); //msg=node 1_node 2_....
     QString delseg;
     QString username;
-    qDebug()<<"messageindex=7";
+//    qDebug()<<"messageindex=7";
     if(Reg.indexIn(MSG)!=-1)
     {
         username=Reg.cap(1).trimmed();
-        qDebug()<<"messageindex=8";
+//        qDebug()<<"messageindex=8";
         delseg=Reg.cap(2).trimmed();
     }
 
 
-    qDebug()<<"messageindex=1";
+//    qDebug()<<"messageindex=1";
     QStringList delMSGs = delseg.split("_",QString::SkipEmptyParts);
 
     if(delMSGs.size()<2) return;
@@ -407,13 +407,13 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
         QString tempNode=delMSGs.at(i);
         QStringList tempNodeList=tempNode.split(" ",QString::SkipEmptyParts);
 
-        qDebug()<<"messageindex=2";
+//        qDebug()<<"messageindex=2";
         if(tempNodeList.size()<3) return ;
         float x=tempNodeList.at(0).toFloat();
         float y=tempNodeList.at(1).toFloat();
         float z=tempNodeList.at(2).toFloat();
 
-        qDebug()<<"messageindex=3";
+//        qDebug()<<"messageindex=3";
         for (int j=0;j<sketchedNTList.size();j++)
         {
 
@@ -424,25 +424,25 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
                 continue;
             }
 
-            qDebug()<<"messageindex=3   "<<sketchedNTList.size()<<" "<<NT.listNeuron.size();
+//            qDebug()<<"messageindex=3   "<<sketchedNTList.size()<<" "<<NT.listNeuron.size();
             NeuronSWC ss=NT.listNeuron.at(NT.listNeuron.size()-2);
             NeuronSWC ss0=NT.listNeuron.at(1);
-            qDebug()<<"messageindex=3   "<<sketchedNTList.size();
-            qDebug()<<"messageindex=9   "<<j;
+//            qDebug()<<"messageindex=3   "<<sketchedNTList.size();
+//            qDebug()<<"messageindex=9   "<<j;
             if(sqrt(pow(ss.x-x,2)+pow(ss.y-y,2)+pow(ss.z-z,2))<=0.01||sqrt(pow(ss0.x-x,2)+pow(ss0.y-y,2)+pow(ss0.z-z,2))<=0.01)
             {
                 RemoveInfo info;
                 info.NT=NT;
                 info.time=time(0);
-                qDebug()<<"messageindex=3   "<<username;
+//                qDebug()<<"messageindex=3   "<<username;
                 if(delMSGs[0]=="TeraFly")
                 info.id=username.toInt()*10+1;
                 else if(delMSGs[0]=="TeraVR")
                     info.id=username.toInt()*10+2;
-                qDebug()<<"messageindex=6";
+//                qDebug()<<"messageindex=6";
                 removedNTList.push_back(info);
                 sketchedNTList.removeAt(j);
-                qDebug()<<"messageindex=5";break;
+                break;
             }
             else
             {
@@ -659,7 +659,7 @@ QMap<quint32 ,QString> MessageServer::autoSave()
 //                qDebug()<<"dasdsa";
                 writeAPO_file(tempname+".apo",global_parameters->wholePoint);
             }
-            qDebug()<<"makeMessageServer:9";
+           qDebug()<<"write swc ano apo success";
         }
     }else
     {
@@ -677,6 +677,7 @@ QMap<quint32 ,QString> MessageServer::autoSave()
             orderList.removeFirst();
         }
     }
+    qDebug()<<"write log success";
     f.close();
 
     //
@@ -688,7 +689,7 @@ QMap<quint32 ,QString> MessageServer::autoSave()
         NeuronTree remove_stroed=readSWC_file("./removelog/"+filename+".swc");
         testVNL= NeuronTree__2__V_NeuronSWC_list(remove_stroed);
     }
-
+    qDebug()<<"read  former removelog success";
     while(removedNTList.size()!=0)
     {
         NeuronTree NT=removedNTList.at(0).NT;
@@ -704,6 +705,7 @@ QMap<quint32 ,QString> MessageServer::autoSave()
 
     NeuronTree tmp=V_NeuronSWC_list__2__NeuronTree(testVNL);
     writeESWC_file("./removelog/"+filename+".swc",tmp);
+    qDebug()<<"write removelog success";
 
     QFile userInfoFile("./userInfo/userInfo.txt");
     if(userInfoFile.open(QIODevice::Truncate|QIODevice::Text|QIODevice::WriteOnly))

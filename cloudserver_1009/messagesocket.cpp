@@ -70,22 +70,22 @@ void MessageSocket::MessageSocketSlot_Read()
                 resindexProcess(ResMsg);
             }else if(segmentRex.indexIn(msg)!=-1)
             {
-                qDebug()<<msg;
+                qDebug()<<"receive:"<<msg;
                 QString seg=segmentRex.cap(1).trimmed();
                 segProcess(seg);
             }else if(deleteRex.indexIn(msg)!=-1)
             {
-                qDebug()<<msg;
+                qDebug()<<"receive:"<<msg;
                 QString delcurvepos=deleteRex.cap(1).trimmed();
                 deleteProcess(delcurvepos);
             }else if(markerRex.indexIn(msg)!=-1)
             {
-                qDebug()<<msg;
+                qDebug()<<"receive:"<<msg;
                 QString markerpos=markerRex.cap(1).trimmed();
                 markerProcess(markerpos);
             }else if(delmarkerRex.indexIn(msg)!=-1)
             {
-                qDebug()<<msg;
+                qDebug()<<"receive:"<<msg;
                 QString delmarkerpos=delmarkerRex.cap(1).trimmed();
                 delmarkerProcess(delmarkerpos);
             }else if(scaleRex.indexIn(msg)!=-1)
@@ -97,7 +97,6 @@ void MessageSocket::MessageSocketSlot_Read()
                 }
             }else if(creatorRex.indexIn(msg)!=-1)
             {
-//                qDebug()<<msg;
                 creatorProcess(creatorRex.cap(1));
             }else if(undoRex.indexIn(msg)!=-1)
             {
@@ -202,10 +201,10 @@ void MessageSocket::loginProcess(const QString &name)
     global_parameters->lock_clientsproperty.unlock();
     qDebug()<<name<< " log in";
 
-    SendToAll(QString("/system:" + name + " joined."));
-    SendUserList();
-    SendColortype();
-    SendCreaorMsg();
+//    SendToAll(QString("/system:" + name + " joined."));
+//    SendUserList();
+//    SendColortype();
+//    SendCreaorMsg();
 }
 
 void MessageSocket::askmessageProcess()
@@ -348,8 +347,6 @@ void MessageSocket::creatorProcess(const QString msg)
 //}
 void MessageSocket::SendToUser(const QString &msg)
 {
-
-
     if(this->state()==QAbstractSocket::ConnectedState)
     {
         QByteArray block;
@@ -357,7 +354,11 @@ void MessageSocket::SendToUser(const QString &msg)
         dts.setVersion(QDataStream::Qt_4_7);
 
         dts<<quint16(0)<<msg;
-        qDebug()<<this->peerAddress().toString()<<" "<<msg;
+        global_parameters->lock_clients.lockForRead();
+        QString user=global_parameters->clients.value(this);
+        global_parameters->lock_clients.unlock();
+
+        qDebug()<<user<<":"<<msg;
         dts.device()->seek(0);
         dts<<quint16(block.size()-sizeof (quint16));
         this->write(block);
