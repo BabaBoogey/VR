@@ -95,9 +95,9 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
             global_parameters->messageUsedIndex=0;
 
 
-            MessageServer *messageserver=new MessageServer(anofile_name, global_parameters,0);
+            MessageServer *messageserver=new MessageServer(anofile_name, global_parameters,this);
             QThread *thread=new QThread(this);
-
+            messageserver->moveToThread(thread);
             //
             qDebug()<<"makeMessageServer:2";
 //            connect(this,SIGNAL(userload(ForAUTOSave)),messageserver,SLOT(userLoad(ForAUTOSave)));
@@ -110,8 +110,6 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
             }else {
 
                 //timeout xinhao ->槽
-                messageserver->moveToThread(thread);
-                thread->start();
                 ForAUTOSave forautosave;
                 forautosave.ip=managesocket->peerAddress().toString();//
                 forautosave.fileserver_send=fileserver_send;//
@@ -122,9 +120,21 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
                 connect(this,SIGNAL(userload(ForAUTOSave)),messageserver,SLOT(userLoad(ForAUTOSave)));
                 emit(userload(forautosave));
                 disconnect(this,SIGNAL(userload(ForAUTOSave)),messageserver,SLOT(userLoad(ForAUTOSave)));
-                 connect(messageserver,SIGNAL(MessageServerDeleted(QString)),this,SLOT(messageserver_ondeltete(QString)) );
-                 connect(messageserver,SIGNAL(MessageServerDeleted(QString)),thread,SLOT(quit()) );
+
+//                messageserver->emitUserLoad(forautosave);
+                qDebug()<<"makeMessageServer:3";
+//                QMap<quint32 ,QString> map=messageserver->autoSave();
+//                messageserver->global_parameters->Map_Ip_NumMessage[managesocket->peerAddress().toString()]=map.keys().at(0);
+
+//                fileserver_send->sendFile(managesocket->peerAddress().toString(),map.values().at(0));
+//                 managesocket->write(QString(messageport+":messageport"+".\n").toUtf8());
+//                 Map_File_MessageServer[anofile_name]=messageserver;
+                 connect(messageserver,SIGNAL(MessageServerDeleted(QString)),
+                        this,SLOT(messageserver_ondeltete(QString)) );
+                 connect(messageserver,SIGNAL(MessageServerDeleted(QString)),
+                        thread,SLOT(quiet()) );
                  connect(thread,SIGNAL(finished()),thread,SLOT(deleteLater()) );
+
             }
         }else {
 
@@ -145,6 +155,8 @@ void ManageServer::makeMessageServer(ManageSocket *managesocket,QString anofile_
             connect(this,SIGNAL(userload(ForAUTOSave)),Map_File_MessageServer.value(anofile_name),SLOT(userLoad(ForAUTOSave)));
             emit(userload(forautosave));
             disconnect(this,SIGNAL(userload(ForAUTOSave)),Map_File_MessageServer.value(anofile_name),SLOT(userLoad(ForAUTOSave)));
+
+//            Map_File_MessageServer.value(anofile_name)->emitUserLoad(forautosave);
             qDebug()<<"makeMessageServer:5";
         }
     }
