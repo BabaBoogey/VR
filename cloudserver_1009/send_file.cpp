@@ -17,37 +17,45 @@ void FileServer_send::incomingConnection(int socketDesc)
 
 void FileServer_send::sendFile(QString ip, QString filename)
 {
-    for(int i=0;i<list.size();i++)
-    {
-        if(list[i]->peerAddress().toString()==ip)
+    try {
+        for(int i=0;i<list.size();i++)
         {
-            qDebug()<<"makeMessageServer:12";
-            FileSocket_send *temp=list[i];
-            list.removeAt(i);
-            temp->anoname=filename;
-            if(filename.contains("stamp_autosave"))
-                temp->sendFile("./autosave/"+filename,filename);
-            else
-                temp->sendFile("./clouddata/"+filename,filename);
-            break;
+            if(list[i]->peerAddress().toString()==ip)
+            {
+                qDebug()<<"makeMessageServer:12";
+                FileSocket_send *temp=list[i];
+                list.removeAt(i);
+                temp->anoname=filename;
+                if(filename.contains("stamp_autosave"))
+                    temp->sendFile("./autosave/"+filename,filename);
+                else
+                    temp->sendFile("./clouddata/"+filename,filename);
+                break;
+            }
         }
+    } catch (...) {
+
     }
 }
 
 void FileServer_send::sendV3draw(QString ip, QString filename)
 {
-    for(int i=0;i<list.size();i++)
-    {
-        if(list[i]->peerAddress().toString()==ip)
+
+
+    try {
+        for(int i=0;i<list.size();i++)
         {
-            FileSocket_send *temp=list[i];
-            list.removeAt(i);
-            temp->anoname.clear();
-            temp->sendFile("./"+filename,filename);
-            temp->disconnectFromHost();
-
-
+            if(list[i]->peerAddress().toString()==ip)
+            {
+                FileSocket_send *temp=list[i];
+                list.removeAt(i);
+                temp->anoname.clear();
+                temp->sendFile("./"+filename,filename);
+                temp->disconnectFromHost();
+            }
         }
+    } catch (...) {
+
     }
 }
 FileSocket_send::FileSocket_send(QObject *parent)

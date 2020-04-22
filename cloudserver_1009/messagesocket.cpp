@@ -358,7 +358,7 @@ void MessageSocket::SendToUser(const QString &msg)
         QString user=global_parameters->clients.value(this);
         global_parameters->lock_clients.unlock();
 
-        qDebug()<<user<<":"<<msg;
+        qDebug()<<"send to "+user<<":"<<msg;
         dts.device()->seek(0);
         dts<<quint16(block.size()-sizeof (quint16));
         this->write(block);
@@ -539,8 +539,8 @@ void MessageSocket::MessageSocketSlot_disconnect()
     else
     {
         global_parameters->lock_clientNum.unlock();
-        SendToAll(QString("/system:"+username+" left."));
-        SendUserList();
+//        SendToAll(QString("/system:"+username+" left."));
+//        SendUserList();
 //        qDebug()<<"global_parameters->clientNum="<<global_parameters->clientNum;
     }
 

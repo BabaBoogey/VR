@@ -413,7 +413,7 @@ vector <V_NeuronSWC> decompose_V_NeuronSWC(V_NeuronSWC & in_swc)
 
 	// map swc's index --> vector's index & in/out link
 	Link_Map link_map = get_link_map(in_swc);
-	qDebug("link_map is created.");
+//	qDebug("link_map is created.");
 
 	vector <V_NeuronSWC> out_swc_segs;
 	out_swc_segs.clear();
