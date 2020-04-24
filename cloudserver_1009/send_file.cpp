@@ -3,7 +3,7 @@
 FileServer_send::FileServer_send(QObject *parent):QTcpServer(parent)
 {
     list.clear();
-    this->listen(QHostAddress::Any,9997);
+    this->listen(QHostAddress::Any,9002);
 }
 
 void FileServer_send::incomingConnection(int socketDesc)
