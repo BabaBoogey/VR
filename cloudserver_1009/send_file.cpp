@@ -20,7 +20,7 @@ void FileServer_send::sendFile(QString ip, QString filename)
     try {
         for(int i=0;i<list.size();i++)
         {
-             qDebug()<<"makeMessageServer:++"<<i;
+            qDebug()<<"makeMessageServer:++"<<i;
             if(list[i]->peerAddress().toString()==ip)
             {
                 qDebug()<<"makeMessageServer:12";
@@ -35,7 +35,7 @@ void FileServer_send::sendFile(QString ip, QString filename)
             }
         }
     } catch (...) {
-
+            qDebug()<<"makeMessageServer:++dfdfa";
     }
 }
 
