@@ -23,11 +23,12 @@ void MessageServer::userLoad(ForAUTOSave foraotosave)
 
     QMap<quint32 ,QString> map=this->autoSave();//message index->autosave filename
     this->global_parameters->Map_Ip_NumMessage[managesocket->peerAddress().toString()]=map.keys().at(0);
+    qDebug()<<"success to 1";
 
 
     try {
         fileserver_send->sendFile(ip,map.values().at(0));
-
+        qDebug()<<"success to 2";
         managesocket->write(QString(messageport+":messageport"+".\n").toUtf8());
         (*Map_File_MessageServer)[anofile_name]=this;
         qDebug()<<"success to send";
