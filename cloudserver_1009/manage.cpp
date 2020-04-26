@@ -239,7 +239,7 @@ void ManageSocket::readManage()
             emit makeMessageServer(this,filename);
         }*/else if(ImgBlockRex.indexIn(manageMSG)!=-1){
             QStringList paraList=ImgBlockRex.cap(1).trimmed().split("__",QString::SkipEmptyParts);
-            QString filename=paraList.at(0);//1. tf name/RES  2. .v3draw// test:17302_00001/RES(54600x34412x9847);
+            QString filename=paraList.at(0).trimmed();//1. tf name/RES  2. .v3draw// test:17302_00001/RES(54600x34412x9847);
 //            QString filename="17302_00001RES(54600x34412x9847)";
 
             int xpos=paraList.at(1).toInt();
@@ -257,7 +257,7 @@ void ManageSocket::readManage()
                     tmp.indexIn(filename);
 
                     QString __=tmp.cap(1).trimmed();
-                    QString string=__+"_" +QString::number(xpos)+ "_" + QString::number(xpos) + "_" + QString::number(xpos)+
+                    QString string=__+"_" +QString::number(xpos)+ "_" + QString::number(ypos) + "_" + QString::number(zpos)+
                             "_" +QString::number(blocksize)+"_"+QString::number(blocksize)+ "_"+QString::number(blocksize);
                                     qDebug()<<__;
                                     qDebug()<<string;
@@ -280,11 +280,11 @@ void ManageSocket::readManage()
 
                     fileserver_send->sendV3draw(this->peerAddress().toString(),fName);
                                     qDebug()<<"-============fesfsef=====-----ecfd";
-                    {
-                        QFile f1(string+".apo"); qDebug()<<f1.remove();
-                        QFile f2("./"+fName); qDebug()<<f2.remove();
-                    }
-                    this->disconnectFromHost();
+//                    {
+//                        QFile f1(string+".apo"); qDebug()<<f1.remove();
+//                        QFile f2("./"+fName); qDebug()<<f2.remove();
+//                    }
+//                    this->disconnectFromHost();
                 }catch(...){
                     qDebug()<<"error:"<<paraList;
                 }

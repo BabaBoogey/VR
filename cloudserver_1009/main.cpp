@@ -10,8 +10,4 @@ int main(int argc, char *argv[])
     qInstallMsgHandler(customMessageHandler);
     ManageServer manageserver;
     return a.exec();
-
-
-
-
 }
