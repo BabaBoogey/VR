@@ -13,6 +13,22 @@ void FileServer_send::incomingConnection(int socketDesc)
     filesocket->setSocketDescriptor(socketDesc);
 
     list.push_back(filesocket);
+    connect(filesocket,SIGNAL(disconnected()),this,SLOT(onSocketDisconnected()));
+}
+
+void FileServer_send::onSocketDisconnected()
+{
+//    QMessageBox *p = qobject_cast<QMessageBox *>(sender());
+    FileSocket_send *filesocket=qobject_cast<FileSocket_send*>(sender());
+    for(int i=0;i<list.size();i++)
+    {
+            if(list[i]->peerAddress()==filesocket->peerAddress())
+            {
+                qDebug()<<list[i]->peerAddress()<<" file send disconnected ";
+                list[i]->deleteLater();
+                list.removeAt(i);
+            }
+    }
 }
 
 void FileServer_send::sendFile(QString ip, QString filename)
@@ -67,7 +83,7 @@ void FileServer_send::sendV3draw(QString ip, QString filename)
 FileSocket_send::FileSocket_send(QObject *parent)
     :QTcpSocket (parent)
 {
-    connect(this,SIGNAL(disconnected()),this,SLOT(deleteLater()));
+//    connect(this,SIGNAL(disconnected()),this,SLOT(deleteLater()));
     connect(this,SIGNAL(readyRead()),this,SLOT(readMSG()));
 }
 
