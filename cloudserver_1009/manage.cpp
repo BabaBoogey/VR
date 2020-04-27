@@ -240,7 +240,6 @@ void ManageSocket::readManage()
         }*/else if(ImgBlockRex.indexIn(manageMSG)!=-1){
             QStringList paraList=ImgBlockRex.cap(1).trimmed().split("__",QString::SkipEmptyParts);
             QString filename=paraList.at(0).trimmed();//1. tf name/RES  2. .v3draw// test:17302_00001/RES(54600x34412x9847);
-//            QString filename="17302_00001RES(54600x34412x9847)";
 
             int xpos=paraList.at(1).toInt();
             int ypos=paraList.at(2).toInt();
