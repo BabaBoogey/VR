@@ -277,7 +277,7 @@ void ManageSocket::readManage()
                     qDebug()<<p.execute(order1.toStdString().c_str());
 
                     QString fName=QString("%1.000_%2.000_%3.000.v3draw").arg(xpos).arg(ypos).arg(zpos);
-
+                    qDebug()<<"1";
                     fileserver_send->sendV3draw(this->peerAddress().toString(),fName);
                                     qDebug()<<"-============fesfsef=====-----ecfd";
 //                    {

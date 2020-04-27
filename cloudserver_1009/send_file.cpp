@@ -43,14 +43,20 @@ void FileServer_send::sendV3draw(QString ip, QString filename)
 
 
     try {
+        qDebug()<<"1";
         for(int i=0;i<list.size();i++)
         {
+            qDebug()<<"i"<<"   0";
             if(list[i]->peerAddress().toString()==ip)
             {
+                qDebug()<<"3";
                 FileSocket_send *temp=list[i];
+                qDebug()<<"4";
                 list.removeAt(i);
-                temp->anoname.clear();
+
+                qDebug()<<"6";
                 temp->sendFile("./"+filename,filename);
+                qDebug()<<"7";
                 temp->disconnectFromHost();
             }
         }
@@ -68,7 +74,7 @@ FileSocket_send::FileSocket_send(QObject *parent)
 void FileSocket_send::sendFile(QString filepath, QString filename)
 {
     QFile f(filepath);
-//    qDebug()<<filepath;
+    qDebug()<<filepath;
 
 
     if(f.exists()&&f.open(QIODevice::ReadOnly))
@@ -90,7 +96,7 @@ void FileSocket_send::sendFile(QString filepath, QString filename)
         this->write(block);
         this->flush();
         this->waitForBytesWritten();
-//        qDebug()<<"asafas";
+        qDebug()<<"asafas";
     }else
     {
         disconnectFromHost();
