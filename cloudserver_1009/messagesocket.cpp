@@ -256,6 +256,7 @@ void MessageSocket::segProcess(const QString &msg,int undoP)
     global_parameters->lock_messagelist.lockForWrite();
 
     global_parameters->messagelist.push_back(QString("/seg:"+    user+QString::number(undoP) + "__" + msg));
+    qDebug()<<"global_parameters->messagelist "<<global_parameters->messagelist.size();
 //    qDebug()<<QString("/seg:"+    QString::number(user.toInt()+undoP) + "__" + msg);
     emit signal_addseg(QString("/seg:"+id + "__" + msg));
     global_parameters->lock_messagelist.unlock();
@@ -269,6 +270,7 @@ void MessageSocket::deleteProcess(const QString &delsegpos,int undoP)
     global_parameters->lock_clients.unlock();
 
     global_parameters->lock_messagelist.lockForWrite();
+        qDebug()<<"global_parameters->messagelist "<<global_parameters->messagelist.size();
     global_parameters->messagelist.push_back(QString("/del_curve:" +    user+QString::number(undoP)+"__"+delsegpos ));
 //    qDebug()<<QString("/del_curve:" +    QString::number(user.toInt()+undoP)+"__"+delsegpos );
     emit signal_delseg(QString("/del_curve:" +id+"__"+delsegpos ));
@@ -285,6 +287,7 @@ void MessageSocket::markerProcess(const QString &markermsg,int undoP)
     global_parameters->lock_clients.unlock();
 
     global_parameters->lock_messagelist.lockForWrite();
+        qDebug()<<"global_parameters->messagelist "<<global_parameters->messagelist.size();
     global_parameters->messagelist.push_back(QString("/marker:" +    user+QString::number(undoP)+"__"+markermsg));
 //    qDebug()<<QString("/marker:" +    QString::number(user.toInt()+undoP)+"__"+markermsg);
     emit signal_addmarker(QString("/marker:" +id+"__"+markermsg));
@@ -315,6 +318,7 @@ void MessageSocket::retypeProcess(const QString &retypeMSG)
     global_parameters->lock_clients.unlock();
 
     global_parameters->lock_messagelist.lockForWrite();
+        qDebug()<<"global_parameters->messagelist "<<global_parameters->messagelist.size();
     global_parameters->messagelist.push_back(QString("/retype:" +user+"__"+retypeMSG ));
     emit signal_retype(QString("/retype:" +id+"__"+retypeMSG ));
     global_parameters->lock_messagelist.unlock();
@@ -326,6 +330,7 @@ void MessageSocket::creatorProcess(const QString msg)
     global_parameters->lock_clients.unlock();
 
     global_parameters->lock_messagelist.lockForWrite();
+        qDebug()<<"global_parameters->messagelist "<<global_parameters->messagelist.size();
     global_parameters->messagelist.push_back(QString("/creator:"+user+"__"+msg));
     emit signal_addmarker(QString("/marker:" +user+"__"+msg));
     global_parameters->lock_messagelist.unlock();
