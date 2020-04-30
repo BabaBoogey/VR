@@ -323,16 +323,16 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
             S_temp.creatmode=0;
             S_temp.timestamp=time(NULL);
             S_temp.tfresindex=0;
-            if(i==qsl.size()-1)
-            {
-                MessageServerSlotAnswerMessageSocket_addmarker(QString("/marker:%1__%2 %3 %4")
-                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()),1*100+temp[1].toInt());
-            }
-            if(i==1)
-            {
-                MessageServerSlotAnswerMessageSocket_delmarker(QString("/del_marker:%1__%2 %3 %4")
-                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()),1);
-            }
+//            if(i==qsl.size()-1)
+//            {
+//                MessageServerSlotAnswerMessageSocket_addmarker(QString("/marker:%1__%2 %3 %4")
+//                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()),1*100+temp[1].toInt());
+//            }
+//            if(i==1)
+//            {
+//                MessageServerSlotAnswerMessageSocket_delmarker(QString("/del_marker:%1__%2 %3 %4")
+//                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()),1);
+//            }
 
         }else if(head.trimmed().split(" ").at(0)=="TeraVR")
         {
@@ -348,16 +348,16 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
             S_temp.creatmode=0;
             S_temp.timestamp=time(NULL);
             S_temp.tfresindex=0;
-            if(i==qsl.size()-1)
-            {
-                MessageServerSlotAnswerMessageSocket_addmarker(QString("/marker:%1__%2 %3 %4")
-                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()),1*100+temp[1].toInt());
-            }
-            if(i==1)
-            {
-                MessageServerSlotAnswerMessageSocket_delmarker(QString("/del_marker:%1__%2 %3 %4")
-                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()),1);
-            }
+//            if(i==qsl.size()-1)
+//            {
+//                MessageServerSlotAnswerMessageSocket_addmarker(QString("/marker:%1__%2 %3 %4")
+//                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()),1*100+temp[1].toInt());
+//            }
+//            if(i==1)
+//            {
+//                MessageServerSlotAnswerMessageSocket_delmarker(QString("/del_marker:%1__%2 %3 %4")
+//                  .arg(username).arg(temp[2].toFloat()).arg(temp[3].toFloat()).arg(temp[4].toFloat()),1);
+//            }
         }else if(head.trimmed().split(" ").at(0)=="TeraAI")
         {
             S_temp.n=i;
