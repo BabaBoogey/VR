@@ -60,7 +60,8 @@ HEADERS += \
 win32:
 {
 
-RESOURCES +=
+RESOURCES += \
+    resource.qrc
 DEFINES+=__WINDOWS__
 }
 unix:!macx{
