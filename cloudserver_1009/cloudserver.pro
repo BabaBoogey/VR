@@ -57,14 +57,4 @@ HEADERS += \
     send_file.h \
     basic_c_fun/v3d_basicdatatype.h
 
-win32:
-{
 
-RESOURCES += \
-    resource.qrc
-DEFINES+=__WINDOWS__
-}
-unix:!macx{
-RESOURCES +=
-DEFINES+=__CENTOS__
-}
