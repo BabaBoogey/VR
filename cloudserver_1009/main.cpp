@@ -1,7 +1,7 @@
 ﻿#include <QCoreApplication>
 #include "manage.h"
 #include "customdebug.h"
-
+#include <QFileInfo>
 
 
 #define IMAGEDIR "image"
@@ -10,6 +10,23 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
     qInstallMsgHandler(customMessageHandler);
     ManageServer manageserver;
+//    QFileInfoList list=QDir("C:/Users/Brain/Desktop/t").entryInfoList(QDir::NoDotAndDotDot|QDir::Files);
+//    for(int i=0;i<list.size();i++)
+//    {
+//        QList<CellAPO> wapo=readAPO_file(list[i].filePath());
+//        for(int j=0;j<wapo.size();j++)
+//        {
+//            CellAPO p1=wapo[j];
+//            for(int k=j+1;k<wapo.size();k++)
+//            {
+//                CellAPO p2=wapo[k];
+//                double d=(p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y)+(p1.z-p2.z)*(p1.z-p2.z);
+//                if(d<=5) wapo.removeAt(k--);
+//            }
+//        }
+//        writeAPO_file(list[i].filePath(),wapo);
+//    }
+
 
 
 //    V_NeuronSWC__2__NeuronTree(seg_temp);
