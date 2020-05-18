@@ -25,16 +25,12 @@ void MessageServer::userLoad(ForAUTOSave foraotosave)
     this->global_parameters->Map_Ip_NumMessage[managesocket->peerAddress().toString()]=map.keys().at(0);
     qDebug()<<"success to 1";
 
-
-    try {
         fileserver_send->sendFile(ip,map.values().at(0));
-        qDebug()<<"success to 2";
+
         managesocket->write(QString(messageport+":messageport"+".\n").toUtf8());
         (*Map_File_MessageServer)[anofile_name]=this;
-        qDebug()<<"success to send";
-    } catch (...) {
-        qDebug()<<"failed to send";
-    }
+
+
 }
 
 MessageServer::MessageServer(QString filename,Global_Parameters *parameters,QObject *parent)
@@ -93,7 +89,7 @@ void MessageServer::incomingConnection(int socketDesc)
 void MessageServer::MessageServerSlotAnswerMessageSocket_retype( QString MSG)
 {
     global_parameters->messageUsedIndex++;
-//    qDebug()<<"messageindex="<<global_parameters->messageUsedIndex;
+    qDebug()<<"messageindex="<<global_parameters->messageUsedIndex;
     orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
     QRegExp Reg("/retype:(.*)__(.*)");
     QString delseg;
@@ -280,7 +276,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_disconnected()
 void MessageServer::MessageServerSlotAnswerMessageSocket_addseg(QString MSG)
 {
     global_parameters->messageUsedIndex++;
-//    qDebug()<<"messageindex="<<global_parameters->messageUsedIndex;
+    qDebug()<<"messageindex="<<global_parameters->messageUsedIndex;
     orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
     QRegExp Reg("/seg:(.*)__(.*)");
     QString seg;
@@ -388,6 +384,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
 
     /*MSG=QString("/del_curve:"+user + "__" + msg)*/
     global_parameters->messageUsedIndex++;
+    qDebug()<<"messageindex="<<global_parameters->messageUsedIndex;
     orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
     QRegExp Reg("/del_curve:(.*)__(.*)"); //msg=node 1_node 2_....
     QString delseg;
@@ -449,11 +446,11 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
     qDebug()<<"MessageServerSlotAnswerMessageSocket_delseg end=============";
 }
 
-void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG,int flag)
+void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
 {
-    if(!flag/100)
+
         global_parameters->messageUsedIndex++;
-//    qDebug()<<"messageindex="<<global_parameters->messageUsedIndex;
+    qDebug()<<"messageindex="<<global_parameters->messageUsedIndex;
     /*MSG=QString("/marker:" +user+"__"+markermsg)*/
     orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
     QRegExp Reg("/marker:(.*)__(.*)");
@@ -473,8 +470,6 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG,i
     float mz = markerMSGs.at(2).toFloat();
     if(markerMSGs.size()==7)
         type=markerMSGs.at(6).toInt();
-    if(flag/100==1)
-        type=flag%100;
 
     CellAPO marker0;
     marker0.x=mx;marker0.y=my;marker0.z=mz;
@@ -551,9 +546,8 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG,i
 //    global_parameters->messageUsedIndex++;
 }
 
-void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG,bool flag)
+void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG)
 {
-    if(!flag)
     global_parameters->messageUsedIndex++;
 //    qDebug()<<"messageindex="<<global_parameters->messageUsedIndex;
     orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
