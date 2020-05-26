@@ -1,15 +1,99 @@
 ﻿#include <QCoreApplication>
 #include "manage.h"
 #include "customdebug.h"
-#include <QFileInfo>
+//#include <QFileInfo>
 
 
-#define IMAGEDIR "image"
+//#define IMAGEDIR "image"
+
+// void get_random_number()
+// {
+//     qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
+//     int a = qrand()%9;   //随机生成0到9的随机数
+//     qDebug()<< a;
+// }
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
     qInstallMsgHandler(customMessageHandler);
+
+//    NeuronTree nt=readSWC_file("C:/Users/Brain/Desktop/18869_00004.ano.eswc");
+//    qDebug()<<"nt.listNeuron.size()="<<nt.listNeuron.size();
+
+//    int blocksize=128;
+//    QList <CellAPO> List_APO_Write;
+//    qsrand(time(NULL));
+//    for(int j=0;j<4;j++)
+//    {
+//        for(int i=0;i<1500;)
+//        {
+
+//            int a = qrand()%nt.listNeuron.size();   //随机生成0到9的随机数
+
+//            if((nt.listNeuron[a].x>=0  &&nt.listNeuron[a].x+128<=29400)&&
+//                    (nt.listNeuron[a].y>=0  &&nt.listNeuron[a].y+128<=10923)&&
+//                    (nt.listNeuron[a].z>=0  &&nt.listNeuron[a].z+128<=16915))
+//            {
+//                CellAPO centerAPO;
+//                centerAPO.n=nt.listNeuron[a].n;
+//                centerAPO.x=nt.listNeuron[a].x;
+//                centerAPO.y=nt.listNeuron[a].y;
+//                centerAPO.z=nt.listNeuron[a].z+blocksize/2;
+//                List_APO_Write.push_back(centerAPO);
+//                i++;
+//            }
+//        }
+//        writeAPO_file(QString::number(j)+"V3APO.apo",List_APO_Write);
+//    }
+//    QList <ImageMarker> tmp1;
+//    ImageMarker startPoint;//Local
+//    startPoint.x=blocksize/2;startPoint.y=blocksize/2;
+//    startPoint.z=0;
+//    tmp1.push_back(startPoint);
+//    writeMarker_file("./tmp.marker",tmp1);
+
+
+
     ManageServer manageserver;
+
+
+    //    for(int i=0;i<list.size();i++)
+    //    {
+    //        NeuronTree nt=readSWC_file(list[i].filePath());
+    //        QList<CellAPO> wapo;
+    //        int cnt=0;
+    //        for(int j=0;j<nt.listNeuron.size();j++)
+    //        {
+    //            if(nt.listNeuron[j].pn==-1)
+    //            {
+    //                CellAPO apo;
+    //                apo.x=nt.listNeuron[j].x;
+    //                apo.y=nt.listNeuron[j].y;
+    //                apo.z=nt.listNeuron[j].z;
+    //                apo.color.r=200;apo.color.g=200;apo.color.b=0;
+    //                apo.n=++cnt;
+    //                wapo.push_back(apo);
+    //            }
+    //        }
+    //        for(int j=0;j<wapo.size();j++)
+    //        {
+    //            CellAPO p1=wapo[j];
+    //            for(int k=j+1;k<wapo.size();k++)
+    //            {
+    //                CellAPO p2=wapo[k];
+    //                double d=(p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y)+(p1.z-p2.z)*(p1.z-p2.z);
+    //                if(d<=20) wapo.removeAt(k--);
+    //            }
+    //        }
+    //        QRegExp exp("(.*)single2_17_(.*).eswc");
+    //        if(exp.indexIn(list[i].filePath())!=-1)
+    //        {
+    //            qDebug()<<exp.cap(1)+exp.cap(2)+".apo" <<"   "<<cnt;
+    //            writeAPO_file(exp.cap(1)+exp.cap(2)+".apo",wapo);
+    //        }
+
+
+    //    }
 //    QFileInfoList list=QDir("C:/Users/Brain/Desktop/t").entryInfoList(QDir::NoDotAndDotDot|QDir::Files);
 //    for(int i=0;i<list.size();i++)
 //    {
@@ -17,6 +101,7 @@ int main(int argc, char *argv[])
 //        for(int j=0;j<wapo.size();j++)
 //        {
 //            CellAPO p1=wapo[j];
+//            if(p1.color.b==200) wapo.removeAt(j--);
 //            for(int k=j+1;k<wapo.size();k++)
 //            {
 //                CellAPO p2=wapo[k];
@@ -24,6 +109,7 @@ int main(int argc, char *argv[])
 //                if(d<=5) wapo.removeAt(k--);
 //            }
 //        }
+//        qDebug()<<wapo.size();
 //        writeAPO_file(list[i].filePath(),wapo);
 //    }
 

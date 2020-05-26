@@ -413,7 +413,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_delseg(QString MSG)
         {
 
             NeuronTree NT=sketchedNTList.at(j);
-            if(NT.listNeuron.size()<=2)
+            if(NT.listNeuron.size()<2)
             {
                 std::cerr<<j << "SIZE <=2"<<std::endl;
                 continue;
