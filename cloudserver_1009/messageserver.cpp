@@ -23,7 +23,7 @@ void MessageServer::userLoad(ForAUTOSave foraotosave)
 
     QMap<quint32 ,QString> map=this->autoSave();//message index->autosave filename
     this->global_parameters->Map_Ip_NumMessage[managesocket->peerAddress().toString()]=map.keys().at(0);
-    qDebug()<<"success to 1";
+    qDebug()<<"success to 1"<<map.values().at(0);
 
         fileserver_send->sendFile(ip,map.values().at(0));
 
@@ -633,7 +633,8 @@ QMap<quint32 ,QString> MessageServer::autoSave()
             writeAPO_file(QString("./autosave/%1.ano.apo").arg(tempname),global_parameters->wholePoint);
 
             map[cnt]=tempname+".ano";
-            qDebug()<<"map[cnt]"<<map[cnt];
+            qDebug()<<tempname+".ano";
+            qDebug()<<"111111map[cnt]"<<map[cnt]<<" "<<map.values().at(0);
             {
                 QString tempname ="./clouddata/"+filebaseName+".ano";
                 QFile anofile(tempname);
