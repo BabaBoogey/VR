@@ -42,9 +42,9 @@ void v3d_msg(const char *msg, bool b_disp_QTDialog)
 {
 	printf("%s\n", msg);
         // The below instance check is to make v3d_msg compatible with command-line mode
-//        if (QCoreApplication::instance()!=0 && b_disp_QTDialog) {
-//		QMessageBox::information(0, "Information", msg);
-//            }
+        if (QCoreApplication::instance()!=0 && b_disp_QTDialog) {
+		QMessageBox::information(0, "Information", msg);
+            }
 }
 
 void v3d_msg(const QString & msg, bool b_disp_QTDialog) //note that if I don't force (char *) conversion then there is a crash. noted by Hanchuan, 090516

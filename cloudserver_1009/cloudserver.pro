@@ -37,7 +37,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    analyse.h \
     basic_c_fun/basic_surf_objs.h \
     basic_c_fun/v3d_message.h \
     basic_c_fun/v_neuronswc.h \

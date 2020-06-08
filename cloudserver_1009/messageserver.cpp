@@ -548,7 +548,7 @@ void MessageServer::MessageServerSlotAnswerMessageSocket_addmarker(QString MSG)
 
 void MessageServer::MessageServerSlotAnswerMessageSocket_delmarker(QString MSG)
 {
-//    global_parameters->messageUsedIndex++;
+    global_parameters->messageUsedIndex++;
 //    qDebug()<<"messageindex="<<global_parameters->messageUsedIndex;
     orderList.push_back(QDateTime::currentDateTimeUtc().toString("yyyy/MM/dd hh:mm:ss ")+MSG);
     QRegExp Reg("/del_marker:(.*)__(.*)");

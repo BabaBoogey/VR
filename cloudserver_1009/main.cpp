@@ -1,9 +1,6 @@
 ﻿#include <QCoreApplication>
+#include "manage.h"
 #include "customdebug.h"
-#include <QFileInfo>
-#include "analyse.h"
-#include <QDir>
-const QString SWCDir="C:/Users/Brain/Desktop/t";
 //#include <QFileInfo>
 
 
@@ -18,20 +15,7 @@ const QString SWCDir="C:/Users/Brain/Desktop/t";
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-//    qInstallMsgHandler(customMessageHandler);
-
-    QFileInfoList swcList=QDir(SWCDir).entryInfoList(QDir::Files|QDir::NoDotAndDotDot);
-
-    QDir("./").mkdir("swc");
-    QDir("./").mkdir("analysetype_distance");
-    QDir("./").mkdir("analysetime_distance");
-    QDir("./").mkdir("analyseBB_count");
-    for(int i=0;i<swcList.size();i++)
-    {
-        qDebug()<<i;
-        analyseSWC(swcList[i]);
-    }
-    qDebug()<<"end";
+    qInstallMsgHandler(customMessageHandler);
 
 //    NeuronTree nt=readSWC_file("C:/Users/Brain/Desktop/18869_00004.ano.eswc");
 //    qDebug()<<"nt.listNeuron.size()="<<nt.listNeuron.size();
@@ -70,7 +54,7 @@ int main(int argc, char *argv[])
 
 
 
-//    ManageServer manageserver;
+    ManageServer manageserver;
 
 
     //    for(int i=0;i<list.size();i++)
