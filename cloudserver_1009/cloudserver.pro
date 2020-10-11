@@ -1,5 +1,5 @@
 QT += gui
-QT += network
+QT += network widgets
 #QT += widgets
 CONFIG += c++11 console
 CONFIG -= app_bundle
@@ -40,6 +40,7 @@ HEADERS += \
     basic_c_fun/basic_surf_objs.h \
     basic_c_fun/v3d_message.h \
     basic_c_fun/v_neuronswc.h \
+    cac_complex.h \
     cropimage.h \
     customdebug.h \
     manage.h \

@@ -59,16 +59,17 @@ NeuronDistSimple neuron_score_rounding_nearest_neighbor(const NeuronTree *p1, co
     {
         bool ok1;
 
-#if defined(USE_Qt5)
-        V3DLONG d_thres_new = QInputDialog::getInt(0, "change the default distance threshold",
-                                                       "The visible-spatial-distance threshold of two neurons: ", d_thres, 2, 20, 1, &ok1);
-#else
-        V3DLONG d_thres_new = QInputDialog::getInteger(0, "change the default distance threshold",
-                                                       "The visible-spatial-distance threshold of two neurons: ", d_thres, 2, 20, 1, &ok1);
-#endif
+
+//#if defined(USE_Qt5)
+//        V3DLONG d_thres_new = QInputDialog::getInt(0, "change the default distance threshold",
+//                                                       "The visible-spatial-distance threshold of two neurons: ", d_thres, 2, 20, 1, &ok1);
+//#else
+//        V3DLONG d_thres_new = QInputDialog::getInteger(0, "change the default distance threshold",
+//                                                       "The visible-spatial-distance threshold of two neurons: ", d_thres, 2, 20, 1, &ok1);
+//#endif
         if (ok1)
         {
-            d_thres = d_thres_new;
+            d_thres = 0;
         }
     }else
         d_thres = d_thres_updated;
