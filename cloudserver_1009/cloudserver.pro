@@ -41,6 +41,7 @@ HEADERS += \
     basic_c_fun/v3d_message.h \
     basic_c_fun/v_neuronswc.h \
     cac_complex.h \
+    cac_complex.h \
     cropimage.h \
     customdebug.h \
     manage.h \
