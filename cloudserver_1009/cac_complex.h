@@ -22,10 +22,18 @@ std::vector<int> getMaxBorder(const NeuronTree & T)
     return {max_x,max_y,max_z};
 }
 
-void renderSWC2Matrix(NeuronTree &T,vector<vector<vector<char>>> &RESM,int d=1)
+int renderSWC2Matrix(NeuronTree &T,vector<vector<vector<char>>> &RESM,int d=1)
 {
     vector<vector<vector<char>>> M=vector<vector<vector<char>>>(max(border1[0],border2[0]),vector<vector<char>>(max(border1[1],border2[1]),
             vector<char>(max(border1[2],border2[2]),0)));
+
+    for(int i=0;i<max(border1[0],border2[0]);i++)
+        for(int j=0;j<max(border1[1],border2[1]);j++)
+            for(int k=0;k<max(border1[2],border2[2]);k++)
+            {
+                if(M[i][j][k]!=0) qDebug()<<"error";
+            }
+
     auto segments=NeuronTree__2__V_NeuronSWC_list(T);
     auto pp=segments.seg.size();
         int cnt=0;
@@ -76,6 +84,7 @@ void renderSWC2Matrix(NeuronTree &T,vector<vector<vector<char>>> &RESM,int d=1)
 //                            qDebug()<<x+i<<" "<<y+j<<" "<<z+k<< z<<" "<<k;
 
                             M[x+i][y+j][z+k]=1;
+//                            qDebug()<<x+i<<" "<<y+j<<" "<<z+k;
 //                            cnt+=1;.
 //                            qDebug()<<"cnt:"<<cnt;
                         }
@@ -101,6 +110,7 @@ void renderSWC2Matrix(NeuronTree &T,vector<vector<vector<char>>> &RESM,int d=1)
     }
     qDebug()<<cnt;
     qDebug()<<"-----------------------------------------------------";
+    return cnt;
 }
 
 #endif // CAC_COMPLEX_H
